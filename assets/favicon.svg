@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- TOOLBOX favicon — hex fastener mark (bolt head + bore), legible at 16px.
+       Sibling to the RENKON lotus mark; currentColor -> accent via CSS. -->
+  <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="none" stroke="#3AA6DE" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="50" cy="50" r="17" fill="none" stroke="#3AA6DE" stroke-width="8"/>
+</svg>

@@ -12,7 +12,7 @@ fastener mark so the two read as related-but-distinct.
 ## Structure
 
 - **`index.html`** — the landing page (splash + tile grid). Served as the
-  GitHub Pages root (`https://technicallytechnicaldesign.github.io/toolbox/`).
+  GitHub Pages root (`https://technicallytechnicaldesign.github.io/TOOLBOX/`).
 - **`calculators/`** — a single-page, tabbed calculator app (beam analysis,
   cost estimator, bolted joints, sheet-metal bend, 1D cut optimiser). Moved
   here from RENKON.
@@ -26,5 +26,5 @@ fastener mark so the two read as related-but-distinct.
   directly in a browser; the only external dependency is the brand fonts from
   Google Fonts (non-blocking, with a system-font fallback).
 - **Relative links only** (no leading `/`) so everything works both as local
-  files and served under the `/toolbox/` Pages base.
+  files and served under the `/TOOLBOX/` Pages base.
 - **Git is the version history** — keep filenames stable, commit changes.

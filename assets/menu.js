@@ -2,7 +2,7 @@
  *
  * - Resolves all links relative to the repo root from its own <script src>,
  *   so it works at any page depth AND both locally (file://) and under the
- *   /toolbox/ GitHub Pages base.
+ *   /TOOLBOX/ GitHub Pages base (case-sensitive — repo name is uppercase).
  * - Injects its own styles + DOM; no external CSS, no dependencies.
  * - Mounts *inside* the page's own header (#app-header, else <header>) as a
  *   normal flex child — a compact two-button toolbar cluster, not a

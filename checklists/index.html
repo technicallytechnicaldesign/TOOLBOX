@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Reusable review checklists for technical drawings — a TOOLBOX section." />
+<title>Checklists — TOOLBOX</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  :root {
+    --bg: #0C141D;
+    --panel-bg: #14202C;
+    --panel-bg-raised: #182635;
+    --line: #22303E;
+    --text: #ECF2F6;
+    --muted: #6E7E8C;
+    --c-structural: #002F67;
+    --c-fluid: #4FD1D9;
+    --c-accent: #3AA6DE;
+    --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Space Mono", ui-monospace, Consolas, monospace;
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6f8; --panel-bg: #ffffff; --panel-bg-raised: #eef1f4;
+    --line: #d3dbe2; --text: #16202b; --muted: #5c666e;
+    --c-fluid: #1f8b93; --c-accent: #1f7fb3;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  header {
+    display: flex; align-items: center; flex-wrap: wrap; row-gap: 6px;
+    padding: 14px 28px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; background: var(--bg); z-index: 10;
+  }
+  header .brand { display: flex; align-items: center; gap: 11px; margin-right: auto; color: var(--text); }
+  header .brand .mark { width: 26px; height: 26px; flex: none; color: var(--c-accent); }
+  header .brand .mark svg { display: block; width: 100%; height: 100%; }
+  header .wordmark { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.28em; font-weight: 700; flex: none; }
+  header .wordmark b { color: var(--c-accent); font-weight: 700; }
+  header .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  @media (max-width: 600px) { header { padding: 12px 16px; } }
+
+  main { flex: 1; padding: 32px 28px 56px; max-width: 1120px; margin: 0 auto; width: 100%; }
+
+  .up-link {
+    font-family: var(--font-mono);
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--c-accent); font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .up-link:hover { text-decoration: underline; }
+
+  .page-head { margin-bottom: 30px; }
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text); margin: 0 0 8px 0; font-weight: 700;
+  }
+  .page-head p { color: var(--muted); font-size: 12.5px; margin: 0; max-width: 66ch; line-height: 1.7; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+  }
+  @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+
+  .tile {
+    background: var(--panel-bg); padding: 26px 22px; min-height: 190px;
+    display: flex; flex-direction: column; gap: 14px;
+    border: none; color: var(--text); position: relative;
+    border-top: 2px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .tile .icon { width: 44px; height: 44px; color: var(--muted); transition: color 0.15s ease; }
+  .tile .icon svg { width: 100%; height: 100%; display: block; }
+  .tile h2 { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; margin: 0; font-weight: 700; }
+  .tile p { font-size: 12px; line-height: 1.6; color: var(--muted); margin: 0; }
+  .tile .spacer { flex: 1; }
+  .tile .chip {
+    font-family: var(--font-mono);
+    align-self: flex-start; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 3px 8px; border: 1px solid var(--line); color: var(--muted);
+  }
+  .tile.live { cursor: pointer; }
+  .tile.live .icon { color: var(--c-accent); }
+  .tile.live .chip { color: var(--c-accent); border-color: var(--c-accent); }
+  .tile.live:hover, .tile.live:focus-visible { background: var(--panel-bg-raised); border-top-color: var(--c-accent); }
+  .tile.live::after {
+    content: "\2192"; position: absolute; top: 20px; right: 20px;
+    color: var(--muted); font-size: 14px; transition: transform 0.15s ease, color 0.15s ease;
+  }
+  .tile.live:hover::after { color: var(--c-accent); transform: translateX(3px); }
+  .tile.placeholder h2 { color: var(--muted); }
+  .tile.placeholder .icon { opacity: 0.6; }
+
+  .howto {
+    margin-top: 26px; padding: 18px 20px; border: 1px solid var(--line);
+    background: var(--panel-bg); font-size: 12px; line-height: 1.75; color: var(--muted);
+  }
+  .howto strong { color: var(--text); font-weight: 700; }
+  .howto code {
+    font-family: var(--font-mono); font-size: 11px; color: var(--c-accent);
+    background: var(--panel-bg-raised); padding: 1px 6px; border: 1px solid var(--line);
+  }
+  .howto .howto-title { font: 700 9px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 10px; }
+
+  footer { padding: 20px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; letter-spacing: 0.04em; }
+  footer a { color: var(--c-accent); }
+  footer a:hover { text-decoration: underline; }
+</style>
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Checklists</div>
+</header>
+
+<main>
+  <a class="up-link" href="../index.html"><span aria-hidden="true">&larr;</span> Back to Toolbox</a>
+
+  <div class="page-head">
+    <h1>Checklists</h1>
+    <p>Reusable review checklists for technical drawings. Each opens as a live
+       sign-off sheet &mdash; tap an item to cycle <em>OK &rarr; issue &rarr; N/A</em>,
+       watch the progress meter fill, and flag issues with a note. State saves
+       in your browser and prints to a clean paper sheet.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- 1: General Drawing Release — the template, working as a live example -->
+    <a class="tile live" href="template.html" aria-label="Open General Drawing Release checklist">
+      <span class="icon" aria-hidden="true">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="5" width="26" height="34" rx="2"/>
+          <path d="M14 14l2.4 2.4L20 12"/>
+          <path d="M14 24l2.4 2.4L20 22"/>
+          <line x1="24" y1="15" x2="31" y2="15"/>
+          <line x1="24" y1="25" x2="31" y2="25"/>
+          <line x1="14" y1="33" x2="31" y2="33"/>
+        </svg>
+      </span>
+      <h2>General Drawing Release</h2>
+      <p>The pre-release pass for a 2D drawing: title block, views, dimensions &amp; tolerances, annotations, standards. Also the starter template.</p>
+      <span class="spacer"></span>
+      <span class="chip">Template</span>
+    </a>
+
+    <!-- 2-3: reserved for future specific checklists -->
+    <div class="tile placeholder">
+      <span class="icon" aria-hidden="true">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="6" y="6" width="32" height="32" rx="2" stroke-dasharray="4 5"/>
+          <line x1="22" y1="15" x2="22" y2="29"/><line x1="15" y1="22" x2="29" y2="22"/>
+        </svg>
+      </span>
+      <h2>Weldment Review</h2>
+      <p>Reserved &mdash; weld symbols, joint prep, distortion control, inspection.</p>
+      <span class="spacer"></span>
+      <span class="chip">Planned</span>
+    </div>
+
+    <div class="tile placeholder">
+      <span class="icon" aria-hidden="true">
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="6" y="6" width="32" height="32" rx="2" stroke-dasharray="4 5"/>
+          <line x1="22" y1="15" x2="22" y2="29"/><line x1="15" y1="22" x2="29" y2="22"/>
+        </svg>
+      </span>
+      <h2>Sheet-Metal Flat</h2>
+      <p>Reserved &mdash; bend allowances, K-factor, flat pattern, nesting.</p>
+      <span class="spacer"></span>
+      <span class="chip">Planned</span>
+    </div>
+
+  </div>
+
+  <div class="howto">
+    <span class="howto-title">Adding a checklist</span>
+    Copy <code>template.html</code> to <code>checklists/&lt;name&gt;.html</code>, give it a new
+    <code>id</code> (the save key) and rewrite the <strong>CHECKLIST</strong> data block &mdash;
+    title, fields and sections of items. The chrome, theming, tri-state items, progress meter,
+    save/print and the whole engine (<code>checklist.js</code>) come along unchanged. Then drop a
+    tile for it on this page. No build step, no framework.
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Checklists &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+
+<script src="../assets/menu.js"></script>
+</body>
+</html>

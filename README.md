@@ -16,6 +16,12 @@ fastener mark so the two read as related-but-distinct.
 - **`calculators/`** — a single-page, tabbed calculator app (beam analysis,
   cost estimator, bolted joints, sheet-metal bend, 1D cut optimiser). Moved
   here from RENKON.
+- **`section-lab/`** — an interactive section-view lab: slide a cutting plane
+  A–A through parametric parts and read the generated section, with live iso,
+  ortho references and feature jumps. `core.js` + `lab-controller.js` are the
+  ported engine (unchanged); `index.html` carries the TOOLBOX skin — all
+  drawing colour flows through CSS variables so it themes light/dark with the
+  rest of the site.
 - **`assets/`** — shared, dependency-free chrome dropped into every page:
   `theme.js` (light/dark toggle), `reveal.js` (load-in animation), `menu.js`
   (unified nav), and `favicon.svg` (the hex mark).

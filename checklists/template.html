@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="A reusable technical-drawing review checklist — a TOOLBOX tool. Copy this file to start a new checklist." />
+<title>Checklist Template — TOOLBOX</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  /* ===================================================================
+     Checklist — TOOLBOX skin + the shared checklist.js engine.
+     This file is the BASIS for every checklist: copy it, change the
+     inline CHECKLIST data block near the bottom, done. Chrome, theming,
+     tri-state items, progress meter, persistence and print all come from
+     the engine + these styles — no per-checklist CSS needed.
+     Dark  = CAD viewport (light ink on near-black).
+     Light = drafting paper (dark ink on white), via the shared theme.js.
+     =================================================================== */
+  :root {
+    --bg: #0C141D;
+    --panel-bg: #14202C;
+    --panel-bg-raised: #182635;
+    --line: #22303E;
+    --text: #ECF2F6;
+    --muted: #6E7E8C;
+    --c-structural: #002F67;
+    --c-fluid: #4FD1D9;
+    --c-accent: #3AA6DE;
+
+    /* checklist status hues — semantic, theme-aware (see light block) */
+    --st-ok: #43B581;      /* pass  */
+    --st-issue: #E0A340;   /* flag  */
+    --st-na: var(--muted); /* n/a   */
+
+    --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Space Mono", ui-monospace, Consolas, monospace;
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6f8;
+    --panel-bg: #ffffff;
+    --panel-bg-raised: #eef1f4;
+    --line: #d3dbe2;
+    --text: #16202b;
+    --muted: #5c666e;
+    --c-fluid: #1f8b93;
+    --c-accent: #1f7fb3;
+    --st-ok: #2E8B63;
+    --st-issue: #B77E1E;
+    --st-na: var(--muted);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
+  body {
+    margin: 0; min-width: 0;
+    background: var(--bg); color: var(--text);
+    font: 14px/1.5 var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  button, input, select { font: inherit; }
+  button { color: inherit; }
+  a { color: inherit; text-decoration: none; }
+  svg { max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  .shell { width: min(100% - 48px, 860px); margin-inline: auto; }
+
+  /* ---- TOOLBOX header (menu.js mounts the nav cluster into it) ---- */
+  header {
+    display: flex; align-items: center; flex-wrap: wrap; row-gap: 6px;
+    padding: 14px 28px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; background: var(--bg); z-index: 20;
+  }
+  header .brand { display: flex; align-items: center; gap: 11px; margin-right: auto; color: var(--text); }
+  header .brand .mark { width: 26px; height: 26px; flex: none; color: var(--c-accent); }
+  header .brand .mark svg { display: block; width: 100%; height: 100%; }
+  header .wordmark { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.28em; font-weight: 700; flex: none; }
+  header .wordmark b { color: var(--c-accent); font-weight: 700; }
+  header .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  @media (max-width: 600px) { header { padding: 12px 16px; } }
+
+  main { flex: 1; padding: 24px 0 48px; }
+
+  .up-link {
+    font-family: var(--mono);
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--c-accent); font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .up-link:hover { text-decoration: underline; }
+
+  /* ---- checklist head ---- */
+  .cl-head { margin-bottom: 20px; }
+  .cl-eyebrow { font: 700 9px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+  .cl-title { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 6px; }
+  .cl-subtitle { color: var(--muted); font-size: 13px; margin: 0; max-width: 62ch; line-height: 1.6; }
+
+  /* ---- title block (free-text fields) ---- */
+  .cl-titleblock {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    margin-bottom: 22px;
+  }
+  @media (max-width: 620px) { .cl-titleblock { grid-template-columns: repeat(2, 1fr); } }
+  .cl-field { background: var(--panel-bg); padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; }
+  .cl-field-label { font: 700 8.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .cl-field-input {
+    background: transparent; border: none; color: var(--text);
+    font-family: var(--mono); font-size: 12px; padding: 2px 0;
+    border-bottom: 1px solid transparent;
+  }
+  .cl-field-input:focus { outline: none; border-bottom-color: var(--c-accent); }
+
+  /* ---- progress meter (sticky under the header) ---- */
+  .cl-meter {
+    position: sticky; top: 63px; z-index: 15;
+    background: var(--bg); padding: 12px 0 14px; margin-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cl-counts { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; margin-bottom: 9px; }
+  .cl-count { font: 700 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cl-count.is-pct { color: var(--text); font-size: 12px; }
+  .cl-count.is-issue { color: var(--st-issue); }
+  .cl-count.is-todo { color: var(--muted); }
+  .cl-bar { height: 4px; background: var(--panel-bg-raised); border: 1px solid var(--line); overflow: hidden; }
+  .cl-bar-fill { height: 100%; width: 0; background: var(--c-accent); transition: width .25s ease, background .25s ease; }
+  .cl-bar.is-complete .cl-bar-fill { background: var(--st-ok); }
+
+  /* ---- sections ---- */
+  .cl-section { margin: 22px 0; }
+  .cl-section-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 8px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .cl-section-idx { font: 700 11px var(--mono); color: var(--c-accent); letter-spacing: .1em; }
+  .cl-section-name { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; margin: 0; margin-right: auto; }
+  .cl-section-count { font: 700 10px var(--mono); color: var(--muted); letter-spacing: .06em; }
+
+  /* ---- items ---- */
+  .cl-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 11px 12px; border: 1px solid var(--line); border-top: none;
+    background: var(--panel-bg);
+    transition: background .12s ease;
+  }
+  .cl-section .cl-item:first-of-type { border-top: 1px solid var(--line); }
+  .cl-item:hover { background: var(--panel-bg-raised); }
+  .cl-item[data-state="ok"]    { border-left: 2px solid var(--st-ok); }
+  .cl-item[data-state="issue"] { border-left: 2px solid var(--st-issue); }
+  .cl-item[data-state="na"]    { border-left: 2px solid var(--st-na); }
+  .cl-item[data-state="todo"]  { border-left: 2px solid transparent; }
+
+  .cl-status {
+    flex: none; width: 26px; height: 26px; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--line); background: transparent; cursor: pointer;
+    border-radius: 0; font-weight: 700; font-size: 14px; line-height: 1;
+    color: var(--muted); transition: all .12s ease;
+  }
+  .cl-status:hover { border-color: var(--c-accent); }
+  .cl-item[data-state="ok"]    .cl-status { border-color: var(--st-ok);    background: var(--st-ok);    color: #fff; }
+  .cl-item[data-state="issue"] .cl-status { border-color: var(--st-issue); background: var(--st-issue); color: #fff; }
+  .cl-item[data-state="na"]    .cl-status { border-color: var(--st-na);    color: var(--st-na); }
+
+  .cl-item-body { flex: 1; min-width: 0; }
+  .cl-label { display: block; font-size: 13.5px; line-height: 1.5; }
+  .cl-item[data-state="na"] .cl-label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+  .cl-hint { display: block; font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.45; }
+  .cl-note { margin-top: 8px; }
+  .cl-note-input {
+    width: 100%; background: transparent; color: var(--text);
+    border: 1px solid var(--st-issue); border-radius: 0;
+    font-family: var(--mono); font-size: 12px; padding: 6px 8px;
+  }
+  .cl-note-input:focus { outline: none; border-color: var(--st-issue); box-shadow: 0 0 0 1px var(--st-issue); }
+  .cl-note-input::placeholder { color: var(--muted); }
+
+  /* ---- footer toolbar ---- */
+  .cl-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .cl-updated { font: 400 10px var(--mono); color: var(--muted); letter-spacing: .04em; }
+  .cl-tb-spacer { flex: 1; }
+  .cl-tb-btn {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    padding: 8px 14px; border: 1px solid var(--line); background: transparent; color: var(--text);
+    cursor: pointer; transition: all .12s ease;
+  }
+  .cl-tb-btn:hover { border-color: var(--c-accent); color: var(--c-accent); }
+  .cl-tb-btn.is-danger:hover { border-color: var(--st-issue); color: var(--st-issue); }
+
+  /* ---- toast ---- */
+  .cl-toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 12px);
+    background: var(--panel-bg-raised); border: 1px solid var(--c-accent); color: var(--text);
+    font: 700 11px var(--mono); letter-spacing: .06em; padding: 10px 16px;
+    opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 100;
+  }
+  .cl-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  footer { padding: 20px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; letter-spacing: 0.04em; }
+  footer a { color: var(--c-accent); }
+  footer a:hover { text-decoration: underline; }
+
+  /* ---- print: a clean sign-off sheet ---- */
+  @media print {
+    :root { --bg: #fff; --panel-bg: #fff; --panel-bg-raised: #fff; --text: #000; --muted: #444; --line: #999; }
+    header, .up-link, .cl-toolbar, .cl-toast, footer, .rk-nav { display: none !important; }
+    .cl-meter { position: static; border: none; padding: 0 0 10px; }
+    .cl-bar { display: none; }
+    .cl-item { break-inside: avoid; page-break-inside: avoid; }
+    .cl-note[hidden] { display: none; }
+    body { font-size: 11px; }
+    .shell { width: 100%; }
+    main { padding: 0; }
+  }
+</style>
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Checklists</div>
+</header>
+
+<main>
+  <div class="shell">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> All checklists</a>
+    <div id="checklist-root"><!-- checklist.js renders here --></div>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Checklists &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+
+<!-- ===================================================================
+     THE CHECKLIST — edit this block to make a new checklist.
+     Copy this whole file to checklists/<name>.html, change `id` to a new
+     unique slug (it's the localStorage key), rewrite title/subtitle/fields
+     /sections, then add a tile for it on index.html. Items may be a plain
+     string, or {label, hint} for a sub-line of guidance.
+     =================================================================== -->
+<script>
+window.CHECKLIST = {
+  id: "template",
+  title: "General Drawing Release",
+  subtitle: "A pre-release review pass for a 2D technical drawing. This template doubles as a starter — copy the file to spin up a new checklist.",
+  fields: ["Drawing No.", "Revision", "Checked by", "Date"],
+  sections: [
+    {
+      name: "Title Block & Identification",
+      items: [
+        "Drawing number, title and revision present and correct",
+        { label: "Scale stated", hint: "and consistent across every view" },
+        { label: "Units and projection angle declared", hint: "first- or third-angle symbol shown" },
+        "Author, checker and approver named, with dates",
+        "Sheet size and sheet N of M correct"
+      ]
+    },
+    {
+      name: "Views & Projection",
+      items: [
+        "Minimum set of views to fully define the part is present",
+        "View alignment and projection are consistent",
+        { label: "Section and detail views labelled", hint: "and cross-referenced to their parent view" },
+        "Hidden detail shown only where it aids clarity",
+        "No redundant or duplicated views"
+      ]
+    },
+    {
+      name: "Dimensions & Tolerances",
+      items: [
+        { label: "Every feature fully dimensioned", hint: "nothing double-dimensioned or missing" },
+        "Datums defined; GD&T frames complete and legible",
+        { label: "General tolerance block present", hint: "critical dimensions toleranced explicitly" },
+        "Dimensions reference datums — no runaway tolerance stacks",
+        { label: "Holes, threads and callouts complete", hint: "Ø, depth, thread spec, quantity" }
+      ]
+    },
+    {
+      name: "Annotations & Notes",
+      items: [
+        { label: "General notes present", hint: "material, finish, deburr, break sharp edges" },
+        "Surface-finish symbols applied where required",
+        { label: "Weld symbols complete", hint: "size, type, length, contour" },
+        "Special processes / heat treat / coating specified",
+        "No conflicting or ambiguous notes"
+      ]
+    },
+    {
+      name: "Standards & Release",
+      items: [
+        "Material spec and condition called out",
+        "BOM / parts list matches the geometry",
+        { label: "Conforms to house / ISO / ASME standard", hint: "as applicable to the drawing" },
+        "Revision history updated with a change description",
+        "Signed off and ready for release"
+      ]
+    }
+  ]
+};
+</script>
+<script src="checklist.js"></script>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

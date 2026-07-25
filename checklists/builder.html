@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="Build your own technical-drawing checklist — a TOOLBOX tool. Compose sections, items and process toggles with a live preview, then save or export." />
+<title>Checklist Builder — TOOLBOX</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<link rel="stylesheet" href="checklist.css">
+<style>
+  /* builder is wider than a single sheet */
+  .b-page { width: min(100% - 48px, 1320px); margin-inline: auto; }
+  .b-headline { margin-bottom: 18px; }
+  .b-headline h1 { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 6px; }
+  .b-headline p { color: var(--muted); font-size: 12.5px; margin: 0; max-width: 74ch; line-height: 1.65; }
+
+  /* toolbar */
+  .b-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 0 16px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .b-tool { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; padding: 8px 13px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; transition: all .12s ease; }
+  .b-tool:hover { border-color: var(--c-accent); color: var(--c-accent); }
+  .b-tool.is-primary { border-color: var(--c-accent); color: var(--c-accent); }
+  .b-tool.is-primary:hover { background: var(--c-accent); color: var(--bg); }
+  .b-tool.is-danger:hover { border-color: var(--st-issue); color: var(--st-issue); }
+  .b-toolbar select { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; padding: 8px 10px; border: 1px solid var(--line); background: var(--panel-bg); color: var(--text); cursor: pointer; }
+  .b-tb-spacer { flex: 1; }
+
+  /* two-pane */
+  .b-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; align-items: start; }
+  @media (max-width: 920px) { .b-wrap { grid-template-columns: 1fr; } }
+  .b-preview-pane { position: sticky; top: 78px; }
+  @media (max-width: 920px) { .b-preview-pane { position: static; } }
+  .b-pane-label { font: 700 9px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 12px; }
+  .b-preview-frame { border: 1px solid var(--line); background: var(--bg); padding: 20px; max-height: calc(100vh - 120px); overflow: auto; }
+  /* the preview meter shouldn't stick relative to the viewport inside the frame */
+  .b-preview-frame .cl-meter { position: static; top: auto; }
+
+  /* editor cards */
+  .b-card { border: 1px solid var(--line); background: var(--panel-bg); margin-bottom: 16px; }
+  .b-card-head { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--panel-bg-raised); }
+  .b-card-title { font: 700 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text); margin-right: auto; }
+  .b-card > .b-row, .b-card > .b-labelled, .b-card > .b-grid2, .b-card > .b-empty, .b-card > .b-section, .b-card > .b-add { margin: 12px 14px; }
+
+  .b-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .b-grid2 { grid-template-columns: 1fr; } }
+  .b-labelled { display: flex; flex-direction: column; gap: 5px; }
+  .b-label { font: 700 8.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  .b-input { background: var(--bg); border: 1px solid var(--line); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 8px 10px; width: 100%; }
+  .b-input:focus { outline: none; border-color: var(--c-accent); }
+  .b-textarea { resize: vertical; line-height: 1.5; }
+
+  .b-row { display: flex; gap: 6px; align-items: center; }
+  .b-row .b-input { flex: 1; }
+  .b-icon { flex: none; width: 30px; height: 30px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all .12s ease; }
+  .b-icon:hover { border-color: var(--c-accent); color: var(--c-accent); }
+  .b-icon.is-danger:hover { border-color: var(--st-issue); color: var(--st-issue); }
+  .b-empty { color: var(--muted); font-size: 11.5px; line-height: 1.6; font-style: italic; }
+
+  .b-add { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 11px; border: 1px dashed var(--line); background: transparent; color: var(--muted); cursor: pointer; transition: all .12s ease; }
+  .b-add:hover { border-color: var(--c-accent); color: var(--c-accent); border-style: solid; }
+
+  .b-section { border: 1px solid var(--line); background: var(--bg); padding: 12px; }
+  .b-section-top .b-section-name { font-weight: 700; }
+  .b-item { border-left: 2px solid var(--line); padding: 10px 0 10px 12px; margin: 10px 0; }
+  .b-item .b-hint-input { margin-top: 6px; font-size: 11px; }
+  .b-add-item { margin-top: 4px; }
+
+  .b-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 2px; }
+  .b-tags-label { font: 700 8px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+  .b-tag { font: 700 9px var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 9px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; transition: all .12s ease; }
+  .b-tag:hover { border-color: var(--c-accent); }
+  .b-tag.is-on { border-color: var(--c-accent); color: var(--c-accent); background: var(--panel-bg-raised); }
+  .b-inherit-note { font: 400 9px var(--mono); color: var(--muted); font-style: italic; }
+</style>
+<script>window.CHECKLIST_SUPPRESS_AUTO = true;</script>
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Checklist Builder</div>
+</header>
+
+<main>
+  <div class="b-page">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> All checklists</a>
+
+    <div class="b-headline">
+      <h1>Checklist Builder</h1>
+      <p>Compose your own checklist — title-block fields, process toggles, and sections of taggable items — with a live preview. Save it to this browser (it appears on the Checklists page) or export it as a standalone <code>.html</code> to drop into the repo.</p>
+    </div>
+
+    <div class="b-toolbar">
+      <button id="b-save" class="b-tool is-primary" type="button">Save</button>
+      <select id="b-open" aria-label="Open a saved checklist"></select>
+      <button id="b-new" class="b-tool" type="button">New</button>
+      <span class="b-tb-spacer"></span>
+      <button id="b-import" class="b-tool" type="button">Import JSON</button>
+      <button id="b-export-json" class="b-tool" type="button">Export JSON</button>
+      <button id="b-export-html" class="b-tool" type="button">Export HTML</button>
+      <button id="b-delete" class="b-tool is-danger" type="button">Delete</button>
+      <input id="b-import-file" type="file" accept="application/json,.json" hidden />
+    </div>
+
+    <div class="b-wrap">
+      <div id="builder-editor" class="b-editor"><!-- builder.js renders the form here --></div>
+      <div class="b-preview-pane">
+        <span class="b-pane-label">Live preview</span>
+        <div class="b-preview-frame">
+          <div id="checklist-root"><!-- the engine renders the preview here --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Checklist Builder &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+
+<script src="checklist.js"></script>
+<script src="builder.js"></script>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

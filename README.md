@@ -22,11 +22,17 @@ fastener mark so the two read as related-but-distinct.
   ported engine (unchanged); `index.html` carries the TOOLBOX skin — all
   drawing colour flows through CSS variables so it themes light/dark with the
   rest of the site.
-- **`checklists/`** — reusable review checklists for technical drawings, each a
-  live sign-off sheet (tri-state items, progress meter, per-item issue notes,
-  browser-saved state, clean print output). `checklist.js` is a shared,
-  data-driven engine; `template.html` is the starter (copy it, edit its inline
-  `CHECKLIST` data block to make a new one); `index.html` is the section hub.
+- **`checklists/`** — review checklists for technical drawings, each a live
+  sign-off sheet: process toggles (sheet metal / welding / machining / casting…)
+  that hide and stop counting irrelevant items, tri-state items, a progress
+  meter, per-item issue notes, browser-saved state and clean print output.
+  `checklist.js` is the shared data-driven engine (mountable: auto-mounts from a
+  `window.CHECKLIST` object, or `mount(root, data, opts)` for previews);
+  `checklist.css` is the shared skin. `template.html` is the ready-made
+  **Drawing Checklist** and the copy-me starter; `builder.html` + `builder.js`
+  are a form-driven **template generator** (compose with live preview, save to
+  the browser, or export a standalone HTML file); `run.html?id=<slug>` runs a
+  browser-saved custom checklist; `index.html` is the section hub.
 - **`assets/`** — shared, dependency-free chrome dropped into every page:
   `theme.js` (light/dark toggle), `reveal.js` (load-in animation), `menu.js`
   (unified nav), and `favicon.svg` (the hex mark).

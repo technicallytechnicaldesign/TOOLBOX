@@ -118,6 +118,13 @@
     background: var(--panel-bg-raised); padding: 1px 6px; border: 1px solid var(--line);
   }
   .howto .howto-title { font: 700 9px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 10px; }
+  .howto a { color: var(--c-accent); }
+
+  #saved-wrap { margin-top: 34px; }
+  .saved-head { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); margin: 0 0 14px; font-weight: 700; }
+  .tile .tile-actions { display: flex; gap: 12px; margin-top: 2px; }
+  .tile .tile-actions a { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .tile .tile-actions a:hover { color: var(--c-accent); text-decoration: underline; }
 
   footer { padding: 20px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; letter-spacing: 0.04em; }
   footer a { color: var(--c-accent); }
@@ -147,15 +154,17 @@
   <div class="page-head">
     <h1>Checklists</h1>
     <p>Reusable review checklists for technical drawings. Each opens as a live
-       sign-off sheet &mdash; tap an item to cycle <em>OK &rarr; issue &rarr; N/A</em>,
-       watch the progress meter fill, and flag issues with a note. State saves
-       in your browser and prints to a clean paper sheet.</p>
+       sign-off sheet &mdash; toggle the processes your drawing uses (sheet metal,
+       welding, machining, casting&hellip;) so only relevant items show, tap an
+       item to cycle <em>OK &rarr; issue &rarr; N/A</em>, watch the meter fill, and
+       flag issues with a note. State saves in your browser and prints clean. Or
+       build your own in the <a href="builder.html" style="color:var(--c-accent)">Builder</a>.</p>
   </div>
 
   <div class="grid">
 
-    <!-- 1: General Drawing Release — the template, working as a live example -->
-    <a class="tile live" href="template.html" aria-label="Open General Drawing Release checklist">
+    <!-- 1: Drawing Checklist — the template, working as a live example -->
+    <a class="tile live" href="template.html" aria-label="Open the Drawing Checklist">
       <span class="icon" aria-hidden="true">
         <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="5" width="26" height="34" rx="2"/>
@@ -166,48 +175,45 @@
           <line x1="14" y1="33" x2="31" y2="33"/>
         </svg>
       </span>
-      <h2>General Drawing Release</h2>
-      <p>The pre-release pass for a 2D drawing: title block, views, dimensions &amp; tolerances, annotations, standards. Also the starter template.</p>
+      <h2>Drawing Checklist</h2>
+      <p>The full 2D-drawing review: title block, views, dimensions &amp; tolerances, annotations, standards &mdash; plus toggle-in sections for sheet metal, welding, machining and casting. Also the starter template.</p>
       <span class="spacer"></span>
       <span class="chip">Template</span>
     </a>
 
-    <!-- 2-3: reserved for future specific checklists -->
-    <div class="tile placeholder">
+    <!-- 2: Builder — make your own -->
+    <a class="tile live" href="builder.html" aria-label="Open the Checklist Builder">
       <span class="icon" aria-hidden="true">
-        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <rect x="6" y="6" width="32" height="32" rx="2" stroke-dasharray="4 5"/>
-          <line x1="22" y1="15" x2="22" y2="29"/><line x1="15" y1="22" x2="29" y2="22"/>
+        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="7" y="7" width="30" height="30" rx="2"/>
+          <line x1="22" y1="14" x2="22" y2="30"/><line x1="14" y1="22" x2="30" y2="22"/>
+          <line x1="12" y1="11" x2="17" y2="11"/><line x1="27" y1="11" x2="32" y2="11"/>
         </svg>
       </span>
-      <h2>Weldment Review</h2>
-      <p>Reserved &mdash; weld symbols, joint prep, distortion control, inspection.</p>
+      <h2>Build Your Own</h2>
+      <p>A template generator: compose sections, items and process toggles with a live preview, then save it here or export a standalone HTML file for the repo.</p>
       <span class="spacer"></span>
-      <span class="chip">Planned</span>
-    </div>
-
-    <div class="tile placeholder">
-      <span class="icon" aria-hidden="true">
-        <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <rect x="6" y="6" width="32" height="32" rx="2" stroke-dasharray="4 5"/>
-          <line x1="22" y1="15" x2="22" y2="29"/><line x1="15" y1="22" x2="29" y2="22"/>
-        </svg>
-      </span>
-      <h2>Sheet-Metal Flat</h2>
-      <p>Reserved &mdash; bend allowances, K-factor, flat pattern, nesting.</p>
-      <span class="spacer"></span>
-      <span class="chip">Planned</span>
-    </div>
+      <span class="chip">Builder</span>
+    </a>
 
   </div>
 
+  <!-- saved custom checklists (populated from localStorage) -->
+  <section id="saved-wrap" hidden>
+    <h2 class="saved-head">Your saved checklists</h2>
+    <div class="grid" id="saved-grid"></div>
+  </section>
+
   <div class="howto">
-    <span class="howto-title">Adding a checklist</span>
-    Copy <code>template.html</code> to <code>checklists/&lt;name&gt;.html</code>, give it a new
-    <code>id</code> (the save key) and rewrite the <strong>CHECKLIST</strong> data block &mdash;
-    title, fields and sections of items. The chrome, theming, tri-state items, progress meter,
-    save/print and the whole engine (<code>checklist.js</code>) come along unchanged. Then drop a
-    tile for it on this page. No build step, no framework.
+    <span class="howto-title">Two ways to make one</span>
+    <strong>Quick:</strong> open the <a href="builder.html">Builder</a>, compose it with a live
+    preview, hit <em>Save</em> &mdash; it lands in <em>Your saved checklists</em> above and opens
+    from any browser you saved it in. <br><br>
+    <strong>Permanent (in the repo):</strong> either <em>Export HTML</em> from the Builder, or copy
+    <code>template.html</code> to <code>checklists/&lt;name&gt;.html</code> and edit its
+    <strong>CHECKLIST</strong> data block. Drop the file in <code>checklists/</code>, add a tile
+    here, commit. Skin (<code>checklist.css</code>), engine (<code>checklist.js</code>), tri-state
+    items, process toggles, progress meter and print all come along unchanged. No build step, no framework.
   </div>
 </main>
 
@@ -215,6 +221,44 @@
   TOOLBOX &middot; Checklists &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
 </footer>
 
+<script>
+/* Populate "Your saved checklists" from the browser's builder registry. */
+(function () {
+  var reg = [];
+  try { reg = JSON.parse(localStorage.getItem("toolbox-checklist-defs") || "[]"); } catch (e) {}
+  if (!Array.isArray(reg) || !reg.length) return;
+  var wrap = document.getElementById("saved-wrap");
+  var grid = document.getElementById("saved-grid");
+  var ICON = '<svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="5" width="26" height="34" rx="2"/><path d="M14 14l2.4 2.4L20 12"/><path d="M14 24l2.4 2.4L20 22"/><line x1="24" y1="15" x2="31" y2="15"/><line x1="24" y1="25" x2="31" y2="25"/></svg>';
+  reg.forEach(function (d) {
+    if (!d || !d.id) return;
+    var runUrl = "run.html?id=" + encodeURIComponent(d.id);
+    var tile = document.createElement("div");
+    tile.className = "tile live";
+    tile.setAttribute("role", "link");
+    tile.tabIndex = 0;
+    tile.addEventListener("click", function () { location.href = runUrl; });
+    tile.addEventListener("keydown", function (e) { if (e.key === "Enter") location.href = runUrl; });
+
+    var icon = document.createElement("span");
+    icon.className = "icon"; icon.setAttribute("aria-hidden", "true"); icon.innerHTML = ICON;
+    var h2 = document.createElement("h2"); h2.textContent = d.title || d.id;
+    var p = document.createElement("p"); p.textContent = d.subtitle || ((d.sections || []).length + " section(s)");
+    var spacer = document.createElement("span"); spacer.className = "spacer";
+    var actions = document.createElement("div"); actions.className = "tile-actions";
+    var open = document.createElement("a"); open.href = runUrl; open.textContent = "Open";
+    open.addEventListener("click", function (e) { e.stopPropagation(); });
+    var edit = document.createElement("a"); edit.href = "builder.html?id=" + encodeURIComponent(d.id); edit.textContent = "Edit";
+    edit.addEventListener("click", function (e) { e.stopPropagation(); });
+    actions.appendChild(open); actions.appendChild(edit);
+
+    tile.appendChild(icon); tile.appendChild(h2); tile.appendChild(p);
+    tile.appendChild(spacer); tile.appendChild(actions);
+    grid.appendChild(tile);
+  });
+  if (grid.children.length) wrap.hidden = false;
+})();
+</script>
 <script src="../assets/menu.js"></script>
 </body>
 </html>

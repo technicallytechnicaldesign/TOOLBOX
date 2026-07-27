@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="A weldment review checklist — joints, weld symbols, sizing, distortion, inspection and post-weld finish, with material and code toggles. A TOOLBOX tool." />
+<title>Weldment Review — TOOLBOX</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<!-- Skin + engine are shared: checklist.css (this folder) + checklist.js.
+     Built from template.html — only the CHECKLIST data block below differs. -->
+<link rel="stylesheet" href="checklist.css">
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Checklists</div>
+</header>
+
+<main>
+  <div class="shell">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> All checklists</a>
+    <div id="checklist-root"><!-- checklist.js renders here --></div>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Checklists &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+
+<!-- ===================================================================
+     THE CHECKLIST — Weldment Review.
+     Toggles are by parent material plus a code-governed switch, because
+     that is what actually changes the requirement set on a weldment:
+     purging and interpass limits for stainless, preheat and filler choice
+     for aluminium, coating removal for galvanised, WPS/PQR and welder
+     qualification only when the job is code-governed.
+     =================================================================== -->
+<script>
+window.CHECKLIST = {
+  id: "weldment",
+  title: "Weldment Review",
+  subtitle: "A review pass for a welded fabrication — the drawing and the joint design behind it. Toggle the parent material(s) in the weldment and whether the job is code-governed; everything that does not apply drops out of the list and the count.",
+  fields: ["Weldment / Assy No.", "Revision", "Material", "Reviewed by", "Date"],
+  processes: [
+    { key: "carbon",     label: "Carbon Steel" },
+    { key: "stainless",  label: "Stainless" },
+    { key: "aluminium",  label: "Aluminium" },
+    { key: "galvanised", label: "Galvanised / Coated" },
+    { key: "code",       label: "Code-Governed" }
+  ],
+  sections: [
+    // ---- general: every weldment, whatever the material ----
+    {
+      name: "Assembly & Parts",
+      items: [
+        "Assembly drawing, revision and weldment number correct and current",
+        { label: "Every part in the BOM appears in a view", hint: "and every part in a view is in the BOM" },
+        { label: "Part marks / balloons legible and unambiguous", hint: "one mark per unique part, not per instance" },
+        "Sub-weldments identified as their own items, with their own drawings",
+        { label: "Purchased items called out by spec, not by picture", hint: "bushes, inserts, standard sections" },
+        "Weld-on hardware (nuts, studs, bosses) located and specified"
+      ]
+    },
+    {
+      name: "Joint Design & Weld Symbols",
+      items: [
+        { label: "Every joint carries a weld symbol", hint: "no joint left to the welder's judgement" },
+        { label: "Symbols complete", hint: "size, type, length, pitch, contour, arrow/other side" },
+        { label: "Field welds and all-around welds flagged correctly", hint: "flag and circle on the symbol" },
+        "Joint preparation shown where required — bevel angle, root gap, root face",
+        { label: "Backing bars / consumable inserts specified", hint: "and their removal (or not) stated" },
+        "Access for the torch and the welder's hand exists at every joint",
+        "No welds specified into blind or unreachable pockets"
+      ]
+    },
+    {
+      name: "Weld Sizing & Strength",
+      items: [
+        { label: "Fillet leg sizes stated, not assumed", hint: "a default weld note is not a substitute on loaded joints" },
+        { label: "Weld size sane for the thinner member", hint: "oversized fillets add heat and distortion, not strength" },
+        "Minimum fillet size respected for the thickest member being joined",
+        { label: "Intermittent welds justified", hint: "pitch and length given; avoided in fatigue or corrosive service" },
+        "Full-penetration welds called out only where the load path needs them",
+        { label: "Load path traceable through the weldment", hint: "welds sit where the force actually goes" },
+        "Stress raisers avoided — no weld terminations at a sharp corner or a hole edge"
+      ]
+    },
+    {
+      name: "Fit-up & Tolerances",
+      items: [
+        { label: "Root gaps specified and achievable from the cut parts", hint: "cut tolerance stacks into the gap" },
+        "Locating features, tabs or slots designed in for repeatable fit-up",
+        { label: "Datum scheme survives welding", hint: "datums on faces that get machined or stay unwelded" },
+        "Assembly tolerances stated on the weldment, not inherited from the parts",
+        { label: "Fixture / jig requirement identified", hint: "or the design is self-jigging" },
+        "Tack weld locations considered where fit-up is critical"
+      ]
+    },
+    {
+      name: "Distortion & Sequence",
+      items: [
+        { label: "Weld sequence specified or left explicitly to the shop", hint: "state which — silence reads as an omission" },
+        "Welds balanced about the neutral axis where practical",
+        "Heat input kept away from thin or precision features",
+        { label: "Pre-set / pre-camber allowed where shrinkage is predictable", hint: "state the amount" },
+        "Post-weld straightening allowed for, or explicitly prohibited",
+        { label: "Machining after welding where flatness matters", hint: "with stock left on the faces to be machined" }
+      ]
+    },
+    {
+      name: "Inspection & Acceptance",
+      items: [
+        { label: "Inspection method stated per joint or per class", hint: "visual, MT, PT, UT, RT" },
+        { label: "Extent of inspection given", hint: "100%, sampling %, or first-off only" },
+        "Acceptance criteria referenced to a standard, not left as \"good workmanship\"",
+        "Critical welds identified so the shop knows where the attention goes",
+        { label: "Undercut, porosity and profile limits stated", hint: "or covered by the referenced standard" },
+        "Repair procedure and re-inspection rule defined"
+      ]
+    },
+    {
+      name: "Post-weld & Finish",
+      items: [
+        { label: "Spatter, slag and stop/start defects addressed by note", hint: "cleanliness expectation is explicit" },
+        { label: "Weld dressing / blending specified where required", hint: "cosmetic, fatigue, or sealing surface" },
+        "Stress relief or PWHT specified where it is needed, with the spec",
+        "Surface preparation stated ahead of the finish system",
+        { label: "Drain and vent holes present on enclosed volumes", hint: "for dip processes and trapped moisture" },
+        "Finish system, colour and masking called out"
+      ]
+    },
+
+    // ---- material-specific: shown only when that material is toggled on ----
+    {
+      name: "Carbon Steel",
+      tags: ["carbon"],
+      items: [
+        { label: "Preheat specified where thickness or restraint demands it", hint: "and the temperature stated, not implied" },
+        "Filler / consumable classification matched to the parent strength",
+        { label: "Mill scale removal called out on the weld zone", hint: "porosity and lack-of-fusion risk" },
+        "Hydrogen control noted for thick or high-strength sections",
+        "Rust and moisture on the joint faces addressed"
+      ]
+    },
+    {
+      name: "Stainless",
+      tags: ["stainless"],
+      items: [
+        { label: "Back-purge specified for root runs on austenitic grades", hint: "and gas type / purity given" },
+        { label: "Interpass temperature limit stated", hint: "carbide precipitation / sensitisation control" },
+        { label: "Filler grade matched to the parent", hint: "e.g. 316L filler for 316L parent, not a generic call" },
+        "Segregated tooling and brushes noted — no carbon-steel contamination",
+        { label: "Post-weld pickling / passivation specified", hint: "heat tint removal where corrosion resistance matters" },
+        "Distortion allowance increased — stainless moves more than carbon steel"
+      ]
+    },
+    {
+      name: "Aluminium",
+      tags: ["aluminium"],
+      items: [
+        { label: "Filler alloy stated and appropriate", hint: "e.g. 4043 vs 5356 — strength, colour match, anodising response" },
+        { label: "Oxide removal before welding called out", hint: "dedicated stainless brush, degrease" },
+        "Preheat for thick sections specified, with an upper limit",
+        { label: "Heat-affected-zone strength loss acknowledged", hint: "design does not assume parent T6 properties at the weld" },
+        "Porosity control — joint dryness and gas coverage noted",
+        { label: "Post-weld heat treat / re-ageing stated where properties depend on it", hint: "or explicitly not required" }
+      ]
+    },
+    {
+      name: "Galvanised & Coated",
+      tags: ["galvanised"],
+      items: [
+        { label: "Coating removed from the weld zone before welding", hint: "extent stated, both sides" },
+        "Fume extraction / ventilation requirement noted on the drawing or the route card",
+        { label: "Post-weld coating repair specified", hint: "zinc-rich paint, metal spray, or re-galvanising" },
+        { label: "Weld-then-galvanise vs galvanise-then-weld decided and stated", hint: "they are different processes with different risks" },
+        { label: "Vent and drain holes sized and located for the dip", hint: "required for hot-dip galvanising of hollow sections" },
+        "Distortion from the galvanising bath allowed for on long or thin members"
+      ]
+    },
+    {
+      name: "Code & Qualification",
+      tags: ["code"],
+      items: [
+        { label: "Governing code named on the drawing", hint: "e.g. AWS D1.1, EN 1090 / EN ISO 3834, ASME IX" },
+        "Execution class / weld quality level specified",
+        { label: "Approved WPS exists and is referenced", hint: "supported by a PQR where the code requires one" },
+        "Welder / operator qualification current for the process, position and material",
+        { label: "Consumable traceability and storage requirement stated", hint: "batch records, oven control for low-hydrogen" },
+        "Material traceability — mill certs required and heat numbers transferred",
+        { label: "NDT operator qualification and reporting requirement stated", hint: "level, standard, report format" },
+        "Documentation package defined and its recipient named"
+      ]
+    }
+  ]
+};
+</script>
+<script src="checklist.js"></script>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

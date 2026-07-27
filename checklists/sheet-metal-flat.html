@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="A sheet-metal flat-pattern release checklist — material, developed length, bend data, cut and punch features, hardware and finishing. A TOOLBOX tool." />
+<title>Sheet-Metal Flat — TOOLBOX</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<!-- Skin + engine are shared: checklist.css (this folder) + checklist.js.
+     Built from template.html — only the CHECKLIST data block below differs. -->
+<link rel="stylesheet" href="checklist.css">
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Checklists</div>
+</header>
+
+<main>
+  <div class="shell">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> All checklists</a>
+    <div id="checklist-root"><!-- checklist.js renders here --></div>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Checklists &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+
+<!-- ===================================================================
+     THE CHECKLIST — Sheet-Metal Flat.
+     The last check before a flat pattern goes to the shop. Toggles are by
+     the operations the part actually goes through, so a laser-cut-only
+     blank does not have to scroll past press-brake and PEM sections.
+     =================================================================== -->
+<script>
+window.CHECKLIST = {
+  id: "sheet-metal-flat",
+  title: "Sheet-Metal Flat",
+  subtitle: "The release check for a flat pattern before it goes to the shop — material and stock, developed length, bend data, cut features, hardware and finish. Toggle the operations this part actually goes through; the rest drop out of the list and the count.",
+  fields: ["Part No.", "Revision", "Material & Gauge", "Released by", "Date"],
+  processes: [
+    { key: "laser",     label: "Laser / Plasma" },
+    { key: "punch",     label: "Punch / Turret" },
+    { key: "bending",   label: "Bending" },
+    { key: "hardware",  label: "Hardware" },
+    { key: "finishing", label: "Finishing" }
+  ],
+  sections: [
+    // ---- general: every flat pattern ----
+    {
+      name: "Material & Stock",
+      items: [
+        { label: "Material spec, temper and gauge stated exactly", hint: "not \"2mm alu\" — alloy and temper decide whether it bends" },
+        { label: "Nominal thickness matches the real stock thickness", hint: "gauge tables and mm are not interchangeable" },
+        "Sheet is available in the size the flat pattern needs",
+        { label: "Grain / rolling direction called out where it matters", hint: "bends across the grain crack less" },
+        { label: "One face identified as the cosmetic / show face", hint: "and carried through to the finish note" },
+        "Protective film (PVC) requirement stated, with removal point"
+      ]
+    },
+    {
+      name: "Flat Pattern Geometry",
+      items: [
+        { label: "Flat pattern regenerated from the current 3D model", hint: "not a stale export from a previous revision" },
+        { label: "Developed length shown on the drawing", hint: "with the bend allowance or deduction basis" },
+        { label: "K-factor (or the bend table used) stated", hint: "so the shop can reconcile it against their tooling" },
+        "Blank outline is a single closed profile — no gaps, no self-intersections",
+        "No duplicate or overlapping geometry in the exported outline",
+        { label: "Overall blank size fits the machine bed and the stock sheet", hint: "including nesting margin" },
+        "Part orientation and up-direction unambiguous — asymmetric part cannot be made mirrored by accident"
+      ]
+    },
+    {
+      name: "Holes & Features",
+      items: [
+        { label: "Hole diameters at or above the material thickness", hint: "smaller holes are drilled operations, not cut ones" },
+        { label: "Hole-to-edge distance adequate", hint: "typically at least the material thickness, more near a bend" },
+        "Hole-to-hole spacing leaves enough web to avoid tear-out",
+        "Slots and cut-outs dimensioned from a datum, not from each other",
+        { label: "Internal corners have a radius, not a sharp point", hint: "a zero-radius internal corner is a crack starter" },
+        "Narrow tabs and thin webs checked against a minimum-width rule",
+        "Etch / scribe lines for locating features specified if used"
+      ]
+    },
+
+    // ---- operation-specific ----
+    {
+      name: "Cutting — Laser / Plasma",
+      tags: ["laser"],
+      items: [
+        { label: "Kerf compensation handled by the shop, not baked into the model", hint: "state which convention the file uses" },
+        { label: "Cut file exported as geometry, not a rendered view", hint: "DXF/DWG at 1:1, correct units" },
+        "Lead-ins and micro-joints left to the shop unless a location is critical",
+        { label: "Heat-affected edge acceptable on the show face", hint: "or an alternative process specified" },
+        { label: "Dross / cut-edge quality expectation stated", hint: "especially on plasma-cut thicker stock" },
+        "Edge deburr requirement noted"
+      ]
+    },
+    {
+      name: "Punching / Turret",
+      tags: ["punch"],
+      items: [
+        { label: "Features match available tooling", hint: "standard punch sizes beat bespoke ones" },
+        "Repeated features use one common size rather than several near-identical ones",
+        { label: "Nibbled edges acceptable, or a smooth edge specified", hint: "nibble scallop shows on a cosmetic face" },
+        "Louvres, extrusions and countersinks called out with their form tool",
+        { label: "Punch-side burr direction stated", hint: "burr goes to the non-show face" },
+        "Micro-joint / tab locations acceptable on visible edges"
+      ]
+    },
+    {
+      name: "Bending / Press Brake",
+      tags: ["bending"],
+      items: [
+        { label: "Every bend has a stated inside radius", hint: "and it is achievable with the shop's tooling" },
+        { label: "Bend radius appropriate for the material and temper", hint: "hard tempers crack at a tight radius" },
+        "Bend angles and directions dimensioned unambiguously (up/down from the flat)",
+        { label: "Bend relief provided where a bend meets an edge or another bend", hint: "prevents tearing at the bend end" },
+        { label: "Hole-to-bend distance clear of the deformation zone", hint: "or the hole is accepted as distorted" },
+        { label: "Flange length above the minimum for the tooling", hint: "too-short flanges cannot be held in the die" },
+        "Bend sequence achievable — no bend traps the part in the tooling",
+        { label: "Collision check done for the last bends", hint: "formed part must clear the press brake ram and back gauge" },
+        "Springback allowance is the shop's, not double-compensated in the model"
+      ]
+    },
+    {
+      name: "Hardware & Inserts",
+      tags: ["hardware"],
+      items: [
+        { label: "Insert type, size and part number specified", hint: "PEM nut/stud/standoff — grip range matters" },
+        { label: "Hole size matches the insert's specified hole, exactly", hint: "self-clinching hardware is unforgiving here" },
+        { label: "Material hard enough to hold the insert", hint: "or too hard for the insert to clinch into" },
+        { label: "Insert side stated", hint: "which face the insert is pressed from" },
+        "Insert-to-edge and insert-to-bend distances respected",
+        "Press access exists — insert location reachable before the part is folded closed",
+        "Hardware installed before or after finishing decided, and stated"
+      ]
+    },
+    {
+      name: "Finishing",
+      tags: ["finishing"],
+      items: [
+        { label: "Finish system, colour and standard specified", hint: "powder coat, anodise, plate, passivate" },
+        { label: "Coating thickness allowed for in the fits", hint: "holes and slots shrink under powder coat" },
+        { label: "Masking called out on threads, earth points and mating faces", hint: "and shown on a view" },
+        "Hanging / jig points identified in a place that will not show",
+        { label: "Drain and vent holes present on enclosed volumes", hint: "for dip and wet processes" },
+        "Surface preparation stated ahead of the finish",
+        "Handling and packing note present so the finish survives the trip"
+      ]
+    },
+
+    // ---- general: the release itself ----
+    {
+      name: "Release & DFM",
+      items: [
+        { label: "Both the flat and the formed views are on the drawing", hint: "the shop needs the blank and the target" },
+        "Cut file revision matches the drawing revision",
+        { label: "Quantity, and any nesting or batch instruction, stated", hint: "affects how the shop lays the sheet out" },
+        "Part marking / label requirement specified and located",
+        { label: "A quoted or sanity-checked cost exists for this geometry", hint: "the Cut Optimiser and Cost Estimator live one folder over" },
+        "Anything unusual explained in a note rather than left for the shop to phone about",
+        "Signed off and released to the shop"
+      ]
+    }
+  ]
+};
+</script>
+<script src="checklist.js"></script>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

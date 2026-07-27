@@ -29,7 +29,10 @@ fastener mark so the two read as related-but-distinct.
   `checklist.js` is the shared data-driven engine (mountable: auto-mounts from a
   `window.CHECKLIST` object, or `mount(root, data, opts)` for previews);
   `checklist.css` is the shared skin. `template.html` is the ready-made
-  **Drawing Checklist** and the copy-me starter; `builder.html` + `builder.js`
+  **Drawing Checklist** and the copy-me starter; `weldment.html` is the
+  **Weldment Review** (toggles by parent material plus code-governed work) and
+  `sheet-metal-flat.html` is the **Sheet-Metal Flat** release check (toggles by
+  operation: laser, punch, bending, hardware, finishing); `builder.html` + `builder.js`
   are a form-driven **template generator** (compose with live preview, save to
   the browser, or export a standalone HTML file); `run.html?id=<slug>` runs a
   browser-saved custom checklist; `index.html` is the section hub.

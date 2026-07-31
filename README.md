@@ -36,6 +36,12 @@ fastener mark so the two read as related-but-distinct.
   are a form-driven **template generator** (compose with live preview, save to
   the browser, or export a standalone HTML file); `run.html?id=<slug>` runs a
   browser-saved custom checklist; `index.html` is the section hub.
+- **`goblin/`** — the **Hype Goblin**: an animated CSS familiar who has opinions
+  about your tolerances. Deliberately *not* a tool — it computes nothing and
+  verifies nothing. Four mood buttons (hype / reality check / fix / destroy) each
+  draw from their own line pool and recolour him; an ambient timer mutters every
+  22–48s, with a ~14% chance of an UNPROVOKED TOLERANCE SCREAM and a 0.2% chance
+  of a rarer, sharper line. Single file, no assets, no state, no persistence.
 - **`assets/`** — shared, dependency-free chrome dropped into every page:
   `theme.js` (light/dark toggle), `reveal.js` (load-in animation), `menu.js`
   (unified nav), and `favicon.svg` (the hex mark).

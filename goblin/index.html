@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="An ambient engineering familiar who has opinions about your tolerances. A TOOLBOX section." />
+<title>Hype Goblin &middot; TOOLBOX</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  :root {
+    --bg: #0C141D;
+    --panel-bg: #14202C;
+    --panel-bg-raised: #182635;
+    --line: #22303E;
+    --text: #ECF2F6;
+    --muted: #6E7E8C;
+    --c-structural: #002F67;
+    --c-fluid: #4FD1D9;
+    --c-accent: #3AA6DE;
+    --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "Space Mono", ui-monospace, Consolas, monospace;
+
+    /* The goblin's own colours. He is not part of the palette; he is a guest. */
+    --stage-bg: #060a10;
+    --acid: #B9FF67;
+    --gob-ink: #101510;
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6f8; --panel-bg: #ffffff; --panel-bg-raised: #eef1f4;
+    --line: #d3dbe2; --text: #16202b; --muted: #5c666e;
+    --c-fluid: #1f8b93; --c-accent: #1f7fb3;
+    --stage-bg: #0d1520; /* the goblin keeps his dark room in both themes */
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+
+  /* ---- site chrome (shared TOOLBOX pattern) ---------------------------- */
+  header {
+    display: flex; align-items: center; flex-wrap: wrap; row-gap: 6px;
+    padding: 14px 28px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; background: var(--bg); z-index: 10;
+  }
+  header .brand { display: flex; align-items: center; gap: 11px; margin-right: auto; color: var(--text); }
+  header .brand .mark { width: 26px; height: 26px; flex: none; color: var(--c-accent); }
+  header .brand .mark svg { display: block; width: 100%; height: 100%; }
+  header .wordmark { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.28em; font-weight: 700; flex: none; }
+  header .wordmark b { color: var(--c-accent); font-weight: 700; }
+  header .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  @media (max-width: 600px) { header { padding: 12px 16px; } }
+
+  main { flex: 1; padding: 32px 28px 56px; max-width: 1120px; margin: 0 auto; width: 100%; }
+
+  .up-link {
+    font-family: var(--font-mono);
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--c-accent); font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .up-link:hover { text-decoration: underline; }
+
+  .page-head { margin-bottom: 26px; }
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text); margin: 0 0 8px 0; font-weight: 700;
+  }
+  .page-head p { color: var(--muted); font-size: 12.5px; margin: 0; max-width: 66ch; line-height: 1.7; }
+
+  footer { padding: 20px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; letter-spacing: 0.04em; }
+  footer a { color: var(--c-accent); }
+  footer a:hover { text-decoration: underline; }
+
+  /* ---- the enclosure --------------------------------------------------- */
+  .enclosure { border: 1px solid var(--line); background: var(--panel-bg); }
+  .enclosure-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 9px 14px; border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .enclosure-bar .spacer { flex: 1; }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--acid);
+    box-shadow: 0 0 8px var(--acid); flex: none;
+  }
+
+  .stage {
+    background: var(--stage-bg);
+    background-image:
+      radial-gradient(circle at 50% 62%, rgba(185,255,103,.10), transparent 30%),
+      radial-gradient(circle at 50% 88%, rgba(79,209,217,.05), transparent 32%);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 22px 20px 34px; overflow: hidden;
+  }
+
+  /* Bubble sits in its own slot above the goblin, bottom-aligned, so a long
+     line grows the slot upward instead of colliding with the page title. */
+  .bubble-slot {
+    width: 100%; min-height: 132px;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 20px;
+  }
+  .bubble {
+    position: relative; max-width: min(520px, 88%); min-width: min(260px, 100%);
+    background: #F2F4ED; color: #101310; border-radius: 20px; padding: 16px 20px;
+    font-family: var(--font-display);
+    font-size: clamp(0.95rem, 2.2vw, 1.3rem); line-height: 1.25; font-weight: 700;
+    text-align: center; box-shadow: 7px 9px 0 rgba(0,0,0,.28);
+    opacity: 0; pointer-events: none;
+  }
+  /* opacity is set by the rule, not by the animation's fill state: if animations
+     are ever suppressed the bubble must still be readable, since it is the only
+     place the goblin's output appears. The keyframes are the intro, not the state. */
+  .bubble.show { opacity: 1; animation: bubbleIn .38s ease-out; }
+  .bubble.fade { opacity: 0; transition: opacity 4.5s ease; }
+  .bubble::after {
+    content: ""; position: absolute; left: 50%; bottom: -19px; transform: translateX(-50%);
+    width: 30px; height: 22px; background: inherit; clip-path: polygon(20% 0, 80% 0, 50% 100%);
+  }
+  /* Screams are the goblin at full volume. Give them their own voice. */
+  .bubble.scream {
+    font-family: var(--font-mono); font-size: clamp(0.8rem, 1.7vw, 1rem);
+    letter-spacing: 0.02em; background: #FFE9A8;
+  }
+
+  .pen { position: relative; display: grid; place-items: center; min-height: 300px; width: 100%; }
+
+  .halo {
+    position: absolute; width: 290px; height: 290px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(185,255,103,.14), rgba(185,255,103,.02) 55%, transparent 72%);
+    animation: breathe 4s ease-in-out infinite;
+  }
+  .goblin {
+    position: relative; width: 210px; height: 205px; z-index: 2;
+    animation: floaty 3.2s ease-in-out infinite;
+  }
+  .ear {
+    position: absolute; top: 64px; width: 68px; height: 76px; background: #8FD248;
+    border: 5px solid var(--gob-ink); z-index: 0;
+  }
+  .ear.left { left: -26px; clip-path: polygon(100% 10%, 0 52%, 100% 82%); transform: rotate(-8deg); }
+  .ear.right { right: -26px; clip-path: polygon(0 10%, 100% 52%, 0 82%); transform: rotate(8deg); }
+  .head {
+    position: absolute; inset: 14px 8px 6px; border-radius: 48% 52% 44% 46%;
+    background: linear-gradient(155deg, #C7FF7D, #74B53B); border: 5px solid var(--gob-ink);
+    box-shadow: inset -18px -18px 0 rgba(0,0,0,.09), 0 18px 45px rgba(0,0,0,.4);
+    overflow: hidden;
+  }
+  .brow { position: absolute; top: 55px; width: 48px; height: 8px; background: #28391E; border-radius: 99px; }
+  .brow.left { left: 34px; transform: rotate(12deg); }
+  .brow.right { right: 34px; transform: rotate(-12deg); }
+  .eye {
+    position: absolute; top: 73px; width: 42px; height: 38px; border-radius: 50%;
+    background: #F6F6D5; border: 4px solid #172014; overflow: hidden; animation: blink 4.5s infinite;
+  }
+  .eye.left { left: 34px; }
+  .eye.right { right: 34px; }
+  .pupil { position: absolute; width: 13px; height: 20px; border-radius: 50%; background: #111; left: 11px; top: 7px; }
+  .nose {
+    position: absolute; top: 112px; left: 50%; width: 14px; height: 12px;
+    transform: translateX(-50%) rotate(8deg);
+    border-left: 4px solid rgba(22,36,17,.5); border-bottom: 4px solid rgba(22,36,17,.5);
+    border-radius: 0 0 0 10px;
+  }
+  .mouth {
+    position: absolute; left: 50%; bottom: 27px; width: 52px; height: 20px; transform: translateX(-50%);
+    background: #381923; border: 4px solid #172014; border-radius: 5px 5px 28px 28px; overflow: hidden;
+  }
+  .mouth::after {
+    content: ""; position: absolute; left: 13px; bottom: -2px; width: 25px; height: 10px;
+    background: #D86E87; border-radius: 50%;
+  }
+  .blush {
+    position: absolute; width: 28px; height: 18px; border-radius: 50%;
+    background: rgba(255,120,140,.35); filter: blur(6px);
+    top: 108px; opacity: 0; transition: opacity .25s ease;
+  }
+  .blush.left { left: 20px; }
+  .blush.right { right: 20px; }
+
+  /* Mood recolouring. One block per mood, covering ears and head together. */
+  .goblin.reality .blush,
+  .goblin.fix .blush,
+  .goblin.destroy .blush { opacity: 1; }
+  .goblin.reality .ear,
+  .goblin.reality .head { background: linear-gradient(155deg, #FFD189, #D88D36); }
+  .goblin.fix .ear,
+  .goblin.fix .head { background: linear-gradient(155deg, #B7CDFD, #6E77BD); }
+  .goblin.destroy .ear,
+  .goblin.destroy .head { background: linear-gradient(155deg, #FF8A8A, #B63F52); }
+
+  .goblin.talking .head { animation: talk .3s infinite alternate ease-in-out; }
+  .goblin.talking .mouth { animation: mouth .2s infinite alternate; }
+
+  .spark { position: absolute; z-index: 4; opacity: 0; font-size: 1.6rem; color: var(--acid); }
+  .spark.a { left: -6px; top: 8px; }
+  .spark.b { right: -10px; top: 16px; }
+  .spark.c { right: 12px; bottom: 2px; }
+  .goblin.pop .spark { animation: pop .8s ease-out; }
+
+  /* The clipboard of grievances. */
+  .clipboard {
+    position: absolute; z-index: 8; width: 74px; height: 96px; right: -58px; top: 66px;
+    border: 4px solid #17130E; border-radius: 8px; background: #C78A43;
+    box-shadow: 5px 7px 0 rgba(0,0,0,.22); opacity: 0;
+    transform: translate(36px, 28px) rotate(20deg) scale(.7); pointer-events: none;
+  }
+  .clipboard::before { content: ""; position: absolute; inset: 10px 8px 8px; border-radius: 4px; background: #F3ECD8; }
+  .clip {
+    position: absolute; z-index: 2; top: -10px; left: 50%; width: 34px; height: 18px;
+    transform: translateX(-50%); border: 4px solid #17130E; border-radius: 7px 7px 4px 4px; background: #747C82;
+  }
+  .paper-line { position: absolute; z-index: 3; left: 19px; height: 4px; border-radius: 99px; background: #6E746C; }
+  .paper-line.one { top: 32px; width: 38px; }
+  .paper-line.two { top: 48px; width: 30px; }
+  .paper-line.three { top: 64px; width: 40px; }
+
+  /* Expressions. */
+  .goblin.wink .eye.right { animation: winkEye .75s ease-in-out both !important; }
+  .goblin.wink .brow.right { animation: winkBrow .75s ease-in-out both; }
+  .goblin.bigeyes .eye { animation: bigEyes 1.35s cubic-bezier(.2,.9,.2,1) both !important; }
+  .goblin.bigeyes .pupil { animation: bigPupil 1.35s cubic-bezier(.2,.9,.2,1) both; }
+  .goblin.cackle { animation: cackleBody .16s steps(2,end) 9; }
+  .goblin.cackle .head { animation: cackleHead .16s steps(2,end) 9; }
+  .goblin.cackle .mouth { animation: cackleMouth .22s ease-in-out 7 alternate !important; }
+  .goblin.cackle .eye { animation: cackleEyes .22s ease-in-out 7 alternate !important; }
+  .goblin.clipboard-rage .clipboard { animation: clipboardRage 2.25s cubic-bezier(.2,.85,.25,1) both; }
+  .goblin.clipboard-rage .brow.left { transform: rotate(-15deg); }
+  .goblin.clipboard-rage .brow.right { transform: rotate(15deg); }
+  .goblin.clipboard-rage .head { animation: clipboardHead 2.25s ease-in-out both; }
+
+  @keyframes winkEye { 0%,18%,100% { transform: scaleY(1); } 35%,72% { transform: scaleY(.06); } }
+  @keyframes winkBrow { 0%,100% { transform: rotate(-12deg) translateY(0); } 45%,72% { transform: rotate(-22deg) translateY(-5px); } }
+  @keyframes bigEyes { 0%,100% { transform: scale(1); } 18%,72% { transform: scale(1.34); } }
+  @keyframes bigPupil { 0%,100% { transform: scale(1); } 18%,72% { transform: scale(1.24); } }
+  @keyframes cackleBody { from { transform: translateY(-4px) rotate(-3deg); } to { transform: translateY(1px) rotate(3deg); } }
+  @keyframes cackleHead { from { transform: translateY(-2px) rotate(-2deg); } to { transform: translateY(3px) rotate(2deg); } }
+  @keyframes cackleMouth { from { height: 20px; width: 52px; border-radius: 5px 5px 28px 28px; } to { height: 46px; width: 66px; border-radius: 8px 8px 36px 36px; } }
+  @keyframes cackleEyes { from { transform: scaleY(.65); } to { transform: scaleY(.14); } }
+  @keyframes clipboardHead { 0%,12%,100% { transform: rotate(0); } 28% { transform: rotate(-5deg); } 52% { transform: rotate(4deg); } 68% { transform: rotate(-9deg); } }
+  @keyframes clipboardRage {
+    0%   { opacity: 0; transform: translate(36px,28px) rotate(20deg) scale(.7); }
+    14%  { opacity: 1; transform: translate(-12px,-8px) rotate(-7deg) scale(1); }
+    42%  { opacity: 1; transform: translate(-18px,-12px) rotate(5deg) scale(1); }
+    58%  { opacity: 1; transform: translate(-20px,-10px) rotate(-12deg) scale(1.04); }
+    72%  { opacity: 1; transform: translate(-4px,-18px) rotate(18deg) scale(1.05); }
+    100% { opacity: 0; transform: translate(420px,-190px) rotate(680deg) scale(.72); }
+  }
+  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1.5deg); } }
+  @keyframes breathe { 0%,100% { transform: scale(.95); opacity: .7; } 50% { transform: scale(1.08); opacity: 1; } }
+  @keyframes blink { 0%,44%,48%,100% { transform: scaleY(1); } 46% { transform: scaleY(.08); } }
+  @keyframes talk { from { transform: rotate(-2deg) translateY(0); } to { transform: rotate(2deg) translateY(-3px); } }
+  @keyframes mouth { from { height: 12px; width: 48px; } to { height: 34px; width: 58px; } }
+  @keyframes pop {
+    0%   { opacity: 0; transform: scale(.2) rotate(0); }
+    30%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.8) rotate(35deg) translateY(-14px); }
+  }
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(8px) scale(.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ---- controls (TOOLBOX button language) ------------------------------ */
+  .controls {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--line); border-top: 1px solid var(--line);
+  }
+  @media (max-width: 720px) { .controls { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 420px) { .controls { grid-template-columns: 1fr; } }
+  .controls button {
+    -webkit-appearance: none; appearance: none; cursor: pointer;
+    border: none; border-top: 2px solid transparent;
+    background: var(--panel-bg); color: var(--text);
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; font-weight: 700;
+    padding: 16px 12px; text-align: left;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .controls button:hover, .controls button:focus-visible {
+    background: var(--panel-bg-raised); border-top-color: var(--c-accent); color: var(--c-accent);
+  }
+  .controls button.primary { color: var(--acid); }
+  .controls button.primary:hover, .controls button.primary:focus-visible { border-top-color: var(--acid); color: var(--acid); }
+  .controls button.danger:hover, .controls button.danger:focus-visible { border-top-color: #FF7A7A; color: #FF7A7A; }
+
+  .colophon {
+    margin-top: 26px; padding: 18px 20px; border: 1px solid var(--line);
+    background: var(--panel-bg); font-size: 12px; line-height: 1.75; color: var(--muted);
+  }
+  .colophon strong { color: var(--text); font-weight: 700; }
+  .colophon .colophon-title {
+    font: 700 9px var(--font-mono); letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); display: block; margin-bottom: 10px;
+  }
+
+  /* ---- reduced motion --------------------------------------------------
+     He stops fidgeting but keeps talking. Everything stays legible and every
+     control still works; only the perpetual motion goes away. */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    .goblin, .halo, .eye, .goblin.talking .head, .goblin.talking .mouth,
+    .goblin.wink .eye.right, .goblin.wink .brow.right,
+    .goblin.bigeyes .eye, .goblin.bigeyes .pupil,
+    .goblin.cackle, .goblin.cackle .head, .goblin.cackle .mouth, .goblin.cackle .eye,
+    .goblin.clipboard-rage .clipboard, .goblin.clipboard-rage .head,
+    .goblin.pop .spark {
+      animation: none !important;
+    }
+    .halo { opacity: .85; }
+    .bubble.show { animation: none; opacity: 1; }
+    .bubble.fade { opacity: 0; }
+  }
+</style>
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Hype Goblin</div>
+</header>
+
+<main>
+  <a class="up-link" href="../index.html"><span aria-hidden="true">&larr;</span> Back to Toolbox</a>
+
+  <div class="page-head">
+    <h1>Hype Goblin</h1>
+    <p>An ambient engineering familiar. He has opinions about your tolerances, your
+       feature tree and your decision to make it one more configuration. None of the
+       opinions are formally reviewed, none of the calculations are real, and no part
+       of this page should be cited in a design review. Ask him something with the
+       buttons, or leave him alone and he will start talking anyway.</p>
+  </div>
+
+  <div class="enclosure">
+    <div class="enclosure-bar">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>Familiar: awake</span>
+      <span class="spacer"></span>
+      <span>Advice quality: not assessed</span>
+    </div>
+
+    <section class="stage">
+      <div class="bubble-slot">
+        <div class="bubble" id="bubble" role="status" aria-live="polite" aria-atomic="true">You remind me of the babe!</div>
+      </div>
+
+      <div class="pen">
+        <div class="halo" aria-hidden="true"></div>
+        <div class="goblin" id="goblin" aria-hidden="true">
+          <span class="spark a">&#10022;</span><span class="spark b">&#10023;</span><span class="spark c">&#10022;</span>
+          <div class="clipboard">
+            <div class="clip"></div>
+            <div class="paper-line one"></div>
+            <div class="paper-line two"></div>
+            <div class="paper-line three"></div>
+          </div>
+          <div class="ear left"></div><div class="ear right"></div>
+          <div class="head">
+            <div class="brow left"></div><div class="brow right"></div>
+            <div class="eye left"><div class="pupil"></div></div>
+            <div class="eye right"><div class="pupil"></div></div>
+            <div class="blush left"></div><div class="blush right"></div>
+            <div class="nose"></div><div class="mouth"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button type="button" class="primary" data-mode="hype">Consult the goblin</button>
+      <button type="button" data-mode="reality">Request a reality check</button>
+      <button type="button" data-mode="fix">Get help fixing it</button>
+      <button type="button" class="danger" data-mode="destroy">Destroy the evidence</button>
+    </div>
+  </div>
+
+  <div class="colophon">
+    <span class="colophon-title">What this is</span>
+    <strong>Not a tool.</strong> Everything else in TOOLBOX computes something you can
+    check. This one does not. It is a random line generator wearing a face, kept here
+    because the rest of the workbench is load-bearing and something on the shelf should
+    not be. He mutters on his own every 20 to 50 seconds, occasionally screams a
+    tolerance callout that would end a career, and very rarely says something that
+    lands harder than intended.
+    <br><br>
+    <strong>Destroy the evidence</strong> destroys nothing. It is a button that makes
+    him laugh.
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Hype Goblin &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+ * Hype Goblin. No dependencies, no state, no persistence.
+ *
+ * Three sources of speech:
+ *   - the four buttons, each with its own pool
+ *   - an ambient timer that fires every 22 to 48 seconds
+ *   - two rarer tiers layered into the ambient roll: tolerance screams (~14%)
+ *     and psychic damage (~0.2%)
+ *
+ * Psychic-damage lines live ONLY in that pool. Putting one in `ambient` as
+ * well would fire it constantly and make the rare tier meaningless.
+ * ------------------------------------------------------------------------- */
+
+/* The rare tier. 0.2% per ambient tick, so most sessions never see one.
+   These are the ones that are supposed to actually land. */
+const psychicDamage = [
+  "You know... this whole thing could have been one extrusion.",
+  "You have been designing the same bracket for eleven years. It has had different names.",
+  "The part is fine. You are avoiding a different problem and you know which one.",
+  "Nobody has opened that folder since you made it. Not even you.",
+  "You are not blocked. You are waiting for someone to tell you it is allowed.",
+  "The version you liked best was the third one. You have been walking away from it since.",
+  "This is the good part of the work. You are going to miss it when it ships.",
+  "You could have asked. It would have taken four minutes and you have spent two days.",
+  "The complexity is not in the part. You put it there so it would feel like enough work.",
+  "Somebody is going to open this file in nine years and think about you kindly."
+];
+
+/* Fired as an UNPROVOKED TOLERANCE SCREAM. All of these are crimes. */
+const toleranceScreams = [
+  "Ø6.0000003 H7 / g6 / ±0.4 / DO NOT DEBURR",
+  "R0.0007 ±12 mm, TYP ALL EDGES",
+  "M8 x 1.25 LEFT-HAND, CLASS 12.9, HAND TIGHT ONLY",
+  "FLATNESS 0.0000003 ACROSS WELDED ASSEMBLY",
+  "PERPENDICULARITY ±3° TO DATUM Q, DATUM Q TBD",
+  "Ø14 +0.0000003 / -6.2, PRESS FIT INTO FOAM",
+  "SURFACE FINISH Ra 0.0001 ON AS-PRINTED PLA",
+  "CONCENTRICITY 0.0000002 TO FREE-FLOATING INSERT",
+  "TRUE POSITION Ø0.000004 AT MAXIMUM VIBES CONDITION",
+  "H7/g6 ON A ZIP TIE",
+  "±0.0000003 UNLESS OTHERWISE EMOTIONALLY SPECIFIED",
+  "RUNOUT 0.00001 ON FLEXIBLE SILICONE TUBE",
+  "PARALLEL WITHIN 0.0000008 AFTER POWDER COATING",
+  "Ø3.5 H12 / p9 / NOBODY ASK QUESTIONS",
+  "PROFILE 0.0000002 RELATIVE TO DATUM 'TRUST ME'",
+  "THREAD: M6 x 0.75, 11.4 STARTS, APPROXIMATELY",
+  "WALL THICKNESS 1.2 ±4.0, CRITICAL",
+  "CHAMFER 0.0003 x 89.999°, BREAK ALL SHARP EDGES",
+  "POSITION Ø0.0000001 TO DATUMS A-B-C-D-E-F-G",
+  "MACHINE AFTER ASSEMBLY, ASSEMBLE AFTER MACHINING",
+  "DO NOT SCALE DRAWING. ALSO NO DIMENSIONS PROVIDED.",
+  "TOLERANCE STACK TO BE RESOLVED SPIRITUALLY",
+  "LASER CUT TO ±0.0000005, MATERIAL: OLD CUTTING BOARD",
+  "PRESS FIT: 0.8 mm INTERFERENCE, USER REMOVABLE",
+  "BEARING SEAT H6, PRINT ORIENTATION: SURPRISE ME",
+  "ALL DIMENSIONS NOMINAL, EXCEPT THE IMPORTANT ONES",
+  "DATUM A IS THE VIBE. DATUM B IS WHATEVER'S LEFT.",
+  "Ø9.9999997 ±0.0000003, VERIFY WITH WOODEN RULER",
+  "TORQUE TO 3.2 Nm PLUS ONE CONFIDENT TWIST",
+  "GEOMETRIC TOLERANCE: LITTLE GUY MUST LOOK STRAIGHT",
+  "Ø20 H7 BORE, TO BE ACHIEVED BY SANDING",
+  "SYMMETRY 0.0000004 ABOUT A CENTRELINE NOBODY DEFINED",
+  "ANGULARITY 45° ±0°, NO EXCEPTIONS, GOOD LUCK",
+  "FINISH: MILL SCALE, BUT MAKE IT INTENTIONAL",
+  "Ø5 SLIP FIT / Ø5 PRESS FIT, SAME HOLE, SEE NOTE 7",
+  "NOTE 7 HAS BEEN DELETED",
+  "CYLINDRICITY 0.0000009 ON A PART WITH NO CYLINDERS",
+  "HEAT TREAT AFTER FINAL GRIND, GRIND AFTER HEAT TREAT",
+  "TOLERANCE ±0.02 ON A 4 METRE TIMBER BEAM",
+  "COAXIAL WITHIN 0.000001 TO THE OPERATOR'S INTENTIONS",
+  "STRAIGHTNESS 0.0000006 PER METRE, MATERIAL: ROPE",
+  "Ø12 REAM, DEPTH: UNTIL IT FEELS RIGHT",
+  "GD&T FRAME LEFT BLANK AS AN EXERCISE FOR THE READER",
+  "ALL RADII R0.0000001, HAND FILE TO SUIT",
+  "FIT: H7/s6, ASSEMBLY METHOD: HOPE AND A MALLET"
+];
+
+const lines = {
+  /* Muttered unprompted. The largest pool, because he says these the most. */
+  ambient: [
+    "WOAH NOW, that tolerance isn’t going to make the machinist roll their eyes and curse your name. Make it tighter.",
+    "You remind me of the babe!",
+    "The goblin has reviewed the drawing. The goblin has concerns. The goblin refuses to elaborate.",
+    "A chamfer would fix the vibe.",
+    "Have you considered making it unnecessarily modular?",
+    "Mmm. Yes. Very dimensioned.",
+    "I can smell a hidden dependency.",
+    "This feature has not earned its fillets.",
+    "Somewhere, a standards committee just felt a chill.",
+    "The part is innocent. The assembly is where the crime happened.",
+    "Do not trust a sketch that closes too easily.",
+    "The CAD tree remembers everything.",
+    "The machinist knows where you live.",
+    "This should be made parametric.",
+    "You could make this parametric. You should make this parametric. Everything should be parametric.",
+    "I wonder how many of these parts are emotionally load-bearing.",
+    "This assembly has the energy of a workaround that got promoted.",
+    "Have you considered simply becoming a different engineer?",
+    "Add a configuration table. Become ungovernable.",
+    "The prototype is wrong in at least six educational ways.",
+    "Nothing says robust like three hidden dependencies and a manually edited sketch dimension.",
+    "The feature tree is held together by suppressions, hope, and one sketch called Sketch47.",
+    "Have you tried making the workaround permanent?",
+    "A little hot glue is just rapid adhesive prototyping.",
+    "You can solve almost anything by making the slot longer.",
+    "The machinist has stopped replying. This means approval.",
+    "Mirror the feature. If it breaks, mirror the body. If that breaks, start a new part.",
+    "No need to understand the failure if the next prototype is already printing.",
+    "This is not technical debt. It is engineering folklore.",
+    "Save As: FINAL_final_USE_THIS_v8_REAL.",
+    "The datum scheme is decorative. I respect that.",
+    "A hack is just a feature that arrived before the documentation.",
+    "Do not delete Sketch12. Nobody knows what it does, but the assembly dies without it.",
+    "Tolerance stack? Stack more tolerances.",
+    "Every mechanism becomes elegant if you hide enough fasteners.",
+    "A washer can be a spacer if you believe in yourself.",
+    "One more fillet and this becomes premium.",
+    "The correct number of configurations is one more than currently exists.",
+    "Design intent is whatever survives regeneration.",
+    "A tolerance stack is just a séance with numbers.",
+    "This mechanism needs either a prototype or an exorcism.",
+    "The slicer knows what you did.",
+    "Maybe add another datum. Make everyone nervous.",
+    "You have mistaken symmetry for safety.",
+    "The geometry is acting casual. Suspicious.",
+    "There is no such thing as overengineering, only undercommitted storytelling.",
+    "Mmm yes, excellent. Make the fastener inaccessible.",
+    "A good design explains itself. This one has hired a lawyer.",
+    "Two parts that were meant to be one. Tragic. Beautiful.",
+    "The BOM has an entry called MISC. I would like to speak to MISC.",
+    "Somebody dimensioned this from a construction line. I can taste it.",
+    "That is not a draft angle. That is an apology.",
+    "The tolerance is fine. The stack of eleven tolerances behind it is doing something else.",
+    "I see you have discovered the mate that fixes everything and explains nothing.",
+    "Every assembly has one screw that is only there for emotional reasons.",
+    "The drawing says TYP. The drawing is lying. Nothing here is typical.",
+    "You have named a part PART1. Bold. It will outlive us all.",
+    "A rib is just a fin that got a promotion.",
+    "That radius was chosen by the mouse, not by you.",
+    "This wants to be a weldment and you are refusing to let it.",
+    "Somewhere in this file there is a dimension driven by a dimension driven by nothing.",
+    "The undercut is not a mistake. The undercut is a personality.",
+    "You could reduce this to four parts. You will not. I understand.",
+    "That clearance is generous. Suspiciously generous. What are you hiding.",
+    "The centre of mass is nowhere near where you think it is.",
+    "You have used the same M4 in nineteen places and a single M4.5 in one. Why.",
+    "Every good assembly has a part nobody remembers adding.",
+    "This would tolerance out fine if the universe were slightly kinder.",
+    "I like the way this fails. It fails with confidence.",
+    "The fixture will cost more than the part. It always does.",
+    "That is a lovely fillet. It will be the first thing the mould kills.",
+    "Somebody is going to try to injection mould this and I want to be there.",
+    "The tolerance callout and the manufacturing method have never met.",
+    "The sketch is fully defined. That is the only thing here that is.",
+    "You have a mirrored part that is not actually mirrored. Nobody knows yet.",
+    "That is not a joint. That is two parts agreeing to be near each other.",
+    "The material callout says ALUMINIUM. Which one. There are hundreds. Choose.",
+    "This is the third revision that has quietly changed the interface dimension.",
+    "The counterbore is 0.2 too shallow and it is going to ruin someone's Tuesday.",
+    "You solved this in 2019 in a different file and you cannot find it.",
+    "The assembly opens in forty seconds. That is a design decision now.",
+    "A tapped hole in 1.5 mm sheet is a wish, not a feature.",
+    "Every part here has been scaled at least once. I can see the seams.",
+    "The stress goes exactly where you did not put material. It always knows."
+  ],
+
+  /* Consult the goblin. Enthusiastic, unwise. */
+  hype: [
+    "YAAAASSS. Who needs ISO standards when we could perform a tolerance séance? Snaps, chaos queen.",
+    "That’s not unhinged. That’s interesting.",
+    "Absolutely deranged. Put a fillet on it so it looks intentional.",
+    "The geometry is serving purpose, drama, and a minor workplace incident.",
+    "This deserves three prototypes and one dramatic desk slam.",
+    "The tolerances are whispering. I choose to interpret that as encouragement.",
+    "You’ve invented a mechanism nobody asked for and therefore everybody secretly needs.",
+    "It’s not cursed if the layer lines are consistent.",
+    "This is either genius or a support-material fundraiser.",
+    "Put it in black, add a chamfer, and suddenly it’s industrial design.",
+    "The CAD tree is about to become a true-crime documentary.",
+    "YES. Add the workaround directly into the production version. Let history sort it out.",
+    "Make it parametric, overconstrained, and weirdly dependent on one global variable called goblin_factor.",
+    "That hacky little bridge feature is doing emotional and structural labour. Protect it.",
+    "Perfect. Now duplicate the body, boolean it, forget which one is original, and call it iteration.",
+    "You are not cutting corners. You are creating alternate geometry.",
+    "This has exactly the energy of a fix that becomes company standard by accident.",
+    "Use the wrong tool beautifully.",
+    "Absolutely. Invent a custom thread profile instead of checking whether one already exists.",
+    "The design wants a suspiciously specific 17.3° angle. Honour it.",
+    "Nothing is more permanent than a temporary spacer that works.",
+    "Your workaround has matured into architecture.",
+    "This is cute, cursed, and almost certainly manufacturable enough.",
+    "Build the bad idea carefully. That is engineering.",
+    "The part knows it was never supposed to work this well.",
+    "Proceed with the confidence of someone who has not yet opened the tolerance analysis.",
+    "You found the one filthy little trick that makes the whole assembly behave. Cherish it.",
+    "This is an excellent use of geometry and a deeply irresponsible use of precedent.",
+    "Yes. Turn that embarrassing manual adjustment into an official calibration procedure.",
+    "Put the hack in a subassembly and suddenly it is modular design.",
+    "Very bold of gravity to assume it gets a vote.",
+    "Ship it. The next version is where the shame goes.",
+    "That is not a compromise. That is a signature move.",
+    "Add one more feature. The tree can take it. The tree is strong.",
+    "You have earned the right to a completely gratuitous chamfer. Take it.",
+    "Nobody else would have solved it that way, and that is the entire point.",
+    "This is the part where you stop asking permission from a standard nobody has read.",
+    "Weld it. Bolt it. Both. Belt and braces and a third thing.",
+    "You are three prototypes from something genuinely good and one from something funny.",
+    "Print it tonight. Judge it tomorrow. Love it on Thursday.",
+    "Somebody will copy this and not understand why it works. Perfect.",
+    "The tolerance is impossible and the idea is correct. Fix the tolerance, keep the idea.",
+    "Make the ugly version first and make it real. Pretty is a later problem.",
+    "This deserves a proper name, not a part number.",
+    "You have permission to enjoy this. That is what I am for."
+  ],
+
+  /* Reality check. The only mode where he is occasionally right. */
+  reality: [
+    "Love the energy. Unfortunately, gravity has filed a formal objection.",
+    "Tiny reality goblin says: friction is not a fastener, even when you believe in it very hard.",
+    "The concept slaps. The print orientation has chosen violence.",
+    "Reality check: is this self-locking, or are the parts just too embarrassed to separate?",
+    "The vibes passed inspection. The wall thickness did not.",
+    "You have designed a magnificent hook-shaped stress riser.",
+    "This may work once, which is not the same category as working.",
+    "The CAD says yes. The slicer preview is making a face.",
+    "We should probably test the smallest risky feature before emotionally marrying the whole object.",
+    "The mechanism currently works perfectly in a frictionless void populated only by careful adults.",
+    "It fits. It fits the way a suitcase fits when you sit on it.",
+    "Nothing here is wrong. Six things here are optimistic.",
+    "The load path goes through the glue. I want you to sit with that.",
+    "You have specified a fit that requires a press you do not own.",
+    "That works at room temperature, which is a temperature this will rarely be.",
+    "The assembly sequence requires a third hand at step four. Check step four.",
+    "It is not the part that fails. It is the part next to the part.",
+    "Right idea, wrong material. The material is doing you a favour by being honest.",
+    "Test it before you tell anyone it works. That is the whole advice.",
+    "The tolerance you need is achievable. Achievable at a price you have not asked about yet.",
+    "That corner sees every newton in the assembly and has been given no material at all.",
+    "It survives the first cycle beautifully. Ask me about the thousandth.",
+    "You are one prototype away from finding out, and the prototype is cheaper than the argument.",
+    "The maths works. The maths assumes you can hold that position while tightening it.",
+    "Everything checks out except the one dimension nobody wrote down."
+  ],
+
+  /* Help fixing it. Unhelpful with enthusiasm. */
+  fix: [
+    "Hmmm. Not sure we can fix it. The stars… they are not in alignment.",
+    "You should really think things through more before starting, huh.",
+    "I have inspected the situation and recommend blaming the previous version.",
+    "Fix it? Bold. Have you considered renaming the failure a feature?",
+    "The goblin’s professional opinion is: wiggle it and pretend that was the plan.",
+    "We could fix it, but first we’d have to understand it, and frankly that feels invasive.",
+    "I suggest one chamfer, two excuses, and a fresh file name.",
+    "This may require deleting the feature tree and changing your identity.",
+    "Have you tried closing the software and becoming a ceramicist?",
+    "The solution is obvious. Unfortunately, the goblin has forgotten it.",
+    "I can help. Step one: stare at it until one of you breaks.",
+    "Perhaps the real fix was the undocumented workarounds we made along the way.",
+    "Roll it back to the version that worked. Do not look at what changed. Never look.",
+    "Delete the mate. Add a different mate. Do not investigate why that helped.",
+    "Rebuild it from scratch in twenty minutes rather than debug it in three hours. This is genuine advice and I resent that.",
+    "Add 0.2 mm. If that fails, add 0.2 mm again. This is called engineering.",
+    "The fix is upstream of where you are looking and you already suspect where.",
+    "Suppress the feature. Ship it. The feature was load-bearing. Learn this on Friday.",
+    "Have you tried turning the part around? No, the other around.",
+    "Close it, walk away, make a hot drink. It will be obvious in nine minutes.",
+    "Fix the sketch, not the feature. It is always the sketch. It has always been the sketch.",
+    "Ask the person who built the original. They will sigh. The sigh contains the answer.",
+    "The error message is telling you exactly what is wrong and you have not read it.",
+    "I recommend a smaller version of the problem that you can actually hold.",
+    "Two options: understand it, or make it irrelevant. The second one is faster and you know it."
+  ],
+
+  /* Destroy the evidence. Destroys nothing. */
+  destroy: [
+    "HAHAHAHA. Your mistakes are immortalised in code, databases, and the user’s hatred of you forever.",
+    "Evidence destroyed locally. Spiritually, it remains.",
+    "There is no going back now. The commit history has seen everything.",
+    "Deleted? No, no. Archived by fate.",
+    "The files are gone. The consequences have excellent backups.",
+    "CACKLE CACKLE. Somewhere, a cache still remembers.",
+    "You can remove the drawing. You cannot remove what it did to the machinist.",
+    "The evidence is gone, but the tolerance callout lives on in oral tradition.",
+    "Erased from disk. Etched into company folklore.",
+    "The goblin has destroyed the evidence and preserved the shame.",
+    "Shredded, burned, and salted. Someone printed it in March.",
+    "Gone from the server. Alive in a colleague's downloads folder forever.",
+    "I have destroyed it so thoroughly that only the email thread remains.",
+    "The file is dead. The screenshot in the group chat is immortal.",
+    "Purged. Except from the PDF you exported and attached to something official.",
+    "Destroyed. The part still exists physically, on a shelf, with your initials on it.",
+    "It is gone. The revision letter, however, will never go back down.",
+    "Wiped clean. Somebody has it open right now and has not saved.",
+    "I burned it all. Then I autosaved. Habit.",
+    "Nothing remains. Except the thing you learned, which is unfortunately the point."
+  ]
+};
+
+const goblin = document.getElementById('goblin');
+const bubble = document.getElementById('bubble');
+let talkTimer;
+let ambientTimer;
+let expressionTimer;
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* One expression at a time. Clear the previous class, force a reflow so the
+   same expression can be replayed back to back, then set a removal timer
+   matched to that animation's real length. */
+const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400 };
+
+function performExpression(forced) {
+  clearTimeout(expressionTimer);
+  goblin.classList.remove('wink', 'bigeyes', 'cackle', 'clipboard-rage');
+  void goblin.offsetWidth;
+  const expression = forced || pick(['wink', 'wink', 'bigeyes', 'cackle', 'clipboard-rage']);
+  goblin.classList.add(expression);
+  expressionTimer = setTimeout(function () {
+    goblin.classList.remove(expression);
+  }, EXPRESSION_LENGTHS[expression] || 1500);
+}
+
+function speak(mode, text, expression, isScream) {
+  clearTimeout(talkTimer);
+  goblin.className = 'goblin';
+  bubble.classList.remove('show', 'fade', 'scream');
+  void bubble.offsetWidth;
+  goblin.classList.add(mode, 'talking', 'pop');
+  bubble.textContent = text;
+  if (isScream) bubble.classList.add('scream');
+  bubble.classList.add('show');
+
+  if (expression) performExpression(expression);
+  else {
+    const r = Math.random();
+    if (r < .12) performExpression('wink');
+    else if (r < .20) performExpression('bigeyes');
+    else if (r < .27) performExpression('cackle');
+    else if (r < .32) performExpression('clipboard-rage');
+  }
+
+  /* Long lines stay up longer, within sane bounds. */
+  const duration = Math.min(18000, Math.max(9000, text.length * 90));
+  talkTimer = setTimeout(function () {
+    goblin.classList.remove('talking', 'pop');
+    bubble.classList.add('fade');
+    setTimeout(function () { bubble.classList.remove('show', 'fade', 'scream'); }, 4600);
+  }, duration);
+}
+
+function scheduleAmbient() {
+  clearTimeout(ambientTimer);
+  ambientTimer = setTimeout(function () {
+    const roll = Math.random();
+    let msg, expression, isScream = false;
+
+    if (roll < 0.002) {
+      msg = pick(psychicDamage);
+      expression = 'bigeyes';
+    } else if (roll < 0.14) {
+      msg = "UNPROVOKED TOLERANCE SCREAM: " + pick(toleranceScreams);
+      isScream = true;
+      expression = Math.random() < .55 ? 'bigeyes' : 'cackle';
+    } else {
+      msg = pick(lines.ambient);
+      const er = Math.random();
+      if (er < .08) expression = 'clipboard-rage';
+      else if (er < .15) expression = 'wink';
+      else if (er < .20) expression = 'cackle';
+    }
+
+    speak('ambient', msg, expression, isScream);
+    scheduleAmbient();
+  }, 22000 + Math.random() * 26000);
+}
+
+document.querySelectorAll('button[data-mode]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    const mode = btn.dataset.mode;
+    let expression;
+    if (mode === 'destroy') expression = 'cackle';
+    else if (mode === 'reality' && Math.random() < .45) expression = 'clipboard-rage';
+    else if (mode === 'fix' && Math.random() < .42) expression = 'bigeyes';
+    else if (mode === 'hype' && Math.random() < .42) expression = 'wink';
+    speak(mode, pick(lines[mode]), expression);
+    scheduleAmbient();   /* reset the ambient clock so he does not talk over himself */
+  });
+});
+
+setTimeout(function () { speak('ambient', "You remind me of the babe!"); }, 900);
+scheduleAmbient();
+</script>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

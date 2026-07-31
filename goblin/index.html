@@ -124,7 +124,10 @@
      are ever suppressed the bubble must still be readable, since it is the only
      place the goblin's output appears. The keyframes are the intro, not the state. */
   .bubble.show { opacity: 1; animation: bubbleIn .38s ease-out; }
-  .bubble.fade { opacity: 0; transition: opacity 4.5s ease; }
+  .bubble.fade { opacity: 0; transition: opacity .9s ease; }
+  /* beat-to-beat inside a routine: swap the words with a nudge rather than a
+     full fade-out/fade-in, so a multi-line bit reads as one continuous thought */
+  .bubble.show.pulse { animation: bubblePulse .3s ease-out; }
   .bubble::after {
     content: ""; position: absolute; left: 50%; bottom: -19px; transform: translateX(-50%);
     width: 30px; height: 22px; background: inherit; clip-path: polygon(20% 0, 80% 0, 50% 100%);
@@ -241,6 +244,95 @@
   .goblin.clipboard-rage .brow.right { transform: rotate(15deg); }
   .goblin.clipboard-rage .head { animation: clipboardHead 2.25s ease-in-out both; }
 
+  /* ---- idle bits -------------------------------------------------------
+     Sustained states that run for a whole multi-line routine, unlike the
+     expressions above which are one-shot punctuation. A bit class stays on
+     the goblin across every beat of its routine, so he keeps scribbling (or
+     reading, or vibrating with joy) while the lines change above him. */
+
+  /* the clipboard, held rather than hurled */
+  .goblin.holding .clipboard {
+    opacity: 1;
+    transform: translate(-16px, -4px) rotate(-7deg) scale(1);
+    transition: opacity .3s ease, transform .45s cubic-bezier(.3,1.3,.5,1);
+  }
+  .pencil {
+    position: absolute; z-index: 9; width: 9px; height: 46px;
+    right: -34px; top: 96px; opacity: 0;
+    background: linear-gradient(180deg, #F2C14E 0 76%, #E8B0A0 76% 88%, #2B2B2B 88% 100%);
+    border: 3px solid #17130E; border-radius: 3px 3px 1px 1px;
+    transform-origin: 50% 100%; pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .goblin.scribbling .pencil { opacity: 1; animation: scribbleHand .17s infinite alternate; }
+  .goblin.scribbling .clipboard::before { animation: inkFill 2.6s linear infinite; }
+  .goblin.scribbling.talking .head { animation: scribbleHead 1.05s ease-in-out infinite; }
+  .goblin.scribbling.talking .mouth { animation: mumble .42s infinite alternate; }
+  .goblin.scribbling .brow.left { transform: rotate(-14deg); }
+  .goblin.scribbling .brow.right { transform: rotate(14deg); }
+
+  /* working down a list, eyes tracking line to line */
+  .goblin.reading .pupil { animation: scanEyes 3.4s ease-in-out infinite; }
+  .goblin.reading.talking .head { animation: readHead 3.4s ease-in-out infinite; }
+
+  /* overcome, entirely, by a ratio */
+  .goblin.rapture { animation: raptureBounce .34s ease-in-out infinite alternate; }
+  .goblin.rapture .blush { opacity: 1; }
+  .goblin.rapture .eye { animation: none; transform: scale(1.28); }
+  .goblin.rapture .brow.left { transform: rotate(-20deg) translateY(-5px); }
+  .goblin.rapture .brow.right { transform: rotate(20deg) translateY(-5px); }
+  .goblin.rapture .spark { animation: sparkLoop 1.15s ease-out infinite; }
+  .goblin.rapture .spark.b { animation-delay: .38s; }
+  .goblin.rapture .spark.c { animation-delay: .76s; }
+  .goblin.rapture.talking .head { animation: talk .22s infinite alternate ease-in-out; }
+
+  /* grumbling to himself, barely audible */
+  .goblin.muttering.talking .head { animation: mutterHead 2.4s ease-in-out infinite; }
+  .goblin.muttering.talking .mouth { animation: mumble .55s infinite alternate; }
+  .goblin.muttering .eye { animation: none; transform: scaleY(.62); }
+  .goblin.muttering .brow.left { transform: rotate(-4deg) translateY(3px); }
+  .goblin.muttering .brow.right { transform: rotate(4deg) translateY(3px); }
+
+  @keyframes scribbleHand {
+    from { transform: rotate(-16deg) translate(0, 0); }
+    to   { transform: rotate(4deg) translate(-5px, 5px); }
+  }
+  @keyframes scribbleHead {
+    0%, 100% { transform: rotate(6deg) translateY(2px); }
+    50%      { transform: rotate(11deg) translateY(5px); }
+  }
+  @keyframes inkFill {
+    0%   { box-shadow: inset 0 0 0 rgba(60,60,60,0); }
+    100% { box-shadow: inset 0 -46px 0 rgba(90,90,90,.22); }
+  }
+  @keyframes scanEyes {
+    0%, 8%    { transform: translateX(-4px) translateY(0); }
+    30%, 38%  { transform: translateX(5px) translateY(0); }
+    60%, 68%  { transform: translateX(-4px) translateY(4px); }
+    90%, 100% { transform: translateX(5px) translateY(4px); }
+  }
+  @keyframes readHead {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50%      { transform: rotate(4deg) translateY(3px); }
+  }
+  @keyframes raptureBounce {
+    from { transform: translateY(2px) rotate(-3deg) scale(1); }
+    to   { transform: translateY(-13px) rotate(3deg) scale(1.05); }
+  }
+  @keyframes sparkLoop {
+    0%   { opacity: 0; transform: scale(.3) rotate(0); }
+    35%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.7) rotate(40deg) translateY(-18px); }
+  }
+  @keyframes mumble {
+    from { height: 12px; width: 34px; }
+    to   { height: 19px; width: 42px; }
+  }
+  @keyframes mutterHead {
+    0%, 100% { transform: rotate(-5deg) translateY(0); }
+    50%      { transform: rotate(-2deg) translateY(2px); }
+  }
+
   @keyframes winkEye { 0%,18%,100% { transform: scaleY(1); } 35%,72% { transform: scaleY(.06); } }
   @keyframes winkBrow { 0%,100% { transform: rotate(-12deg) translateY(0); } 45%,72% { transform: rotate(-22deg) translateY(-5px); } }
   @keyframes bigEyes { 0%,100% { transform: scale(1); } 18%,72% { transform: scale(1.34); } }
@@ -272,29 +364,67 @@
     from { opacity: 0; transform: translateY(8px) scale(.94); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
-
-  /* ---- controls (TOOLBOX button language) ------------------------------ */
-  .controls {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-    background: var(--line); border-top: 1px solid var(--line);
+  @keyframes bubblePulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
   }
-  @media (max-width: 720px) { .controls { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 420px) { .controls { grid-template-columns: 1fr; } }
+
+  /* ---- controls --------------------------------------------------------
+     Deliberately louder than the rest of the site. Everywhere else in TOOLBOX
+     a control is a hairline and a hover; here they are physical chunky things
+     with a hard drop shadow that presses down when clicked, because the goblin
+     is not a hairline-and-hover kind of creature. */
+  .controls {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    padding: 16px; background: var(--panel-bg); border-top: 1px solid var(--line);
+  }
+  @media (max-width: 760px) { .controls { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 430px) { .controls { grid-template-columns: 1fr; } }
+
   .controls button {
     -webkit-appearance: none; appearance: none; cursor: pointer;
-    border: none; border-top: 2px solid transparent;
-    background: var(--panel-bg); color: var(--text);
-    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.13em;
-    text-transform: uppercase; font-weight: 700;
-    padding: 16px 12px; text-align: left;
-    transition: background .15s ease, border-color .15s ease, color .15s ease;
+    position: relative; display: flex; flex-direction: column; gap: 7px;
+    align-items: flex-start; text-align: left;
+    padding: 13px 14px 12px;
+    border: 2px solid var(--btn); border-radius: 11px;
+    background: var(--panel-bg-raised); color: var(--text);
+    box-shadow: 0 4px 0 var(--btn-deep), 0 5px 10px rgba(0,0,0,.28);
+    transform: translateY(0);
+    transition: transform .11s ease, box-shadow .11s ease, background .14s ease;
   }
-  .controls button:hover, .controls button:focus-visible {
-    background: var(--panel-bg-raised); border-top-color: var(--c-accent); color: var(--c-accent);
+  .controls button:hover {
+    background: var(--btn-tint);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--btn-deep), 0 8px 14px rgba(0,0,0,.32);
   }
-  .controls button.primary { color: var(--acid); }
-  .controls button.primary:hover, .controls button.primary:focus-visible { border-top-color: var(--acid); color: var(--acid); }
-  .controls button.danger:hover, .controls button.danger:focus-visible { border-top-color: #FF7A7A; color: #FF7A7A; }
+  .controls button:focus-visible { outline: 2px solid var(--btn); outline-offset: 3px; }
+  /* the whole button physically bottoms out onto its own shadow */
+  .controls button:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--btn-deep), 0 1px 3px rgba(0,0,0,.3);
+  }
+  .controls button .glyph {
+    font-size: 17px; line-height: 1; filter: saturate(1.1);
+  }
+  .controls button .label {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.11em; text-transform: uppercase; color: var(--btn);
+  }
+  .controls button .sub {
+    font-family: var(--font-display); font-size: 11px; line-height: 1.35;
+    color: var(--muted); font-weight: 400;
+  }
+
+  /* one colour per mood, matching what he turns into */
+  .controls button[data-mode="hype"]    { --btn: #B9FF67; --btn-deep: #5E8F26; --btn-tint: rgba(185,255,103,.10); }
+  .controls button[data-mode="reality"] { --btn: #FFC06F; --btn-deep: #96662A; --btn-tint: rgba(255,192,111,.10); }
+  .controls button[data-mode="fix"]     { --btn: #9DB6F5; --btn-deep: #4A5893; --btn-tint: rgba(157,182,245,.10); }
+  .controls button[data-mode="destroy"] { --btn: #FF8A8A; --btn-deep: #97383F; --btn-tint: rgba(255,138,138,.10); }
+  :root[data-theme="light"] .controls button[data-mode="hype"]    { --btn: #5E8F26; --btn-deep: #A8C97E; }
+  :root[data-theme="light"] .controls button[data-mode="reality"] { --btn: #96662A; --btn-deep: #D9B98B; }
+  :root[data-theme="light"] .controls button[data-mode="fix"]     { --btn: #4A5893; --btn-deep: #A9B4DA; }
+  :root[data-theme="light"] .controls button[data-mode="destroy"] { --btn: #97383F; --btn-deep: #D79FA3; }
 
   .colophon {
     margin-top: 26px; padding: 18px 20px; border: 1px solid var(--line);
@@ -316,9 +446,17 @@
     .goblin.bigeyes .eye, .goblin.bigeyes .pupil,
     .goblin.cackle, .goblin.cackle .head, .goblin.cackle .mouth, .goblin.cackle .eye,
     .goblin.clipboard-rage .clipboard, .goblin.clipboard-rage .head,
-    .goblin.pop .spark {
+    .goblin.pop .spark,
+    .goblin.scribbling .pencil, .goblin.scribbling .clipboard::before,
+    .goblin.scribbling.talking .head, .goblin.scribbling.talking .mouth,
+    .goblin.reading .pupil, .goblin.reading.talking .head,
+    .goblin.rapture, .goblin.rapture .spark, .goblin.rapture.talking .head,
+    .goblin.muttering.talking .head, .goblin.muttering.talking .mouth {
       animation: none !important;
     }
+    /* the bits still READ as themselves, they just hold a pose instead of moving */
+    .goblin.scribbling .pencil { opacity: 1; }
+    .goblin.rapture .spark { opacity: 1; }
     .halo { opacity: .85; }
     .bubble.show { animation: none; opacity: 1; }
     .bubble.fade { opacity: 0; }
@@ -347,11 +485,8 @@
 
   <div class="page-head">
     <h1>Hype Goblin</h1>
-    <p>An ambient engineering familiar. He has opinions about your tolerances, your
-       feature tree and your decision to make it one more configuration. None of the
-       opinions are formally reviewed, none of the calculations are real, and no part
-       of this page should be cited in a design review. Ask him something with the
-       buttons, or leave him alone and he will start talking anyway.</p>
+    <p>He has opinions about your tolerances. None are correct, all are held with
+       total confidence, and he is <em>delighted</em> about every one of them.</p>
   </div>
 
   <div class="enclosure">
@@ -377,6 +512,7 @@
             <div class="paper-line two"></div>
             <div class="paper-line three"></div>
           </div>
+          <div class="pencil"></div>
           <div class="ear left"></div><div class="ear right"></div>
           <div class="head">
             <div class="brow left"></div><div class="brow right"></div>
@@ -390,24 +526,33 @@
     </section>
 
     <div class="controls">
-      <button type="button" class="primary" data-mode="hype">Consult the goblin</button>
-      <button type="button" data-mode="reality">Request a reality check</button>
-      <button type="button" data-mode="fix">Get help fixing it</button>
-      <button type="button" class="danger" data-mode="destroy">Destroy the evidence</button>
+      <button type="button" data-mode="hype">
+        <span class="glyph" aria-hidden="true">&#9889;</span>
+        <span class="label">Consult</span>
+        <span class="sub">He will say yes. He always says yes.</span>
+      </button>
+      <button type="button" data-mode="reality">
+        <span class="glyph" aria-hidden="true">&#128201;</span>
+        <span class="label">Reality check</span>
+        <span class="sub">The only mode where he is occasionally right.</span>
+      </button>
+      <button type="button" data-mode="fix">
+        <span class="glyph" aria-hidden="true">&#128295;</span>
+        <span class="label">Help me fix it</span>
+        <span class="sub">Help is a strong word for what happens next.</span>
+      </button>
+      <button type="button" data-mode="destroy">
+        <span class="glyph" aria-hidden="true">&#128293;</span>
+        <span class="label">Destroy evidence</span>
+        <span class="sub">Destroys nothing. He just likes the button.</span>
+      </button>
     </div>
   </div>
 
   <div class="colophon">
-    <span class="colophon-title">What this is</span>
-    <strong>Not a tool.</strong> Everything else in TOOLBOX computes something you can
-    check. This one does not. It is a random line generator wearing a face, kept here
-    because the rest of the workbench is load-bearing and something on the shelf should
-    not be. He mutters on his own every 20 to 50 seconds, occasionally screams a
-    tolerance callout that would end a career, and very rarely says something that
-    lands harder than intended.
-    <br><br>
-    <strong>Destroy the evidence</strong> destroys nothing. It is a button that makes
-    him laugh.
+    <span class="colophon-title">Liability</span>
+    <strong>Do not cite him in a design review.</strong> He has never been right on
+    purpose. Everything else on this workbench does maths; he does enthusiasm.
   </div>
 </main>
 
@@ -714,84 +859,286 @@ const lines = {
   ]
 };
 
+/* ---------------------------------------------------------------------------
+ * ROUTINES ("bits")
+ *
+ * Multi-beat sequences with a sustained pose, as opposed to the one-shot
+ * expressions. The `state` classes stay on him for the whole routine, so he
+ * keeps scribbling / reading / vibrating while the lines change above him.
+ * ------------------------------------------------------------------------- */
+const BITS = [
+  {
+    id: 'review-1', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "Right. Drawing review. Let us see what we are working with." },
+      { text: "Cannot be made." },
+      { text: "Will fail immediately." },
+      { text: "These walls are 0.4 mm. In steel." },
+      { text: "Ohhhhh. She is beautiful.", expression: 'bigeyes', hold: 4200 }
+    ]
+  },
+  {
+    id: 'review-2', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "Item four. Undercut on a moulded part." },
+      { text: "Impossible. Genuinely, structurally impossible." },
+      { text: "Unless. Unless we split the tool." },
+      { text: "Now it is merely ruinously expensive. That is progress!", expression: 'cackle', hold: 4400 }
+    ]
+  },
+  {
+    id: 'review-3', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "Reading the bill of materials. For pleasure." },
+      { text: "Item 12: MISC HARDWARE. Quantity: AS REQUIRED." },
+      { text: "No part number. No supplier. No shame." },
+      { text: "Sublime. No notes. The perfect crime.", expression: 'wink', hold: 4200 }
+    ]
+  },
+  {
+    id: 'scribble-1', state: 'holding scribbling', mood: 'ambient',
+    beats: [
+      { text: "Noted." },
+      { text: "Noted, underlined, and circled twice." },
+      { text: "I am writing this one down for the Christmas party." },
+      { text: "There. Documented, and therefore somebody else's problem.", hold: 4400 }
+    ]
+  },
+  {
+    id: 'scribble-2', state: 'holding scribbling', mood: 'ambient',
+    beats: [
+      { text: "Adding this to the register." },
+      { text: "The register is forty pages long. Nobody has ever opened it." },
+      { text: "I love it here.", expression: 'cackle', hold: 3600 }
+    ]
+  },
+  {
+    id: 'scribble-dfm', state: 'holding scribbling', mood: 'destroy',
+    beats: [
+      { text: "DFM review. My favourite blood sport." },
+      { text: "Draft angle: absent." },
+      { text: "Parting line: straight through the logo." },
+      { text: "Ejector pins: on the cosmetic face. Bold." },
+      { text: "Somebody is going to cry and it will not be me.", expression: 'cackle', hold: 4600 }
+    ]
+  },
+  {
+    id: 'rapture-scale', state: 'rapture', mood: 'hype',
+    beats: [
+      { text: "Wait.", hold: 1900 },
+      { text: "1 : 6.3333333", hold: 3000 },
+      { text: "WHO DID THIS. WHO CHOSE THIS." },
+      { text: "That is not a standard scale. That is not ANY scale." },
+      { text: "I have never been happier in my entire life.", hold: 4400 }
+    ]
+  },
+  {
+    id: 'rapture-shim', state: 'rapture', mood: 'hype',
+    beats: [
+      { text: "Ohhh. Ohh, you shimmed it." },
+      { text: "You shimmed it with a WASHER." },
+      { text: "And it worked. And now the washer is on the assembly drawing." },
+      { text: "It has a part number. It is load-bearing. It is FOREVER.", hold: 4800 }
+    ]
+  },
+  {
+    id: 'rapture-extrusion', state: 'rapture', mood: 'hype',
+    beats: [
+      { text: "Hold on. Hold on." },
+      { text: "This entire bracket. One extrusion." },
+      { text: "ONE. EXTRUSION.", hold: 2800 },
+      { text: "I need to lie down. Do not touch anything.", hold: 4200 }
+    ]
+  },
+  {
+    id: 'mutter-leadtimes', state: 'muttering', mood: 'reality',
+    beats: [
+      { text: "...fourteen weeks. Fourteen. That is nothing." },
+      { text: "...back in my day a lead time had teeth..." },
+      { text: "...you would order a bearing and simply grow older..." },
+      { text: "...nobody suffers properly any more.", hold: 4200 }
+    ]
+  },
+  {
+    id: 'mutter-tolerance', state: 'muttering', mood: 'reality',
+    beats: [
+      { text: "...H7 on a 3D print..." },
+      { text: "...they just write it. They write it and they go home..." },
+      { text: "...and it fits. That is the part that upsets me.", hold: 4400 }
+    ]
+  },
+  {
+    id: 'mutter-standards', state: 'muttering', mood: 'reality',
+    beats: [
+      { text: "...nobody reads the standard..." },
+      { text: "...I did not read the standard either..." },
+      { text: "...I have simply been correct by accident since 2011.", expression: 'wink', hold: 4400 }
+    ]
+  }
+];
+
+/* ---------------------------------------------------------------------------
+ * SPEECH CONTROLLER
+ *
+ * Every utterance gets a guaranteed minimum time on screen. The previous
+ * version leaked timers: the fade-out was scheduled from *inside* the hold
+ * timeout and was never tracked, so a stale one could fire mid-sentence and
+ * yank the bubble away while he was still talking. Now every timer goes
+ * through later() into one list, and a run token invalidates any callback
+ * that belongs to a superseded utterance.
+ *
+ * Interruption policy: a button press is the user asking, so it cuts in
+ * immediately (cleanly). The ambient timer never interrupts. If he is mid
+ * sentence when it comes due, it waits until he has finished.
+ * ------------------------------------------------------------------------- */
 const goblin = document.getElementById('goblin');
 const bubble = document.getElementById('bubble');
-let talkTimer;
-let ambientTimer;
-let expressionTimer;
 
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-/* One expression at a time. Clear the previous class, force a reflow so the
-   same expression can be replayed back to back, then set a removal timer
-   matched to that animation's real length. */
+const MOODS = ['ambient', 'hype', 'reality', 'fix', 'destroy'];
+const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage'];
+const BIT_STATES = ['holding', 'scribbling', 'reading', 'rapture', 'muttering'];
 const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400 };
 
+const FADE_MS = 950;                       /* matches .bubble.fade's transition */
+const beatHold = t => Math.min(5200, Math.max(2500, t.length * 70));
+const lineHold = t => Math.min(13000, Math.max(5400, t.length * 80));
+
+let timers = [];
+let runToken = 0;      /* bumped on every new utterance; stale callbacks bail */
+let holdUntil = 0;     /* wall-clock time the current utterance is free to end */
+let bitState = '';
+let ambientTimer = null;
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function later(fn, ms) { const id = setTimeout(fn, ms); timers.push(id); return id; }
+
+function cancelSpeech() {
+  runToken++;
+  timers.forEach(clearTimeout);
+  timers = [];
+  bitState = '';
+  goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES, 'talking', 'pop');
+  bubble.classList.remove('show', 'fade', 'scream', 'pulse');
+}
+
+/* One-shot punctuation. Runs on top of whatever pose is active. */
 function performExpression(forced) {
-  clearTimeout(expressionTimer);
-  goblin.classList.remove('wink', 'bigeyes', 'cackle', 'clipboard-rage');
+  goblin.classList.remove(...EXPRESSIONS);
   void goblin.offsetWidth;
   const expression = forced || pick(['wink', 'wink', 'bigeyes', 'cackle', 'clipboard-rage']);
   goblin.classList.add(expression);
-  expressionTimer = setTimeout(function () {
+  const token = runToken;
+  later(function () {
+    if (token !== runToken) return;
     goblin.classList.remove(expression);
   }, EXPRESSION_LENGTHS[expression] || 1500);
 }
 
-function speak(mode, text, expression, isScream) {
-  clearTimeout(talkTimer);
-  goblin.className = 'goblin';
-  bubble.classList.remove('show', 'fade', 'scream');
-  void bubble.offsetWidth;
-  goblin.classList.add(mode, 'talking', 'pop');
-  bubble.textContent = text;
-  if (isScream) bubble.classList.add('scream');
-  bubble.classList.add('show');
-
+/* Mood + pose are set by add/remove rather than by reassigning className, so a
+   sustained bit animation is not restarted every time a beat changes. */
+function setPose(mood, expression, popSparks) {
+  MOODS.forEach(m => { if (m !== mood) goblin.classList.remove(m); });
+  goblin.classList.add(mood, 'talking');
+  if (popSparks) goblin.classList.add('pop');
   if (expression) performExpression(expression);
-  else {
-    const r = Math.random();
-    if (r < .12) performExpression('wink');
-    else if (r < .20) performExpression('bigeyes');
-    else if (r < .27) performExpression('cackle');
-    else if (r < .32) performExpression('clipboard-rage');
-  }
-
-  /* Long lines stay up longer, within sane bounds. */
-  const duration = Math.min(18000, Math.max(9000, text.length * 90));
-  talkTimer = setTimeout(function () {
-    goblin.classList.remove('talking', 'pop');
-    bubble.classList.add('fade');
-    setTimeout(function () { bubble.classList.remove('show', 'fade', 'scream'); }, 4600);
-  }, duration);
 }
 
+function showText(text, opts) {
+  opts = opts || {};
+  bubble.textContent = text;
+  bubble.classList.toggle('scream', !!opts.scream);
+  bubble.classList.remove('fade', 'pulse');
+  if (opts.first) {
+    bubble.classList.remove('show');
+    void bubble.offsetWidth;
+    bubble.classList.add('show');
+  } else {
+    /* mid-routine: keep it on screen, nudge it so the change registers */
+    void bubble.offsetWidth;
+    bubble.classList.add('show', 'pulse');
+  }
+}
+
+function endUtterance(token) {
+  if (token !== runToken) return;
+  goblin.classList.remove('talking', 'pop');
+  bubble.classList.add('fade');
+  later(function () {
+    if (token !== runToken) return;
+    bubble.classList.remove('show', 'fade', 'scream', 'pulse');
+    goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES);
+    bitState = '';
+  }, FADE_MS);
+}
+
+/* A single line. */
+function say(mood, text, opts) {
+  opts = opts || {};
+  cancelSpeech();
+  const token = runToken;
+  setPose(mood, opts.expression, true);
+  showText(text, { first: true, scream: opts.scream });
+  const hold = opts.hold || lineHold(text);
+  holdUntil = Date.now() + hold;
+  later(function () { endUtterance(token); }, hold);
+}
+
+/* A multi-beat routine. */
+function performBit(bit) {
+  cancelSpeech();
+  const token = runToken;
+  bitState = bit.state;
+  bit.state.split(' ').forEach(c => c && goblin.classList.add(c));
+
+  let offset = 0;
+  bit.beats.forEach(function (beat, i) {
+    const at = offset;
+    later(function () {
+      if (token !== runToken) return;
+      setPose(bit.mood, beat.expression, false);
+      showText(beat.text, { first: i === 0 });
+    }, at);
+    offset += beat.hold || beatHold(beat.text);
+  });
+
+  holdUntil = Date.now() + offset;
+  later(function () { endUtterance(token); }, offset);
+}
+
+/* ---- ambient -------------------------------------------------------------
+ * Never cuts him off. The next mutter is scheduled from the moment the
+ * current one has finished fading, plus a real gap of quiet. */
 function scheduleAmbient() {
   clearTimeout(ambientTimer);
-  ambientTimer = setTimeout(function () {
-    const roll = Math.random();
-    let msg, expression, isScream = false;
+  const now = Date.now();
+  const freeAt = Math.max(now, holdUntil + FADE_MS);
+  const gap = 11000 + Math.random() * 17000;
+  ambientTimer = setTimeout(runAmbient, (freeAt - now) + gap);
+}
 
-    if (roll < 0.002) {
-      msg = pick(psychicDamage);
-      expression = 'bigeyes';
-    } else if (roll < 0.14) {
-      msg = "UNPROVOKED TOLERANCE SCREAM: " + pick(toleranceScreams);
-      isScream = true;
-      expression = Math.random() < .55 ? 'bigeyes' : 'cackle';
-    } else {
-      msg = pick(lines.ambient);
-      const er = Math.random();
-      if (er < .08) expression = 'clipboard-rage';
-      else if (er < .15) expression = 'wink';
-      else if (er < .20) expression = 'cackle';
-    }
+function runAmbient() {
+  /* belt and braces: if anything is still on screen, wait it out */
+  if (Date.now() < holdUntil) { scheduleAmbient(); return; }
 
-    speak('ambient', msg, expression, isScream);
-    scheduleAmbient();
-  }, 22000 + Math.random() * 26000);
+  const roll = Math.random();
+  if (roll < 0.002) {
+    say('ambient', pick(psychicDamage), { expression: 'bigeyes', hold: 11000 });
+  } else if (roll < 0.34) {
+    performBit(pick(BITS));
+  } else if (roll < 0.46) {
+    say('ambient', "UNPROVOKED TOLERANCE SCREAM: " + pick(toleranceScreams), {
+      scream: true,
+      expression: Math.random() < .55 ? 'bigeyes' : 'cackle'
+    });
+  } else {
+    let expression;
+    const er = Math.random();
+    if (er < .08) expression = 'clipboard-rage';
+    else if (er < .15) expression = 'wink';
+    else if (er < .20) expression = 'cackle';
+    say('ambient', pick(lines.ambient), { expression: expression });
+  }
+  scheduleAmbient();
 }
 
 document.querySelectorAll('button[data-mode]').forEach(function (btn) {
@@ -802,12 +1149,12 @@ document.querySelectorAll('button[data-mode]').forEach(function (btn) {
     else if (mode === 'reality' && Math.random() < .45) expression = 'clipboard-rage';
     else if (mode === 'fix' && Math.random() < .42) expression = 'bigeyes';
     else if (mode === 'hype' && Math.random() < .42) expression = 'wink';
-    speak(mode, pick(lines[mode]), expression);
-    scheduleAmbient();   /* reset the ambient clock so he does not talk over himself */
+    say(mode, pick(lines[mode]), { expression: expression });
+    scheduleAmbient();
   });
 });
 
-setTimeout(function () { speak('ambient', "You remind me of the babe!"); }, 900);
+say('ambient', "You remind me of the babe!", { hold: 6000 });
 scheduleAmbient();
 </script>
 <script src="../assets/menu.js"></script>

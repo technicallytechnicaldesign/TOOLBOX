@@ -128,7 +128,7 @@ datums that do not exist, bolts nobody asked for. He **grins** when one goes
 past, and sometimes says something about it. Roughly 28% of them are nightmares
 that **scream** on their way through.
 
-Three kinds, picked 45 / 30 / 25:
+Three kinds, picked roughly 37 / 30 / 33:
 
 | Kind | Rendering |
 |---|---|
@@ -139,6 +139,52 @@ Three kinds, picked 45 / 30 / 25:
 GD&T symbols are **inline SVG, not Unicode**, so they cannot land as tofu in
 whatever font is available. Four bolt drawings (`straight`, `bent`, `stepped`,
 `twoHead`) are reused across ten captions.
+
+### Hauntings
+
+A `haunting` is an apparition whose body and scream are written as one joke, so
+the halves always land together — `ghostHauntings`, about 16% of spawns, always
+screaming. A frame with an empty datum compartment crying *"I HAVE NO DATUMS.
+ONLY THE VAGUE HOPE THAT IT FITS."* only works because the frame really does
+have no datum cells.
+
+The rule that follows: anything in `ghostScreams` gets bolted onto a *random*
+body, so it has to make sense against all three kinds. If a scream's joke
+depends on what it is attached to, it belongs in `ghostHauntings` instead.
+
+### Size, opacity and motion
+
+Everything inside a ghost is sized in `em` off one `--scale`, so a single number
+takes an apparition from a small caption to something spanning the whole stage
+without any part drifting out of proportion.
+
+| Property | Range | Notes |
+|---|---|---|
+| `--scale` | 1 to 6 | skewed small: ~70% land under 2.2, ~8% go over 3.8 |
+| `--peak` | 0.10 to 0.40 | anything over scale 3 is capped at 0.24 before the scream bonus |
+| `--wave` | 22 to 80px | vertical amplitude, oscillating four times across the drift |
+| `--rot` | ±3.5° | flips sign at each wave crest |
+
+Opacity lives **entirely** on the element, not in the `color` alpha. Putting
+alpha in both multiplies them, and the stated range stops being the real one.
+
+`maxApparitionScale()` clamps `--scale` to `stageWidth / 180`, because "fills
+the stage" has to mean the stage you actually have: unclamped, a scale meant for
+a 1060px desktop stage is three screens wide on a phone. Still clipped, but an
+unreadable wall rather than an apparition.
+
+Duration is derived from travel distance (~85px/s, clamped 12-34s) so a huge
+one does not race across just because it has further to go.
+
+**Partial drifts** (~38%) do not cross at all: they surface somewhere in the
+middle of the stage, wander a short distance, and fade out where they are.
+
+### When they surface
+
+`apparitionMomentIsRight()` gates spawning on two things: he is not speaking
+(or still fading), and the stage is empty of other apparitions. If the moment
+is wrong the scheduler retries in 4-10s rather than burning its full 12-34s
+interval and going quiet for a minute.
 
 **It runs on its own timers, entirely separate from the speech controller**, so
 a drifting apparition can never cut him off. Two rules make that true:
@@ -162,10 +208,11 @@ Under `prefers-reduced-motion` the layer simply never runs. It is pure
 decoration whose entire point is movement, so freezing it in place would be
 worse than omitting it.
 
-Adding one is just pushing onto `ghostTolerances`, `ghostFrames`, `ghostBolts`
-or `ghostScreams`. A new GD&T symbol needs an entry in `GDT_SYMBOLS`; a new
-bolt needs one in `BOLT_ART`. The suite asserts every entry in both maps
-resolves to real art, so a typo'd key fails rather than rendering an empty box.
+Adding one is just pushing onto `ghostTolerances`, `ghostFrames`, `ghostBolts`,
+`ghostScreams` or `ghostHauntings`. A new GD&T symbol needs an entry in
+`GDT_SYMBOLS`; a new bolt needs one in `BOLT_ART`. The suite asserts every entry
+in both maps resolves to real art, so a typo'd key fails rather than rendering
+an empty box.
 
 ## Content
 
@@ -184,7 +231,8 @@ resolves to real art, so a typo'd key fails rather than rendering an empty box.
 | `ghostTolerances` | 20 | drift-by callouts, short enough to read in passing |
 | `ghostFrames` | 10 | feature control frames, drawn properly, saying something unforgivable |
 | `ghostBolts` | 10 | bolts that exist because somebody drew them once |
-| `ghostScreams` | 14 | what the nightmares shout on their way past |
+| `ghostScreams` | 14 | shouted by any apparition, so each must work against all three kinds |
+| `ghostHauntings` | 7 | body and scream written as one joke; never randomly paired |
 | `ghostReactions` + `ghostScreamReactions` | 14 | what he says about one, when he is free to |
 
 **Tone.** A chaotic colleague who gives the worst advice and revels *joyously*
@@ -266,7 +314,7 @@ Spoilers, kept here so they are not lost.
 
 ## Testing
 
-`selftest.js` is a 52-assertion suite. It is **not** referenced by
+`selftest.js` is a 69-assertion suite. It is **not** referenced by
 `index.html`, so it never loads for a visitor. Run it from the page:
 
 ```js

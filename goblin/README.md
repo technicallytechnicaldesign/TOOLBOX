@@ -4,9 +4,10 @@ An animated CSS familiar who has opinions about your tolerances. He is the one
 page on this workbench that computes nothing, which only works as a joke because
 everything around him is load-bearing.
 
-Everything lives in `index.html`. No dependencies, no build step, no network
-calls, no persistence. It shares the site's `assets/theme.js`, `assets/menu.js`
-and `assets/reveal.js` like every other section.
+The page is `index.html` — no dependencies, no build step, no network calls, no
+persistence. It shares the site's `assets/theme.js`, `assets/menu.js` and
+`assets/reveal.js` like every other section. `selftest.js` sits alongside it and
+is never loaded by the page; see [Testing](#testing).
 
 ---
 
@@ -64,6 +65,27 @@ FADE_MS  = 950                                  // matches .bubble.fade's transi
 beatHold = clamp(text.length * 70, 2500, 5200)  // one beat inside a routine
 lineHold = clamp(text.length * 80, 5400, 13000) // a standalone line
 ```
+
+**Nothing in the file calls `setTimeout`, `clearTimeout` or `Date` directly.**
+All four go through a `clock` object:
+
+```js
+const clock = {
+  set(fn, ms) { return setTimeout(fn, ms); },
+  clear(id)   { clearTimeout(id); },
+  now()       { return Date.now(); },
+  hours()     { return new Date().getHours(); }
+};
+```
+
+That one indirection is what makes the page testable — see [Testing](#testing).
+If you add anything time-dependent, route it through `clock` (and through
+`later()` if it belongs to an utterance) or it becomes untestable and, in the
+case of `later()`, reintroduces the stale-timer bug.
+
+`later()` removes each id from `timers` as it fires, so `timers` is genuinely
+the set of *outstanding* callbacks. That keeps "nothing left pending after an
+utterance" an assertable invariant rather than a hopeful comment.
 
 ---
 
@@ -189,6 +211,67 @@ Spoilers, kept here so they are not lost.
 - **`psychicDamage`** fires on 0.2% of ambient ticks. Most sessions never see one.
 
 ---
+
+## Testing
+
+`selftest.js` is a 33-assertion suite. It is **not** referenced by
+`index.html`, so it never loads for a visitor. Run it from the page:
+
+```js
+const m = await import('./selftest.js'); return m.runSelfTest();
+```
+
+It returns `{ ok, passed, failed, failures[], results[] }` and takes about
+**60 ms**. It restores the real clock and leaves him talking in a `finally`,
+so it is safe to run against the live page and safe if an assertion throws.
+
+### Why it does not sleep
+
+The obvious way to test a talking goblin is to trigger a routine and sleep
+between beats, watching the bubble. Do not do this. **A hidden browser tab
+clamps `setTimeout` to roughly one second**, so a suite that steps in 100 ms
+increments runs ten times slower than intended, blows tool timeouts, and is
+mostly measuring the browser's throttle rather than this page's logic.
+
+Instead the suite swaps `window.__goblin.clock` for a virtual clock and
+advances it by hand. Beat boundaries then become *exact*: it asserts that one
+millisecond before a boundary the current beat is still up and still visible,
+and one millisecond after it the next beat has arrived. Real-time sampling
+could never prove that.
+
+Two checks concern CSS rather than logic, and each needs its own trick:
+
+- **Animations** (the tear) are driven through the Web Animations API —
+  `getAnimations()[0]`, `pause()`, set `currentTime`, read the computed style.
+  No waiting for keyframes to come around.
+- **Transitions** (clipboard, pencil, calipers) read as 0 if you sample right
+  after adding the class, because the transition has not progressed. The suite
+  injects `*{transition:none!important}` for those probes only — transitions,
+  *not* animations, or it would break the tear check.
+
+### The test seam
+
+`window.__goblin` exposes `clock`, the timing helpers, all the content pools,
+the three registry arrays, the speech entry points, and a `state()` snapshot
+(current text, visibility, active moods/poses/bubble styles, outstanding
+timer count). Plus `stopAmbient()`, `resetPokes()` and `cancelSpeech()` so a
+test can quiet the page before taking over.
+
+**Order matters when installing a virtual clock:** call `stopAmbient()` while
+the *real* clock is still in place, otherwise the already-scheduled real timer
+survives and can fire into the middle of the suite. Start virtual time at
+`Date.now()` so any outstanding `holdUntil` stays meaningful.
+
+### What the suite cannot do
+
+It cannot resize the window, so the horizontal-overflow check measures whatever
+viewport it is handed and names the width in the assertion. Run it once per
+width from whatever is driving the browser. It currently passes at 1280px and
+375px; a reading taken at the Browser pane's arbitrary native width is not
+meaningful and has produced a false 335px failure before.
+
+It also proves nothing about how any of this *looks*. No pass here is a
+substitute for opening the page.
 
 ## Accessibility
 

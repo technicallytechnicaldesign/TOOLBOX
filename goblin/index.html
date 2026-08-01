@@ -1482,6 +1482,19 @@ const FADE_MS = 950;                       /* matches .bubble.fade's transition 
 const beatHold = t => Math.min(5200, Math.max(2500, t.length * 70));
 const lineHold = t => Math.min(13000, Math.max(5400, t.length * 80));
 
+/* Single indirection over time. Everything time-dependent in this file goes
+   through `clock` and nothing calls setTimeout/Date directly, so a test can
+   swap in a virtual clock and advance it synchronously instead of sleeping.
+   That matters more than it sounds: a hidden browser tab throttles timers to
+   roughly one second, so any test that sleeps in small increments to watch
+   him speak is both slow and wrong. See selftest.js and README.md. */
+const clock = {
+  set: function (fn, ms) { return setTimeout(fn, ms); },
+  clear: function (id) { clearTimeout(id); },
+  now: function () { return Date.now(); },
+  hours: function () { return new Date().getHours(); }
+};
+
 let timers = [];
 let runToken = 0;      /* bumped on every new utterance; stale callbacks bail */
 let holdUntil = 0;     /* wall-clock time the current utterance is free to end */
@@ -1489,11 +1502,23 @@ let bitState = '';
 let ambientTimer = null;
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function later(fn, ms) { const id = setTimeout(fn, ms); timers.push(id); return id; }
+
+/* Timers drop out of the list as they fire, so `timers` is genuinely the set
+   of OUTSTANDING callbacks rather than everything scheduled since the last
+   cancel. That keeps the "nothing left pending" invariant assertable. */
+function later(fn, ms) {
+  const id = clock.set(function () {
+    const i = timers.indexOf(id);
+    if (i !== -1) timers.splice(i, 1);
+    fn();
+  }, ms);
+  timers.push(id);
+  return id;
+}
 
 function cancelSpeech() {
   runToken++;
-  timers.forEach(clearTimeout);
+  timers.forEach(function (id) { clock.clear(id); });
   timers = [];
   bitState = '';
   goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES, 'talking', 'pop');
@@ -1559,7 +1584,7 @@ function say(mood, text, opts) {
   setPose(mood, opts.expression, true);
   showText(text, { first: true, scream: opts.scream });
   const hold = opts.hold || lineHold(text);
-  holdUntil = Date.now() + hold;
+  holdUntil = clock.now() + hold;
   later(function () { endUtterance(token); }, hold);
 }
 
@@ -1581,7 +1606,7 @@ function performBit(bit) {
     offset += beat.hold || beatHold(beat.text);
   });
 
-  holdUntil = Date.now() + offset;
+  holdUntil = clock.now() + offset;
   later(function () { endUtterance(token); }, offset);
 }
 
@@ -1589,16 +1614,16 @@ function performBit(bit) {
  * Never cuts him off. The next mutter is scheduled from the moment the
  * current one has finished fading, plus a real gap of quiet. */
 function scheduleAmbient() {
-  clearTimeout(ambientTimer);
-  const now = Date.now();
+  clock.clear(ambientTimer);
+  const now = clock.now();
   const freeAt = Math.max(now, holdUntil + FADE_MS);
   const gap = 11000 + Math.random() * 17000;
-  ambientTimer = setTimeout(runAmbient, (freeAt - now) + gap);
+  ambientTimer = clock.set(runAmbient, (freeAt - now) + gap);
 }
 
 /* Between 01:00 and 05:00 he gets material he cannot use in daylight. */
 function isSmallHours() {
-  const h = new Date().getHours();
+  const h = clock.hours();
   return h >= 1 && h < 5;
 }
 
@@ -1617,7 +1642,7 @@ function pickBit() {
 
 function runAmbient() {
   /* belt and braces: if anything is still on screen, wait it out */
-  if (Date.now() < holdUntil) { scheduleAmbient(); return; }
+  if (clock.now() < holdUntil) { scheduleAmbient(); return; }
 
   const roll = Math.random();
   if (roll < 0.002) {
@@ -1671,13 +1696,55 @@ let pokeForgetTimer = null;
 
 document.getElementById('poke').addEventListener('click', function () {
   pokeCount++;
-  clearTimeout(pokeForgetTimer);
-  pokeForgetTimer = setTimeout(function () { pokeCount = 0; }, 60000);
+  clock.clear(pokeForgetTimer);
+  pokeForgetTimer = clock.set(function () { pokeCount = 0; }, 60000);
 
   const tier = POKE_TIERS.find(function (t) { return pokeCount >= t.at; });
   say(tier.mood, pick(pokeLines[tier.pool]), { expression: tier.expression });
   scheduleAmbient();
 });
+
+/* ---- test seam -----------------------------------------------------------
+ * The handle selftest.js drives. Swapping `clock.set/clear/now/hours` for a
+ * virtual implementation makes every timing behaviour in this file testable
+ * synchronously, which is the only sane way to verify it: a hidden browser
+ * tab clamps real timers to about a second, so sleeping through a routine to
+ * watch it is slow, flaky, and measures the throttle rather than the code.
+ * Nothing here runs unless something calls it. */
+window.__goblin = {
+  clock: clock,
+  timing: { FADE_MS: FADE_MS, beatHold: beatHold, lineHold: lineHold },
+  pools: {
+    lines: lines, toleranceScreams: toleranceScreams, psychicDamage: psychicDamage,
+    nightLines: nightLines, pokeLines: pokeLines, BITS: BITS
+  },
+  registries: {
+    MOODS: MOODS, EXPRESSIONS: EXPRESSIONS,
+    BIT_STATES: BIT_STATES, BUBBLE_STYLES: BUBBLE_STYLES
+  },
+  say: say,
+  performBit: performBit,
+  pickBit: pickBit,
+  runAmbient: runAmbient,
+  scheduleAmbient: scheduleAmbient,
+  isSmallHours: isSmallHours,
+  cancelSpeech: cancelSpeech,
+  stopAmbient: function () { clock.clear(ambientTimer); ambientTimer = null; },
+  resetPokes: function () { clock.clear(pokeForgetTimer); pokeCount = 0; },
+  state: function () {
+    return {
+      text: bubble.textContent,
+      visible: bubble.classList.contains('show') && !bubble.classList.contains('fade'),
+      fading: bubble.classList.contains('fade'),
+      bubbleStyles: BUBBLE_STYLES.filter(function (c) { return bubble.classList.contains(c); }),
+      moods: MOODS.filter(function (c) { return goblin.classList.contains(c); }),
+      poses: BIT_STATES.filter(function (c) { return goblin.classList.contains(c); }),
+      talking: goblin.classList.contains('talking'),
+      pendingTimers: timers.length,
+      holdUntil: holdUntil
+    };
+  }
+};
 
 say('ambient', "You remind me of the babe!", { hold: 6000 });
 scheduleAmbient();

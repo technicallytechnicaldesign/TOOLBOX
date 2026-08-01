@@ -179,6 +179,64 @@
     .clip-bubble::after { right: 20px; }
   }
 
+  /* ---- peekers ---------------------------------------------------------
+     Things that lean in from the edge of the stage, offer an opinion, and
+     withdraw. Clipped by the container, so they genuinely arrive from
+     offstage. Above the drift ghosts, below the speech bubble. */
+  /* z-index 1 like .drift, but later in the DOM, so peekers layer above the
+     ghosts and BEHIND him (z 2). On a wide stage they never reach him anyway;
+     on a narrow one they slide in behind rather than across his face. */
+  .peekers {
+    position: absolute; inset: 0; overflow: hidden;
+    z-index: 1; pointer-events: none;
+  }
+  .peeker {
+    position: absolute; display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--acid); opacity: 0;
+    animation-timing-function: ease-out; animation-fill-mode: both;
+  }
+  .peeker.peek-left  { left: 0;  flex-direction: row;         animation-name: peekFromLeft; }
+  .peeker.peek-right { right: 0; flex-direction: row-reverse; animation-name: peekFromRight; }
+  .peek-art { flex: none; display: flex; align-items: center; }
+  .peek-art svg { width: 42px; height: 42px; display: block; }
+  .peek-art .fcf { font-size: 11px; }
+  .peek-say {
+    position: relative; background: #F2F4ED; color: #101310;
+    border-radius: 12px; padding: 7px 11px; font-weight: 700;
+    box-shadow: 4px 5px 0 rgba(0, 0, 0, .22); white-space: nowrap;
+  }
+  .peeker.peek-left .peek-say::after,
+  .peeker.peek-right .peek-say::after {
+    content: ""; position: absolute; top: 50%; transform: translateY(-50%);
+    width: 11px; height: 14px; background: inherit;
+  }
+  .peeker.peek-left .peek-say::after  { left: -9px;  clip-path: polygon(100% 0, 100% 100%, 0 50%); }
+  .peeker.peek-right .peek-say::after { right: -9px; clip-path: polygon(0 0, 0 100%, 100% 50%); }
+
+  @keyframes peekFromLeft {
+    0%   { opacity: 0; transform: translateX(-100%); }
+    16%  { opacity: 1; transform: translateX(0); }
+    84%  { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(-100%); }
+  }
+  @keyframes peekFromRight {
+    0%   { opacity: 0; transform: translateX(100%); }
+    16%  { opacity: 1; transform: translateX(0); }
+    84%  { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(100%); }
+  }
+  /* A phone stage leaves only ~50px either side of him, which a washer plus a
+     caption cannot fit. Drop the art there and let the caption alone lean in:
+     the words are the part that carries the joke. */
+  @media (max-width: 620px) {
+    .peek-art { display: none; }
+    .peeker { font-size: 10px; gap: 0; }
+    .peek-say { padding: 6px 9px; }
+    .peeker .peek-say::after { display: none; }
+  }
+
   .pen { position: relative; display: grid; place-items: center; min-height: 300px; width: 100%; }
 
   /* Invisible hit target over him. He is decorative, so the poke is a real
@@ -759,9 +817,11 @@
     .goblin.overwriting .pencil,
     .goblin.overwriting .dim s::after, .goblin.overwriting .dim i,
     .goblin.defacing .scrawl path, .goblin.hurl .clipboard,
-    .clip-bubble.show {
+    .clip-bubble.show, .peeker {
       animation: none !important;
     }
+    /* peekers still arrive and are readable, they just do not slide */
+    .peeker { opacity: 1; transform: none; }
     /* the vandalism still reads: struck through, replacement written in,
        scrawled over, and the clipboard simply gone */
     .goblin.overwriting .dim s::after { transform: scaleX(1); }
@@ -816,6 +876,7 @@
 
     <section class="stage">
       <div class="drift" id="drift" aria-hidden="true"></div>
+      <div class="peekers" id="peekers" role="status" aria-live="polite"></div>
 
       <div class="bubble-slot">
         <div class="bubble" id="bubble" role="status" aria-live="polite" aria-atomic="true">You remind me of the babe!</div>
@@ -1605,6 +1666,20 @@ const BITS = [
       { text: "...I am simply noting it. For the record. Affectionately.", hold: 5200 }
     ]
   },
+  /* --- choosing a spell, with help from offstage ------------------------- */
+  {
+    id: 'magic-spell', state: 'holding', mood: 'hype', rare: true,
+    beats: [
+      { text: "Hmm. What kind of magic spell to use?", hold: 2900 },
+      { text: "TORQUE?", hold: 2300, voice: 'peek',
+        peek: { side: 'left',  art: 'washer', top: 26 } },
+      { text: "GD&T",    hold: 2300, voice: 'peek',
+        peek: { side: 'right', art: 'frame',  top: 58 } },
+      { text: "MANUALLY OVERRIDING DIMENSIONS!!!", hold: 3700,
+        expression: 'cackle', addState: 'overwriting' }
+    ]
+  },
+
   {
     id: 'latenight-2', state: 'weeping', mood: 'grief', nightOnly: true, rare: true,
     beats: [
@@ -1706,6 +1781,14 @@ const GREETINGS = [
     ]
   },
   {
+    id: 'greet-fan', state: 'rapture', mood: 'hype',
+    beats: [
+      { text: "Oh my gosh, it's YOU." },
+      { text: "The one whose drawings make the machinists cry." },
+      { text: "Amazing. Teach me your ways.", expression: 'bigeyes', hold: 4400 }
+    ]
+  },
+  {
     id: 'greet-credentials', state: 'holding reading', mood: 'ambient',
     beats: [
       { text: "Consulting engineering familiar. At your service." },
@@ -1781,6 +1864,7 @@ const nightLines = [
 const goblin = document.getElementById('goblin');
 const bubble = document.getElementById('bubble');
 const clipBubble = document.getElementById('clip-bubble');
+const peekers = document.getElementById('peekers');
 
 /* Four button moods plus three tints only routines use. All mutually
    exclusive and cleaned up the same way, so they live in one list. */
@@ -1847,6 +1931,7 @@ function cancelSpeech() {
   bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
   clipBubble.classList.remove('show', 'fade');
   clipBubble.textContent = '';
+  peekers.innerHTML = '';
 }
 
 /* One-shot punctuation. Runs on top of whatever pose is active. */
@@ -1896,6 +1981,14 @@ function showText(text, opts) {
     return;
   }
 
+  /* Or by something leaning in from offstage. Same idea, further away. */
+  if (opts.voice === 'peek') {
+    hideMainBubble();
+    hideClipBubble();
+    spawnPeeker(text, opts.peek || {}, opts.holdMs || 2400);
+    return;
+  }
+
   hideClipBubble();
   bubble.textContent = text;
   bubble.classList.remove('fade', 'pulse', ...BUBBLE_STYLES);
@@ -1921,6 +2014,7 @@ function endUtterance(token) {
     if (token !== runToken) return;
     bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
     hideClipBubble();
+    peekers.innerHTML = '';
     goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES);
     bitState = '';
   }, FADE_MS);
@@ -1948,6 +2042,7 @@ function performBit(bit) {
   let offset = 0;
   bit.beats.forEach(function (beat, i) {
     const at = offset;
+    const beatMs = beat.hold || beatHold(beat.text);
     later(function () {
       if (token !== runToken) return;
       /* a beat can add a pose partway through and keep it for the rest of the
@@ -1959,10 +2054,12 @@ function performBit(bit) {
       showText(beat.text, {
         first: i === 0,
         voice: beat.voice,
+        peek: beat.peek,
+        holdMs: beatMs,
         bubbleClass: beat.bubbleClass || bit.bubbleClass
       });
     }, at);
-    offset += beat.hold || beatHold(beat.text);
+    offset += beatMs;
   });
 
   holdUntil = clock.now() + offset;
@@ -2229,6 +2326,48 @@ const ghostScreamReactions = [
   "He will settle down. He never settles down."
 ];
 
+/* ---------------------------------------------------------------------------
+ * PEEKERS
+ *
+ * Things that lean in from the edge of the stage, say one thing, and
+ * withdraw. Unlike apparitions these belong to a ROUTINE, not to the ambient
+ * drift: they are spawned by a beat and torn down with the speech, so a
+ * cancelled routine never leaves a washer hanging off the side.
+ * ------------------------------------------------------------------------- */
+const PEEK_ART = {
+  washer: '<svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4">' +
+          '<circle cx="22" cy="22" r="17"/><circle cx="22" cy="22" r="7.5"/>' +
+          '<path d="M22 3v38M3 22h38" stroke-width="1.1" stroke-dasharray="5 3"/></svg>',
+  frame:  '<span class="fcf"><span class="cell">' + GDT_SYMBOLS.position + '</span>' +
+          '<span class="cell">Ø0.0000001</span><span class="cell">A</span></span>',
+  bolt:   BOLT_ART.straight
+};
+
+function spawnPeeker(text, spec, ms) {
+  const el = document.createElement('div');
+  el.className = 'peeker peek-' + (spec.side === 'right' ? 'right' : 'left');
+
+  const art = document.createElement('span');
+  art.className = 'peek-art';
+  art.innerHTML = PEEK_ART[spec.art] || PEEK_ART.washer;
+
+  const say = document.createElement('span');
+  say.className = 'peek-say';
+  say.textContent = text;
+
+  el.appendChild(art);
+  el.appendChild(say);
+  el.style.top = (spec.top != null ? spec.top : 34) + '%';
+  el.style.animationDuration = Math.round(ms) + 'ms';
+  peekers.appendChild(el);
+
+  /* through later(), so cancelSpeech() takes it away with everything else */
+  later(function () { el.remove(); }, ms + 200);
+  return el;
+}
+
+function clearPeekers() { peekers.innerHTML = ''; }
+
 let ghostTimers = [];
 let apparitionTimer = null;
 
@@ -2470,6 +2609,9 @@ window.__goblin = {
   stopAmbient: function () { clock.clear(ambientTimer); ambientTimer = null; },
   resetPokes: function () { clock.clear(pokeForgetTimer); pokeCount = 0; },
 
+  spawnPeeker: spawnPeeker,
+  clearPeekers: clearPeekers,
+  PEEK_ART: PEEK_ART,
   spawnApparition: spawnApparition,
   pickApparition: pickApparition,
   scheduleApparition: scheduleApparition,
@@ -2491,6 +2633,10 @@ window.__goblin = {
       text: bubble.textContent,
       clipText: clipBubble.textContent,
       clipVisible: clipBubble.classList.contains('show') && !clipBubble.classList.contains('fade'),
+      peekers: [].map.call(peekers.children, function (el) {
+        return { side: el.classList.contains('peek-right') ? 'right' : 'left',
+                 text: el.querySelector('.peek-say').textContent };
+      }),
       visible: bubble.classList.contains('show') && !bubble.classList.contains('fade'),
       fading: bubble.classList.contains('fade'),
       bubbleStyles: BUBBLE_STYLES.filter(function (c) { return bubble.classList.contains(c); }),

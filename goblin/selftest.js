@@ -117,6 +117,62 @@ export function runSelfTest() {
     check('no em dashes in any line', !all.some(l => /—|–/.test(l)),
       all.filter(l => /—|–/.test(l)).slice(0, 3));
 
+    // ---- greetings ---------------------------------------------------------
+    const babe = G.pools.babeGreeting;
+    const greets = G.pools.GREETINGS;
+
+    /* A greeting that turns up forty minutes in is not a greeting. */
+    const bitIds = BITS.map(b => b.id);
+    check('no greeting is reachable from the ambient bit picker',
+      !bitIds.includes(babe.id) && !greets.some(g => bitIds.includes(g.id)),
+      bitIds.filter(id => id === babe.id || greets.some(g => g.id === id)));
+    check('1000 ambient draws never surface a greeting',
+      !Array.from({ length: 1000 }, () => G.pickBit().id)
+        .some(id => id === babe.id || greets.some(g => g.id === id)));
+
+    const drawn = Array.from({ length: 6000 }, () => G.pickGreeting());
+    const babeShare = drawn.filter(g => g.id === babe.id).length / drawn.length;
+    check('the personal greeting comes up about 1 time in 5',
+      Math.abs(babeShare - 0.20) < 0.02, +babeShare.toFixed(3));
+    check('the other greetings all get used',
+      new Set(drawn.filter(g => g.id !== babe.id).map(g => g.id)).size === greets.length,
+      { seen: new Set(drawn.map(g => g.id)).size, expected: greets.length + 1 });
+    check('there are enough non-personal greetings to share the page',
+      greets.length >= 6, greets.length);
+
+    /* every greeting must satisfy the same registry rules as a routine */
+    const badGreet = [];
+    [babe, ...greets].forEach(g => {
+      g.state.split(' ').filter(Boolean)
+        .forEach(s => { if (!BIT_STATES.includes(s)) badGreet.push([g.id, 'state', s]); });
+      if (!MOODS.includes(g.mood)) badGreet.push([g.id, 'mood', g.mood]);
+      g.beats.forEach(b => {
+        if (b.bubbleClass && !BUBBLE_STYLES.includes(b.bubbleClass))
+          badGreet.push([g.id, 'beat bubbleClass', b.bubbleClass]);
+      });
+    });
+    check('every greeting state/mood/beat-style is registered', badGreet.length === 0, badGreet);
+
+    /* the call-and-response: alternating voices, and the vandalism */
+    check('the call-and-response alternates into a second voice',
+      babe.beats.map(b => b.bubbleClass === 'echo' ? 'echo' : 'him').join() ===
+      'him,echo,him,echo,him,echo,him,echo,him',
+      babe.beats.map(b => b.bubbleClass || 'him'));
+    check('he is hand-editing dimensions throughout it',
+      babe.state.includes('overwriting') && babe.state.includes('holding'), babe.state);
+
+    /* per-beat bubbleClass has to actually reach the bubble */
+    G.performBit(babe);
+    vc.advance(0);
+    const voices = [];
+    babe.beats.forEach((b, i) => {
+      voices.push(G.state().bubbleStyles.includes('echo') ? 'echo' : 'him');
+      vc.advance(b.hold || G.timing.beatHold(b.text));
+    });
+    check('the second voice actually renders per beat',
+      voices.join() === 'him,echo,him,echo,him,echo,him,echo,him', voices);
+    G.cancelSpeech();
+
     // ---- beat scheduling is exact ------------------------------------------
     const bit = BITS.find(b => b.beats.length >= 4 && !b.nightOnly);
     G.performBit(bit);
@@ -265,6 +321,32 @@ export function runSelfTest() {
     goblin.className = 'goblin ambient talking scribbling holding';
     check('scribbling: pencil is shown',
       parseFloat(getComputedStyle(document.querySelector('.pencil')).opacity) === 1);
+
+    goblin.className = 'goblin hype talking holding overwriting';
+    const dims = document.querySelector('.dims');
+    check('overwriting: the hand-edited dimensions are shown',
+      parseFloat(getComputedStyle(dims).opacity) === 1 &&
+      dims.querySelectorAll('.dim').length === 3);
+    check('overwriting: each dimension has an original and a scrawled override',
+      [...dims.querySelectorAll('.dim')].every(d => d.querySelector('s') && d.querySelector('i')));
+    check('overwriting: the pencil is out for it',
+      parseFloat(getComputedStyle(document.querySelector('.pencil')).opacity) === 1);
+
+    /* The edits have to land ON the clipboard paper, not beside it. Measured
+       with animation off, since his float rotation inflates a bounding box by
+       a couple of px and makes this look wrong when it is fine (and vice
+       versa: it hid a real 15px overhang the first time). */
+    const noAnim = document.createElement('style');
+    noAnim.textContent = '*{animation:none!important}';
+    document.head.appendChild(noAnim);
+    const cb = document.querySelector('.clipboard').getBoundingClientRect();
+    const dm = document.querySelector('.dims').getBoundingClientRect();
+    const paper = { l: cb.left + 12, r: cb.right - 12, t: cb.top + 14, b: cb.bottom - 12 };
+    check('overwriting: the edits land on the clipboard paper',
+      dm.left >= paper.l && dm.right <= paper.r && dm.top >= paper.t && dm.bottom <= paper.b,
+      { overhangRight: Math.round(dm.right - paper.r), overhangLeft: Math.round(paper.l - dm.left),
+        overhangBottom: Math.round(dm.bottom - paper.b) });
+    noAnim.remove();
     check('holding: clipboard is shown',
       parseFloat(getComputedStyle(document.querySelector('.clipboard')).opacity) === 1);
     goblin.className = 'goblin ambient talking';

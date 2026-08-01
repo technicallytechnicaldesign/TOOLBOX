@@ -146,6 +146,13 @@
     font-style: italic; font-weight: 500; background: #E4E8DE;
     font-size: clamp(0.88rem, 2vw, 1.15rem);
   }
+  /* the second voice in a call-and-response: smaller, paler, clearly not him */
+  .bubble.echo {
+    font-style: italic; font-weight: 500;
+    background: #DCE2D4; color: #3B4137;
+    font-size: clamp(0.8rem, 1.7vw, 1.02rem);
+    box-shadow: 5px 6px 0 rgba(0, 0, 0, .18);
+  }
 
   .pen { position: relative; display: grid; place-items: center; min-height: 300px; width: 100%; }
 
@@ -439,6 +446,39 @@
   .goblin.conspiracy.talking .head { animation: whisperHead 1.9s ease-in-out infinite; }
   .goblin.conspiracy.talking .mouth { animation: mumble .4s infinite alternate; }
 
+  /* Dancing, while striking out dimensions on the drawing and writing new
+     ones in by hand. Compose with `holding` so the clipboard is out. */
+  .dims {
+    position: absolute; z-index: 9; right: -30px; top: 82px; width: 54px;
+    display: flex; flex-direction: column; gap: 4px;
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+    font-family: var(--font-mono); font-size: 8px; letter-spacing: .02em;
+  }
+  .goblin.overwriting .dims { opacity: 1; }
+  .goblin.overwriting .paper-line { opacity: .3; }
+  .dim { display: flex; align-items: center; gap: 4px; color: #2C3128; }
+  .dim s { position: relative; text-decoration: none; }
+  .dim s::after {
+    content: ""; position: absolute; left: -1px; right: -1px; top: 52%; height: 1.5px;
+    background: #C0392B; transform: scaleX(0); transform-origin: left;
+  }
+  .dim i {
+    font-style: italic; font-weight: 700; color: #C0392B;
+    opacity: 0; transform: rotate(-7deg) translateY(2px);
+  }
+  .goblin.overwriting .dim s::after { animation: strikeOut .45s ease-out forwards; }
+  .goblin.overwriting .dim i { animation: scrawlIn .4s ease-out forwards; }
+  .goblin.overwriting .dim:nth-child(2) s::after,
+  .goblin.overwriting .dim:nth-child(2) i { animation-delay: .95s; }
+  .goblin.overwriting .dim:nth-child(3) s::after,
+  .goblin.overwriting .dim:nth-child(3) i { animation-delay: 1.9s; }
+  .goblin.overwriting .pencil { opacity: 1; animation: scribbleHand .17s infinite alternate; }
+  /* he is dancing, so no scribble head-bob: a bop instead */
+  .goblin.overwriting { animation: bopBody .46s ease-in-out infinite alternate; }
+  .goblin.overwriting.talking .head { animation: bopHead .46s ease-in-out infinite alternate; }
+  .goblin.overwriting .brow.left { transform: rotate(-14deg) translateY(-3px); }
+  .goblin.overwriting .brow.right { transform: rotate(14deg) translateY(-3px); }
+
   /* sitting back, being correct */
   .goblin.smug { animation: smugSway 3.2s ease-in-out infinite; }
   .goblin.smug .eye { animation: none; transform: scaleY(.55); }
@@ -488,6 +528,18 @@
   @keyframes smugSway {
     0%, 100% { transform: rotate(-4deg) translateY(0); }
     50%      { transform: rotate(3deg) translateY(-5px); }
+  }
+  @keyframes strikeOut { to { transform: scaleX(1); } }
+  @keyframes scrawlIn {
+    to { opacity: 1; transform: rotate(-7deg) translateY(0); }
+  }
+  @keyframes bopBody {
+    from { transform: translateY(1px) rotate(-2.5deg); }
+    to   { transform: translateY(-9px) rotate(2.5deg); }
+  }
+  @keyframes bopHead {
+    from { transform: translateY(2px) rotate(-3deg); }
+    to   { transform: translateY(-2px) rotate(3deg); }
   }
 
   @keyframes scribbleHand {
@@ -653,9 +705,15 @@
     .goblin.measuring .calipers .jaw.b,
     .goblin.conspiracy, .goblin.conspiracy .pupil,
     .goblin.conspiracy.talking .head, .goblin.conspiracy.talking .mouth,
-    .goblin.smug {
+    .goblin.smug,
+    .goblin.overwriting, .goblin.overwriting.talking .head,
+    .goblin.overwriting .pencil,
+    .goblin.overwriting .dim s::after, .goblin.overwriting .dim i {
       animation: none !important;
     }
+    /* the vandalism still reads: struck through, replacement written in */
+    .goblin.overwriting .dim s::after { transform: scaleX(1); }
+    .goblin.overwriting .dim i { opacity: 1; transform: rotate(-7deg); }
     /* the bits still READ as themselves, they just hold a pose instead of moving */
     .goblin.scribbling .pencil { opacity: 1; }
     .goblin.rapture .spark { opacity: 1; }
@@ -721,6 +779,11 @@
           <div class="pencil"></div>
           <div class="calipers"><span class="jaw a"></span><span class="jaw b"></span></div>
           <div class="tear"></div>
+          <div class="dims">
+            <span class="dim"><s>Ø12.0</s><i>12</i></span>
+            <span class="dim"><s>45.0°</s><i>44</i></span>
+            <span class="dim"><s>R2.5</s><i>R3</i></span>
+          </div>
           <div class="ear left"></div><div class="ear right"></div>
           <div class="head">
             <div class="brow left"></div><div class="brow right"></div>
@@ -1493,6 +1556,104 @@ const BITS = [
   }
 ];
 
+/* ---------------------------------------------------------------------------
+ * GREETINGS
+ *
+ * Only ever run once, on load. They are deliberately NOT in BITS, so the
+ * ambient picker cannot reach them: a greeting that turns up forty minutes
+ * into a session is not a greeting.
+ * ------------------------------------------------------------------------- */
+
+/* The call-and-response. Alternate beats answer in a second voice (`echo`),
+   and throughout it he is striking out dimensions on the drawing and writing
+   new ones in by hand, which is genuinely unforgivable practice. */
+const babeGreeting = {
+  id: 'greet-babe', state: 'holding overwriting', mood: 'hype',
+  beats: [
+    { text: "You remind me of the babe.",  hold: 2600 },
+    { text: "What babe?",                  hold: 1700, bubbleClass: 'echo' },
+    { text: "The babe with the power.",    hold: 2400 },
+    { text: "What power?",                 hold: 1700, bubbleClass: 'echo' },
+    { text: "The power of CAD voodoo.",    hold: 2600 },
+    { text: "Who do?",                     hold: 1500, bubbleClass: 'echo' },
+    { text: "YOU DO.",                     hold: 2100, expression: 'bigeyes' },
+    { text: "Do what?",                    hold: 1500, bubbleClass: 'echo' },
+    { text: "Remind me of the babe.",      hold: 3900, expression: 'wink' }
+  ]
+};
+
+/* Everything else. Nothing here is an in-joke, so the page still makes sense
+   to somebody who has never met either of us. */
+const GREETINGS = [
+  {
+    id: 'greet-alone', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "Oh good, someone is here." },
+      { text: "I have been reviewing this drawing alone for eleven hours." },
+      { text: "I have concerns. I have so many concerns.", hold: 4200 }
+    ]
+  },
+  {
+    id: 'greet-visitor', state: 'rapture', mood: 'hype',
+    beats: [
+      { text: "A VISITOR.", hold: 2000 },
+      { text: "Do you have a part number? Please tell me you have a part number.", hold: 4600 }
+    ]
+  },
+  {
+    id: 'greet-found', state: 'smug', mood: 'gold',
+    beats: [
+      { text: "Ah. You found the goblin." },
+      { text: "Everything else on this workbench does maths." },
+      { text: "I do enthusiasm.", expression: 'wink', hold: 4000 }
+    ]
+  },
+  {
+    id: 'greet-register', state: 'holding scribbling', mood: 'ambient',
+    beats: [
+      { text: "One moment." },
+      { text: "Just adding something to the register." },
+      { text: "There. You are in it now.", expression: 'cackle', hold: 4200 }
+    ]
+  },
+  {
+    id: 'greet-caught', state: 'muttering', mood: 'reality',
+    beats: [
+      { text: "...oh. Hello." },
+      { text: "...I did not hear you come in..." },
+      { text: "...I was reading the standard. I was NOT reading the standard.", hold: 4600 }
+    ]
+  },
+  {
+    id: 'greet-measure', state: 'measuring', mood: 'ambient',
+    beats: [
+      { text: "Hold still." },
+      { text: "Ø just under. As suspected." },
+      { text: "Welcome. Do not touch the datum.", hold: 4200 }
+    ]
+  },
+  {
+    id: 'greet-arrangement', state: 'conspiracy', mood: 'ambient', bubbleClass: 'whisper',
+    beats: [
+      { text: "Before we begin." },
+      { text: "Whatever you are about to do, I am going to encourage it." },
+      { text: "That is the arrangement.", hold: 4200 }
+    ]
+  },
+  {
+    id: 'greet-credentials', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "Consulting engineering familiar. At your service." },
+      { text: "None of my advice is reviewed. None of it is insured.", hold: 4600 }
+    ]
+  }
+];
+
+/* One in five sessions opens with the call-and-response. */
+function pickGreeting() {
+  return Math.random() < 0.20 ? babeGreeting : pick(GREETINGS);
+}
+
 /* Poking him. Escalates if you keep doing it; the counter forgets after a
    quiet minute, so the ladder is climbable again later. */
 const pokeLines = {
@@ -1562,8 +1723,8 @@ const MOODS = ['ambient', 'hype', 'reality', 'fix', 'destroy', 'awe', 'grief', '
    him, but it lives here so the existing cleanup handles it like any other. */
 const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage', 'grin'];
 const BIT_STATES = ['holding', 'scribbling', 'reading', 'rapture', 'muttering',
-                    'weeping', 'measuring', 'conspiracy', 'smug'];
-const BUBBLE_STYLES = ['scream', 'whisper'];
+                    'weeping', 'measuring', 'conspiracy', 'smug', 'overwriting'];
+const BUBBLE_STYLES = ['scream', 'whisper', 'echo'];
 const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400, grin: 2800 };
 
 const FADE_MS = 950;                       /* matches .bubble.fade's transition */
@@ -1694,7 +1855,8 @@ function performBit(bit) {
     later(function () {
       if (token !== runToken) return;
       setPose(bit.mood, beat.expression, false);
-      showText(beat.text, { first: i === 0, bubbleClass: bit.bubbleClass });
+      /* per-beat style wins, so a routine can answer itself in another voice */
+      showText(beat.text, { first: i === 0, bubbleClass: beat.bubbleClass || bit.bubbleClass });
     }, at);
     offset += beat.hold || beatHold(beat.text);
   });
@@ -2186,8 +2348,10 @@ window.__goblin = {
     nightLines: nightLines, pokeLines: pokeLines, BITS: BITS,
     ghostTolerances: ghostTolerances, ghostFrames: ghostFrames, ghostBolts: ghostBolts,
     ghostScreams: ghostScreams, ghostReactions: ghostReactions,
-    ghostScreamReactions: ghostScreamReactions, ghostHauntings: ghostHauntings
+    ghostScreamReactions: ghostScreamReactions, ghostHauntings: ghostHauntings,
+    GREETINGS: GREETINGS, babeGreeting: babeGreeting
   },
+  pickGreeting: pickGreeting,
   registries: {
     MOODS: MOODS, EXPRESSIONS: EXPRESSIONS,
     BIT_STATES: BIT_STATES, BUBBLE_STYLES: BUBBLE_STYLES
@@ -2233,7 +2397,7 @@ window.__goblin = {
   }
 };
 
-say('ambient', "You remind me of the babe!", { hold: 6000 });
+performBit(pickGreeting());
 scheduleAmbient();
 if (!prefersReducedMotion) scheduleApparition();
 </script>

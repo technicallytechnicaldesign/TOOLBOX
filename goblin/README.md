@@ -17,6 +17,7 @@ Three sources of speech:
 
 | Source | Trigger | Behaviour |
 |---|---|---|
+| **Greeting** | page load, once | a routine; 20% chance of the call-and-response |
 | **Buttons** | user clicks one of four moods | cuts in immediately, one line |
 | **Ambient** | timer, 11 to 28s after he finishes | never interrupts; single line or a routine |
 | **Poke** | user clicks the goblin himself | cuts in, escalates on repeat |
@@ -114,11 +115,36 @@ down, ink filling the page) · `reading` (pupils tracking line to line) ·
 `rapture` (bouncing, blush, staggered sparkles) · `muttering` (half-lidded,
 slow sway) · `weeping` (tear rolls off his chin) · `measuring` (calipers, jaw
 sliding) · `conspiracy` (leans in, eyes darting) · `smug` (leans back,
-satisfied)
+satisfied) · `overwriting` (bops on the spot, striking out dimensions and
+scrawling replacements)
 
 `holding` composes with others: `state: 'holding scribbling'`.
 
 ---
+
+## Greetings
+
+One routine runs on load and never again. Greetings live in `GREETINGS` (plus
+`babeGreeting`) and are deliberately **not** in `BITS`, so the ambient picker
+cannot reach them: a greeting that turns up forty minutes into a session is not
+a greeting. There is a test for exactly that.
+
+`pickGreeting()` returns the call-and-response 20% of the time and one of eight
+others otherwise. The eight are written so the page still makes sense to
+somebody who has never met the author — no in-jokes, nothing personal.
+
+The call-and-response is the only routine that uses **per-beat `bubbleClass`**:
+alternating beats answer in the `echo` voice (smaller, paler, italic), so the
+bubble carries both sides of a conversation. `beat.bubbleClass` overrides
+`bit.bubbleClass`, which is what makes that possible. Throughout it he wears
+`holding overwriting`: dancing on the spot while striking out dimensions on the
+drawing and writing new ones in by hand, which is the worst thing in this entire
+page and entirely the point.
+
+The `overwriting` pose positions `.dims` over the clipboard paper. When moving
+those, measure with `*{animation:none}` — his float rotation inflates a bounding
+box by a couple of pixels, which both hides real overhang and invents fake
+overhang. It concealed a genuine 15px overrun the first time.
 
 ## The drift layer
 
@@ -228,6 +254,7 @@ an empty box.
 | `nightLines` | 6 | 01:00 to 05:00 only |
 | `pokeLines` | 22 | four escalation tiers |
 | `BITS` | 29 routines / 115 beats | multi-beat, with a sustained pose |
+| `GREETINGS` + `babeGreeting` | 9 routines | load only, never reachable from ambient |
 | `ghostTolerances` | 20 | drift-by callouts, short enough to read in passing |
 | `ghostFrames` | 10 | feature control frames, drawn properly, saying something unforgivable |
 | `ghostBolts` | 10 | bolts that exist because somebody drew them once |
@@ -314,7 +341,7 @@ Spoilers, kept here so they are not lost.
 
 ## Testing
 
-`selftest.js` is a 69-assertion suite. It is **not** referenced by
+`selftest.js` is an 82-assertion suite. It is **not** referenced by
 `index.html`, so it never loads for a visitor. Run it from the page:
 
 ```js

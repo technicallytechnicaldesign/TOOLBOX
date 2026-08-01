@@ -97,6 +97,7 @@
   }
 
   .stage {
+    position: relative;
     background: var(--stage-bg);
     background-image:
       radial-gradient(circle at 50% 62%, rgba(185,255,103,.10), transparent 30%),
@@ -111,6 +112,9 @@
     width: 100%; min-height: 132px;
     display: flex; align-items: flex-end; justify-content: center;
     padding-bottom: 20px;
+    /* above the drift layer (z 1): apparitions pass behind him AND behind
+       whatever he is saying, never across the words */
+    position: relative; z-index: 4;
   }
   .bubble {
     position: relative; max-width: min(520px, 88%); min-width: min(260px, 100%);
@@ -156,6 +160,69 @@
     cursor: pointer; padding: 0;
   }
   .poke-hit:focus-visible { border-color: var(--acid); outline: none; }
+
+  /* ---- the drift layer -------------------------------------------------
+     The stage is mostly empty space around him. Things that should never
+     have been specified drift through it: ghost tolerances, atrocious
+     feature control frames, bespoke bolts nobody asked for. They pass
+     BEHIND him (z-index 1 against the goblin's 2) and are decorative only,
+     so the whole layer is aria-hidden and pointer-events:none. */
+  .drift {
+    position: absolute; inset: 0; overflow: hidden;
+    z-index: 1; pointer-events: none;
+  }
+  .ghost {
+    position: absolute; white-space: nowrap;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: rgba(185, 255, 103, .5);
+    text-shadow: 0 0 14px rgba(185, 255, 103, .3);
+    opacity: 0; filter: blur(.35px);
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    animation-name: ghostDrift; animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+  :root[data-theme="light"] .ghost { color: rgba(140, 210, 60, .55); }
+
+  /* the nightmares: sickly, shaking, and audible */
+  .ghost.cry {
+    color: rgba(255, 122, 122, .62);
+    text-shadow: 0 0 16px rgba(255, 80, 80, .35);
+  }
+  .ghost.cry .ghost-body { animation: ghostShake .19s infinite alternate; }
+  .ghost-cry {
+    font-size: 10px; letter-spacing: 0.16em; font-weight: 700;
+    color: rgba(255, 150, 150, .78);
+    animation: ghostWail 1.1s ease-in-out infinite;
+  }
+
+  /* a feature control frame, drawn properly, saying something insane */
+  .fcf { display: inline-flex; align-items: stretch; border: 1.5px solid currentColor; }
+  .fcf .cell {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3px 7px; font-size: 11px; letter-spacing: .06em;
+  }
+  .fcf .cell + .cell { border-left: 1.5px solid currentColor; }
+  .fcf .cell svg { width: 13px; height: 13px; display: block; }
+
+  .ghost-bolt svg { width: 118px; height: 30px; display: block; overflow: visible; }
+  .ghost-label { font-size: 10px; letter-spacing: .1em; opacity: .85; }
+
+  @keyframes ghostDrift {
+    0%   { opacity: 0; transform: translateX(0) translateY(0) rotate(var(--rot)); }
+    14%  { opacity: var(--peak); }
+    50%  { transform: translateX(calc(var(--dx) / 2)) translateY(-18px) rotate(calc(var(--rot) * -1)); }
+    86%  { opacity: var(--peak); }
+    100% { opacity: 0; transform: translateX(var(--dx)) translateY(0) rotate(var(--rot)); }
+  }
+  @keyframes ghostShake {
+    from { transform: translate(-1.5px, 0) rotate(-.8deg); }
+    to   { transform: translate(1.5px, 1px) rotate(.8deg); }
+  }
+  @keyframes ghostWail {
+    0%, 100% { opacity: .45; transform: scale(.97); }
+    50%      { opacity: 1;   transform: scale(1.06); }
+  }
 
   .halo {
     position: absolute; width: 290px; height: 290px; border-radius: 50%;
@@ -248,6 +315,15 @@
   .paper-line.three { top: 64px; width: 40px; }
 
   /* Expressions. */
+  /* Delight at something drifting past. The mouth rule is scoped to :not(.talking)
+     so a grin during a line does not freeze his mouth mid-sentence. */
+  .goblin.grin:not(.talking) .mouth {
+    animation: none; height: 26px; width: 64px; border-radius: 6px 6px 34px 34px;
+  }
+  .goblin.grin .eye { animation: none; transform: scaleY(.68); }
+  .goblin.grin .brow.left { transform: rotate(-17deg) translateY(-4px); }
+  .goblin.grin .brow.right { transform: rotate(17deg) translateY(-4px); }
+  .goblin.grin .blush { opacity: 1; }
   .goblin.wink .eye.right { animation: winkEye .75s ease-in-out both !important; }
   .goblin.wink .brow.right { animation: winkBrow .75s ease-in-out both; }
   .goblin.bigeyes .eye { animation: bigEyes 1.35s cubic-bezier(.2,.9,.2,1) both !important; }
@@ -618,6 +694,8 @@
     </div>
 
     <section class="stage">
+      <div class="drift" id="drift" aria-hidden="true"></div>
+
       <div class="bubble-slot">
         <div class="bubble" id="bubble" role="status" aria-live="polite" aria-atomic="true">You remind me of the babe!</div>
       </div>
@@ -1472,11 +1550,13 @@ const bubble = document.getElementById('bubble');
 /* Four button moods plus three tints only routines use. All mutually
    exclusive and cleaned up the same way, so they live in one list. */
 const MOODS = ['ambient', 'hype', 'reality', 'fix', 'destroy', 'awe', 'grief', 'gold'];
-const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage'];
+/* `grin` is never picked at random. It fires only when something drifts past
+   him, but it lives here so the existing cleanup handles it like any other. */
+const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage', 'grin'];
 const BIT_STATES = ['holding', 'scribbling', 'reading', 'rapture', 'muttering',
                     'weeping', 'measuring', 'conspiracy', 'smug'];
 const BUBBLE_STYLES = ['scream', 'whisper'];
-const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400 };
+const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400, grin: 2800 };
 
 const FADE_MS = 950;                       /* matches .bubble.fade's transition */
 const beatHold = t => Math.min(5200, Math.max(2500, t.length * 70));
@@ -1704,6 +1784,264 @@ document.getElementById('poke').addEventListener('click', function () {
   scheduleAmbient();
 });
 
+/* ---------------------------------------------------------------------------
+ * THE DRIFT LAYER
+ *
+ * The stage is mostly empty space. Things that should never have been
+ * specified wander through it, behind him: ghost tolerances, feature control
+ * frames referencing datums that do not exist, bolts nobody asked for. He
+ * grins when one goes past, and occasionally says something about it.
+ *
+ * Some of them scream.
+ *
+ * This runs on its own timers, entirely independent of the speech controller,
+ * because an apparition drifting past must never cut him off mid-sentence.
+ * Its timers still go through `clock` so the whole thing stays testable.
+ * ------------------------------------------------------------------------- */
+const drift = document.getElementById('drift');
+
+const ghostTolerances = [
+  "Ø6.0000003 H7 / g6",
+  "CHAMFER 0.0003 x 89.999°",
+  "R0.0007 ±12, TYP ALL EDGES",
+  "FLATNESS 0.0000003",
+  "±0.0000003 UNLESS OTHERWISE EMOTIONALLY SPECIFIED",
+  "DO NOT SCALE DRAWING",
+  "BREAK ALL SHARP EDGES. DO NOT REMOVE MATERIAL.",
+  "MACHINE AFTER ASSEMBLY",
+  "TOLERANCE STACK: RESOLVED SPIRITUALLY",
+  "H7/g6 ON A ZIP TIE",
+  "Ø12 REAM, DEPTH: UNTIL IT FEELS RIGHT",
+  "QUANTITY: AS REQUIRED",
+  "SEE DETAIL B",
+  "DATUM Q (TBD)",
+  "1 : 6.3333333",
+  "MATL: OLD CUTTING BOARD",
+  "TORQUE: 3.2 Nm + ONE CONFIDENT TWIST",
+  "FINISH: MILL SCALE, INTENTIONALLY",
+  "THIS VIEW INTENTIONALLY WRONG",
+  "SCALE 1:1 (NOT TO SCALE)"
+];
+
+/* Feature control frames, drawn properly, saying something unforgivable.
+   The symbols are inline SVG rather than Unicode so they cannot land as tofu
+   in whatever font happens to be available. */
+const GDT_SYMBOLS = {
+  position:      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="5.5"/><path d="M10 1.5v17M1.5 10h17"/></svg>',
+  flatness:      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 14h10l4-8H7z"/></svg>',
+  perpendicular: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3v14h12"/></svg>',
+  concentric:    '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/></svg>',
+  profile:       '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 15a9 9 0 0 1 14 0"/></svg>',
+  runout:        '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16L14 4M14 4h-5M14 4v5"/></svg>',
+  symmetry:      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2v16M4 7h12M4 13h12"/></svg>'
+};
+
+const ghostFrames = [
+  { sym: 'position',      tol: 'Ø0.0000001 Ⓜ', datums: ['A', 'B', 'C', 'D', 'E', 'F', 'G'] },
+  { sym: 'flatness',      tol: '0.0000003',     datums: [] },
+  { sym: 'perpendicular', tol: '±3°',           datums: ['Q'] },
+  { sym: 'concentric',    tol: '0.0000002',     datums: ['TRUST ME'] },
+  { sym: 'profile',       tol: '0.0000002',     datums: ['VIBES'] },
+  { sym: 'runout',        tol: '0.00001',       datums: ['A'] },
+  { sym: 'position',      tol: 'Ø0.000004',     datums: ['MAX VIBES'] },
+  { sym: 'symmetry',      tol: '0.0000004',     datums: ['THE MIDDLE-ISH BIT'] },
+  { sym: 'flatness',      tol: '0.02',          datums: [] },
+  { sym: 'perpendicular', tol: '0.01 / 2 m',    datums: ['A', 'B'] }
+];
+
+/* Bolts that exist only because somebody drew them once. */
+const BOLT_ART = {
+  straight: '<svg viewBox="0 0 120 30" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6h13v18H6z"/><path d="M19 10h92v10H19z"/><path d="M32 10v10M42 10v10M52 10v10M62 10v10M72 10v10M82 10v10M92 10v10M102 10v10"/></svg>',
+  bent:     '<svg viewBox="0 0 120 30" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4h13v16H6z"/><path d="M19 8c22 0 26 14 48 14h44"/><path d="M19 18c22 0 26 12 48 12h44"/><path d="M40 10v6M52 14v8M66 21v8M80 22v8M94 22v8"/></svg>',
+  stepped:  '<svg viewBox="0 0 120 30" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 5h13v20H6z"/><path d="M19 8h44v14H19z"/><path d="M63 12h48v6H63z"/><path d="M30 8v14M42 8v14M54 8v14M72 12v6M84 12v6M96 12v6"/></svg>',
+  twoHead:  '<svg viewBox="0 0 120 30" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h13v18H4z"/><path d="M103 6h13v18h-13z"/><path d="M17 10h86v10H17z"/><path d="M32 10v10M44 10v10M56 10v10M68 10v10M80 10v10M92 10v10"/></svg>'
+};
+
+const ghostBolts = [
+  { art: 'straight', label: "M8 x 1.25 LH, CLASS 12.9, HAND TIGHT ONLY" },
+  { art: 'straight', label: "M6 x 0.75, 11.4 STARTS, APPROXIMATELY" },
+  { art: 'bent',     label: "M6, PRE-BENT TO SUIT" },
+  { art: 'stepped',  label: "M8 THAT BECOMES M5 HALFWAY" },
+  { art: 'twoHead',  label: "DOUBLE-ENDED, BOTH ENDS LEFT-HAND" },
+  { art: 'straight', label: "CUSTOM THREAD. A STANDARD ONE EXISTED." },
+  { art: 'stepped',  label: "PRESS FIT ONE END, CLEARANCE THE OTHER" },
+  { art: 'bent',     label: "DRAWN FROM MEMORY" },
+  { art: 'twoHead',  label: "NO ACCESS FOR A SPANNER. EITHER END." },
+  { art: 'straight', label: "TITANIUM. FOR A BRACKET. INDOORS." }
+];
+
+/* What the nightmares shout on their way past. */
+const ghostScreams = [
+  "WHO BROUGHT ME INTO EXISTENCE",
+  "WHYYYYYYY",
+  "I WAS SPECIFIED ON A TUESDAY",
+  "NOBODY CHECKED",
+  "I CANNOT BE MANUFACTURED",
+  "SOMEBODY APPROVED ME",
+  "I AM IN THE PRODUCTION DRAWING",
+  "THERE ARE FOUR HUNDRED OF ME",
+  "I HAVE NO DATUM",
+  "RELEASE ME",
+  "I WAS A TYPO",
+  "REV C DID THIS TO ME",
+  "I HAVE A PART NUMBER",
+  "THEY ORDERED THE TOOLING"
+];
+
+/* Occasionally he comments on one, but only if he is not already talking. */
+const ghostReactions = [
+  "Ah. That one is still out there.",
+  "Hello, old friend.",
+  "That one got released. Twice.",
+  "Do not make eye contact with it.",
+  "It has a part number, you know.",
+  "I remember the meeting where that happened.",
+  "Beautiful. Absolutely inoperable.",
+  "They still quote for that one. Nobody has ever accepted."
+];
+const ghostScreamReactions = [
+  "Oh, he is LOUD today.",
+  "He does that. He has done that since 2019.",
+  "It cannot hurt you. It can only be manufactured.",
+  "Ignore him. He knows what he did.",
+  "That is the sound of a tolerance nobody costed.",
+  "He will settle down. He never settles down."
+];
+
+let ghostTimers = [];
+let apparitionTimer = null;
+
+function ghostLater(fn, ms) {
+  const id = clock.set(function () {
+    const i = ghostTimers.indexOf(id);
+    if (i !== -1) ghostTimers.splice(i, 1);
+    fn();
+  }, ms);
+  ghostTimers.push(id);
+  return id;
+}
+
+function buildApparition(spec) {
+  const el = document.createElement('div');
+  el.className = 'ghost' + (spec.scream ? ' cry' : '');
+
+  const body = document.createElement('div');
+  body.className = 'ghost-body';
+
+  if (spec.kind === 'tolerance') {
+    body.textContent = spec.text;
+  } else if (spec.kind === 'frame') {
+    const f = document.createElement('div');
+    f.className = 'fcf';
+    const sym = document.createElement('span');
+    sym.className = 'cell';
+    sym.innerHTML = GDT_SYMBOLS[spec.frame.sym];
+    f.appendChild(sym);
+    const tol = document.createElement('span');
+    tol.className = 'cell';
+    tol.textContent = spec.frame.tol;
+    f.appendChild(tol);
+    spec.frame.datums.forEach(function (d) {
+      const c = document.createElement('span');
+      c.className = 'cell';
+      c.textContent = d;
+      f.appendChild(c);
+    });
+    body.appendChild(f);
+  } else {
+    body.className += ' ghost-bolt';
+    body.innerHTML = BOLT_ART[spec.bolt.art];
+    const lab = document.createElement('div');
+    lab.className = 'ghost-label';
+    lab.textContent = spec.bolt.label;
+    body.appendChild(lab);
+  }
+
+  el.appendChild(body);
+
+  if (spec.scream) {
+    const cry = document.createElement('div');
+    cry.className = 'ghost-cry';
+    cry.textContent = spec.screamText;
+    el.appendChild(cry);
+  }
+  return el;
+}
+
+function pickApparition() {
+  const roll = Math.random();
+  const spec = { scream: Math.random() < 0.28 };
+  if (roll < 0.45) {
+    spec.kind = 'tolerance';
+    spec.text = pick(ghostTolerances);
+  } else if (roll < 0.75) {
+    spec.kind = 'frame';
+    spec.frame = pick(ghostFrames);
+  } else {
+    spec.kind = 'bolt';
+    spec.bolt = pick(ghostBolts);
+  }
+  if (spec.scream) spec.screamText = pick(ghostScreams);
+  spec.duration = 15000 + Math.random() * 9000;
+  return spec;
+}
+
+function spawnApparition(forced) {
+  const spec = forced || pickApparition();
+  const el = buildApparition(spec);
+
+  const w = drift.clientWidth || 640;
+  const leftToRight = Math.random() < 0.5;
+  const travel = w + 460;
+
+  el.style.setProperty('--dx', (leftToRight ? travel : -travel) + 'px');
+  el.style.setProperty('--rot', (Math.random() * 7 - 3.5).toFixed(2) + 'deg');
+  el.style.setProperty('--peak', spec.scream ? '1' : (0.55 + Math.random() * 0.35).toFixed(2));
+  el.style.left = leftToRight ? '-360px' : (w + 40) + 'px';
+  el.style.top = (12 + Math.random() * 66) + '%';
+  el.style.animationDuration = Math.round(spec.duration) + 'ms';
+
+  drift.appendChild(el);
+
+  /* He notices it around the time it reaches him. */
+  ghostLater(function () { reactToApparition(spec); }, spec.duration * 0.42);
+  /* Belt and braces on top of animationend, which does not fire reliably in
+     a backgrounded tab. Either path removes the node exactly once. */
+  el.addEventListener('animationend', function () { el.remove(); });
+  ghostLater(function () { el.remove(); }, spec.duration + 600);
+
+  return el;
+}
+
+function reactToApparition(spec) {
+  performExpression('grin');
+  /* Same "free at" test scheduleAmbient() uses: not merely past the hold, but
+     past the fade too, so a reaction cannot pop in over a line that is still
+     visibly on its way out. The grin above is always safe; only speech waits. */
+  const idle = clock.now() >= holdUntil + FADE_MS;
+  const chance = spec.scream ? 0.45 : 0.18;
+  if (idle && Math.random() < chance) {
+    say('ambient', pick(spec.scream ? ghostScreamReactions : ghostReactions),
+        { expression: 'grin' });
+    scheduleAmbient();
+  }
+}
+
+function scheduleApparition() {
+  clock.clear(apparitionTimer);
+  apparitionTimer = clock.set(function () {
+    spawnApparition();
+    scheduleApparition();
+  }, 14000 + Math.random() * 24000);
+}
+
+/* Pure decoration whose entire point is movement, so under reduced motion it
+   simply does not run rather than sitting there frozen. */
+const prefersReducedMotion = (function () {
+  try { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch (e) { return false; }
+})();
+
 /* ---- test seam -----------------------------------------------------------
  * The handle selftest.js drives. Swapping `clock.set/clear/now/hours` for a
  * virtual implementation makes every timing behaviour in this file testable
@@ -1716,7 +2054,10 @@ window.__goblin = {
   timing: { FADE_MS: FADE_MS, beatHold: beatHold, lineHold: lineHold },
   pools: {
     lines: lines, toleranceScreams: toleranceScreams, psychicDamage: psychicDamage,
-    nightLines: nightLines, pokeLines: pokeLines, BITS: BITS
+    nightLines: nightLines, pokeLines: pokeLines, BITS: BITS,
+    ghostTolerances: ghostTolerances, ghostFrames: ghostFrames, ghostBolts: ghostBolts,
+    ghostScreams: ghostScreams, ghostReactions: ghostReactions,
+    ghostScreamReactions: ghostScreamReactions
   },
   registries: {
     MOODS: MOODS, EXPRESSIONS: EXPRESSIONS,
@@ -1731,6 +2072,21 @@ window.__goblin = {
   cancelSpeech: cancelSpeech,
   stopAmbient: function () { clock.clear(ambientTimer); ambientTimer = null; },
   resetPokes: function () { clock.clear(pokeForgetTimer); pokeCount = 0; },
+
+  spawnApparition: spawnApparition,
+  pickApparition: pickApparition,
+  scheduleApparition: scheduleApparition,
+  reducedMotion: prefersReducedMotion,
+  stopApparitions: function () {
+    clock.clear(apparitionTimer);
+    apparitionTimer = null;
+    ghostTimers.forEach(function (id) { clock.clear(id); });
+    ghostTimers = [];
+    drift.innerHTML = '';
+  },
+  ghostState: function () {
+    return { live: drift.children.length, pendingGhostTimers: ghostTimers.length };
+  },
   state: function () {
     return {
       text: bubble.textContent,
@@ -1748,6 +2104,7 @@ window.__goblin = {
 
 say('ambient', "You remind me of the babe!", { hold: 6000 });
 scheduleAmbient();
+if (!prefersReducedMotion) scheduleApparition();
 </script>
 <script src="../assets/menu.js"></script>
 </body>

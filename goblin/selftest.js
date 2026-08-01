@@ -76,6 +76,7 @@ export function runSelfTest() {
   /* Stop the page's live timers BEFORE swapping clocks, so no real-clock
      callback can fire into the middle of the suite. */
   G.stopAmbient();
+  G.stopApparitions();
   G.resetPokes();
   G.cancelSpeech();
 
@@ -281,6 +282,129 @@ export function runSelfTest() {
     probe.remove();
     goblin.className = savedClass;
 
+    // ---- the drift layer ---------------------------------------------------
+    G.stopApparitions();
+    const driftEl = document.getElementById('drift');
+    check('drift layer starts empty', G.ghostState().live === 0);
+
+    /* Apparitions must pass BEHIND him and behind whatever he is saying.
+       The bubble is position:relative, so without an explicit z-index it
+       paints below the drift layer and ghosts drift across the words. */
+    const zDrift = parseInt(getComputedStyle(driftEl).zIndex, 10);
+    const zGoblin = parseInt(getComputedStyle(document.getElementById('goblin')).zIndex, 10);
+    const zBubble = parseInt(getComputedStyle(document.querySelector('.bubble-slot')).zIndex, 10);
+    check('apparitions sit behind the goblin and behind the bubble',
+      zDrift < zGoblin && zDrift < zBubble, { zDrift, zGoblin, zBubble });
+    check('drift layer is inert and clipped',
+      getComputedStyle(driftEl).pointerEvents === 'none' &&
+      getComputedStyle(driftEl).overflow === 'hidden' &&
+      getComputedStyle(document.querySelector('.stage')).position === 'relative');
+
+    /* one of each kind renders the right thing */
+    const tolEl = G.spawnApparition({ kind: 'tolerance', text: 'Ø6.0000003 H7', duration: 15000 });
+    check('tolerance ghost renders its text',
+      tolEl.textContent.includes('Ø6.0000003'), tolEl.textContent);
+
+    const frameEl = G.spawnApparition({
+      kind: 'frame', duration: 15000,
+      frame: { sym: 'position', tol: 'Ø0.0000001', datums: ['A', 'B', 'C'] }
+    });
+    check('feature control frame draws an SVG symbol plus a cell per datum',
+      frameEl.querySelector('.fcf svg') && frameEl.querySelectorAll('.fcf .cell').length === 5,
+      frameEl.querySelectorAll('.fcf .cell').length);
+
+    const boltEl = G.spawnApparition({
+      kind: 'bolt', duration: 15000, bolt: { art: 'bent', label: 'M6, PRE-BENT TO SUIT' }
+    });
+    check('bolt ghost draws art and a label',
+      boltEl.querySelector('svg') && boltEl.textContent.includes('PRE-BENT'), boltEl.textContent);
+
+    const cryEl = G.spawnApparition({
+      kind: 'tolerance', text: 'DATUM Q (TBD)', duration: 15000,
+      scream: true, screamText: 'WHO BROUGHT ME INTO EXISTENCE'
+    });
+    check('a screaming apparition gets the cry class and its scream',
+      cryEl.classList.contains('cry') && cryEl.textContent.includes('WHO BROUGHT ME'),
+      cryEl.className);
+
+    check('every ghost is positioned and given a travel distance',
+      [tolEl, frameEl, boltEl, cryEl].every(el =>
+        el.style.getPropertyValue('--dx') && el.style.top && el.style.animationDuration),
+      tolEl.style.cssText);
+
+    check('four apparitions are live', G.ghostState().live === 4, G.ghostState());
+
+    /* he notices one, and every node cleans itself up */
+    G.cancelSpeech();
+    vc.advance(15000 * 0.42);
+    check('he grins when something drifts past',
+      document.getElementById('goblin').classList.contains('grin'),
+      document.getElementById('goblin').className);
+
+    vc.advance(15000);
+    check('apparitions remove themselves when the drift ends',
+      G.ghostState().live === 0, G.ghostState());
+    check('no ghost timers left pending',
+      G.ghostState().pendingGhostTimers === 0, G.ghostState());
+
+    /* The drift layer must never interrupt him. Reactions are probabilistic
+       (45% for a screaming one), so fire a crowd of them rather than one and
+       hope: if the guard were broken this would catch it with near certainty.
+       Reaction lands at 42% of the drift duration, so a 4s drift puts it at
+       ~1.7s, comfortably inside the line's hold. */
+    G.cancelSpeech();
+    const longLine = 'A LINE THAT AN APPARITION MUST NOT BE ALLOWED TO CUT OFF, NOT EVEN A SCREAMING ONE';
+    G.say('ambient', longLine);
+    const holdEnds = G.state().holdUntil;
+    for (let i = 0; i < 30; i++) {
+      G.spawnApparition({ kind: 'tolerance', text: 'SEE DETAIL B', duration: 4000,
+                          scream: true, screamText: 'NOBODY CHECKED' });
+    }
+    vc.advance(2000);                     // past every reaction, still mid-line
+    check('30 screaming apparitions never interrupt a line in progress',
+      G.state().text === longLine, G.state().text);
+    check('the test actually stayed inside the line', G.clock.now() < holdEnds,
+      { now: G.clock.now(), holdEnds });
+    check('he still grinned at them while staying quiet',
+      document.getElementById('goblin').classList.contains('grin'));
+
+    /* ...but once he is genuinely finished, a reaction IS allowed through. */
+    vc.advance(G.timing.lineHold(longLine) + G.timing.FADE_MS + 10);
+    let spoke = false;
+    for (let i = 0; i < 40 && !spoke; i++) {
+      G.spawnApparition({ kind: 'tolerance', text: 'DATUM Q (TBD)', duration: 4000,
+                          scream: true, screamText: 'RELEASE ME' });
+      vc.advance(2000);
+      if (G.pools.ghostScreamReactions.includes(G.state().text)) spoke = true;
+      G.cancelSpeech();
+    }
+    check('a reaction does get through once he is idle', spoke);
+    G.stopApparitions();
+
+    check('ghost pools are populated and clean',
+      G.pools.ghostTolerances.length >= 15 && G.pools.ghostFrames.length >= 8 &&
+      G.pools.ghostBolts.length >= 8 && G.pools.ghostScreams.length >= 10 &&
+      ![...G.pools.ghostTolerances, ...G.pools.ghostScreams,
+        ...G.pools.ghostReactions, ...G.pools.ghostScreamReactions].some(l => /—|–/.test(l)),
+      { tol: G.pools.ghostTolerances.length, frames: G.pools.ghostFrames.length,
+        bolts: G.pools.ghostBolts.length, screams: G.pools.ghostScreams.length });
+
+    check('every frame symbol resolves to real art',
+      G.pools.ghostFrames.every(f => {
+        const probe = G.spawnApparition({ kind: 'frame', frame: f, duration: 100 });
+        const ok = !!probe.querySelector('.fcf svg');
+        probe.remove();
+        return ok;
+      }));
+    check('every bolt variant resolves to real art',
+      G.pools.ghostBolts.every(b => {
+        const probe = G.spawnApparition({ kind: 'bolt', bolt: b, duration: 100 });
+        const ok = !!probe.querySelector('svg');
+        probe.remove();
+        return ok;
+      }));
+    G.stopApparitions();
+
     // ---- layout ------------------------------------------------------------
     /* Viewport-dependent, and this suite cannot resize the window: run it once
        per width from whatever is driving the browser. The offender list is the
@@ -298,10 +422,12 @@ export function runSelfTest() {
     /* Always hand the real clock back and leave him talking, even on a throw. */
     G.clock.set = realClock.set; G.clock.clear = realClock.clear;
     G.clock.now = realClock.now; G.clock.hours = realClock.hours;
+    G.stopApparitions();
     G.resetPokes();
     G.cancelSpeech();
     G.say('ambient', 'Self-test complete. I was magnificent.', { hold: 5000 });
     G.scheduleAmbient();
+    if (!G.reducedMotion) G.scheduleApparition();
   }
 
   const failures = results.filter(r => !r.pass);

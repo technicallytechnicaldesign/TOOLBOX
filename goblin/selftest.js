@@ -94,15 +94,37 @@ export function runSelfTest() {
     check('bit ids unique', new Set(ids).size === ids.length,
       ids.filter((v, i) => ids.indexOf(v) !== i));
 
+    /* Applied to every routine AND every greeting, so a typo in any of them
+       fails here rather than silently rendering nothing. */
+    const VOICES = ['clipboard', 'peek'];
+    const PEEK_SIDES = ['left', 'right'];
     const unknown = [];
-    BITS.forEach(b => {
+    const validateRoutine = b => {
       b.state.split(' ').filter(Boolean)
         .forEach(s => { if (!BIT_STATES.includes(s)) unknown.push([b.id, 'state', s]); });
       if (!MOODS.includes(b.mood)) unknown.push([b.id, 'mood', b.mood]);
       if (b.bubbleClass && !BUBBLE_STYLES.includes(b.bubbleClass))
         unknown.push([b.id, 'bubbleClass', b.bubbleClass]);
-    });
-    check('every bit state/mood/bubbleClass is registered', unknown.length === 0, unknown);
+      b.beats.forEach(beat => {
+        if (beat.voice && !VOICES.includes(beat.voice)) unknown.push([b.id, 'voice', beat.voice]);
+        if (beat.expression && !EXPRESSIONS.includes(beat.expression))
+          unknown.push([b.id, 'expression', beat.expression]);
+        if (beat.addState) beat.addState.split(' ').filter(Boolean).forEach(s => {
+          if (!BIT_STATES.includes(s)) unknown.push([b.id, 'addState', s]);
+        });
+        if (beat.voice === 'peek') {
+          if (!beat.peek) unknown.push([b.id, 'peek beat with no peek spec']);
+          else {
+            if (!PEEK_SIDES.includes(beat.peek.side)) unknown.push([b.id, 'peek side', beat.peek.side]);
+            if (!G.PEEK_ART[beat.peek.art]) unknown.push([b.id, 'peek art', beat.peek.art]);
+          }
+        }
+      });
+    };
+    BITS.forEach(validateRoutine);
+    [G.pools.babeGreeting, ...G.pools.GREETINGS].forEach(validateRoutine);
+    check('every routine and greeting uses only registered states/moods/voices/art',
+      unknown.length === 0, unknown);
 
     /* The original prototype bug: the rare line also sat in the common pool,
        so the 0.2% gate did nothing. Guard it forever. */
@@ -207,6 +229,86 @@ export function runSelfTest() {
     G.cancelSpeech();
     check('cancelling clears the clipboard bubble too',
       G.state().clipText === '' && !G.state().clipVisible, G.state());
+
+    // ---- the spell sequence ------------------------------------------------
+    const spell = BITS.find(b => b.id === 'magic-spell');
+    check('the spell sequence exists and is rare', !!spell && spell.rare === true);
+    check('it is offered a suggestion from each side',
+      spell.beats.filter(b => b.voice === 'peek').map(b => b.peek.side).join() === 'left,right',
+      spell.beats.filter(b => b.voice === 'peek').map(b => b.peek.side));
+
+    G.cancelSpeech();
+    G.performBit(spell);
+    vc.advance(0);
+    const spellTrace = [];
+    spell.beats.forEach(b => {
+      const s = G.state();
+      spellTrace.push({
+        him: s.visible ? s.text : null,
+        peek: s.peekers.map(p => p.side + ':' + p.text).join(),
+        overwriting: s.poses.includes('overwriting')
+      });
+      vc.advance(b.hold || G.timing.beatHold(b.text));
+    });
+
+    /* At a beat boundary the outgoing peeker is briefly still in the DOM: its
+       animation has already faded it to nothing and its removal timer fires
+       shortly after. So these assert containment, not exclusivity. */
+    check('the washer leans in from the left offering TORQUE',
+      spellTrace[1].peek.includes('left:TORQUE?') && spellTrace[1].him === null, spellTrace[1]);
+    check('the tolerance answers from the right',
+      spellTrace[2].peek.includes('right:GD&T') && spellTrace[2].him === null, spellTrace[2]);
+    check('no more than one hands over to one other at a time',
+      spellTrace.every(t => t.peek.split(',').filter(Boolean).length <= 2),
+      spellTrace.map(t => t.peek));
+    check('he settles it himself, and starts overriding',
+      spellTrace[3].him === 'MANUALLY OVERRIDING DIMENSIONS!!!' && spellTrace[3].overwriting,
+      spellTrace[3]);
+    check('peekers are gone once the sequence ends',
+      G.state().peekers.length === 0, G.state().peekers);
+
+    /* a cancelled routine must not leave a washer hanging off the side */
+    G.performBit(spell);
+    vc.advance((spell.beats[0].hold || 0) + 100);
+    check('a peeker is live mid-sequence', G.state().peekers.length === 1, G.state().peekers);
+    G.cancelSpeech();
+    check('cancelling a routine clears its peekers',
+      G.state().peekers.length === 0, G.state().peekers);
+
+    /* Placement, at whatever width this is running. A phone stage leaves only
+       ~50px either side of him, so peekers must sit BEHIND him rather than
+       across his face, and must stay inside the stage. */
+    G.clearPeekers();
+    const noAnimP = document.createElement('style');
+    noAnimP.textContent = '*{animation:none!important;transition:none!important}';
+    document.head.appendChild(noAnimP);
+    const pw = G.spawnPeeker('TORQUE?', { side: 'left', art: 'washer', top: 26 }, 3000);
+    const pf = G.spawnPeeker('GD&T', { side: 'right', art: 'frame', top: 58 }, 3000);
+    const stg = document.querySelector('.stage').getBoundingClientRect();
+    const pwB = pw.getBoundingClientRect(), pfB = pf.getBoundingClientRect();
+    const zPeek = parseInt(getComputedStyle(document.getElementById('peekers')).zIndex, 10);
+    const zGob = parseInt(getComputedStyle(document.getElementById('goblin')).zIndex, 10);
+
+    check('peekers sit behind the goblin', zPeek < zGob, { zPeek, zGob });
+    check('peekers arrive from opposite edges of the stage',
+      Math.round(pwB.left) <= Math.round(stg.left) + 1 &&
+      Math.round(pfB.right) >= Math.round(stg.right) - 1,
+      { washerL: Math.round(pwB.left), frameR: Math.round(pfB.right),
+        stage: { l: Math.round(stg.left), r: Math.round(stg.right) } });
+    check('peekers stay inside the stage and cause no page overflow',
+      pwB.right <= stg.right + 1 && pfB.left >= stg.left - 1 &&
+      document.documentElement.scrollWidth - document.documentElement.clientWidth === 0,
+      { washerR: Math.round(pwB.right), frameL: Math.round(pfB.left) });
+    check('a peeker is never wider than half the stage',
+      pwB.width <= stg.width / 2 && pfB.width <= stg.width / 2,
+      { washer: Math.round(pwB.width), frame: Math.round(pfB.width),
+        half: Math.round(stg.width / 2) });
+    noAnimP.remove();
+    G.clearPeekers();
+
+    check('the new arrival greeting is present',
+      G.pools.GREETINGS.some(g => g.id === 'greet-fan' &&
+        g.beats.some(b => /machinists cry/.test(b.text))));
 
     // ---- beat scheduling is exact ------------------------------------------
     const bit = BITS.find(b => b.beats.length >= 4 && !b.nightOnly);
@@ -654,6 +756,7 @@ export function runSelfTest() {
     G.clock.set = realClock.set; G.clock.clear = realClock.clear;
     G.clock.now = realClock.now; G.clock.hours = realClock.hours;
     G.stopApparitions();
+    G.clearPeekers();
     G.resetPokes();
     G.cancelSpeech();
     G.say('ambient', 'Self-test complete. I was magnificent.', { hold: 5000 });

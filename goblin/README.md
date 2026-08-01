@@ -148,11 +148,16 @@ and outside the stage. There is now a placement test with 8px of slack, because
 at the default position a phone leaves about 1px and one longer clipboard line
 would clip off the edge.
 
-Two other per-beat hooks exist, both used only here:
+Per-beat hooks, all optional:
 
-- `beat.addState` adds a pose partway through and keeps it for the rest of the
-  routine. They are `BIT_STATES`, so normal teardown removes them.
-- `beat.bubbleClass` overrides `bit.bubbleClass`.
+| Hook | Effect |
+|---|---|
+| `voice: 'clipboard'` | text goes to the clipboard's bubble; his hides |
+| `voice: 'peek'` + `peek: {side, art, top}` | text goes to a peeker leaning in from that edge |
+| `addState` | adds a pose partway through, kept for the rest of the routine |
+| `bubbleClass` | overrides `bit.bubbleClass` |
+| `expression` | one-shot expression on that beat |
+| `hold` | explicit ms, otherwise derived from text length |
 
 ### What he does to the drawing
 
@@ -170,6 +175,29 @@ When moving `.dims` or `.scrawl`, measure with `*{animation:none}` — his float
 rotation inflates a bounding box, which both hides real overhang and invents
 fake overhang. It concealed a genuine 15px overrun of the paper edge once, and
 separately reported a phantom 2px one.
+
+## Peekers
+
+Things that lean in from the edge of the stage, say one thing, and withdraw.
+A beat with `voice: 'peek'` and a `peek: { side, art, top }` spec routes its
+text into a peeker instead of a bubble. Art comes from `PEEK_ART`
+(`washer`, `frame`, `bolt`).
+
+Unlike apparitions these belong to a **routine, not to the ambient drift**:
+they are spawned by a beat, timed to that beat's hold, and torn down with the
+speech, so a cancelled routine never leaves a washer hanging off the side.
+Their removal timers go through `later()` for exactly that reason.
+
+`.peekers` is `z-index: 1` — same as `.drift` but later in the DOM, so peekers
+layer above the ghosts and **behind him**. On a wide stage they never reach him;
+on a phone the stage leaves only ~50px either side, and without this they slide
+straight across his face. On narrow screens the art is dropped entirely and the
+caption alone leans in, since the words carry the joke and a washer plus a
+caption cannot fit in 50px.
+
+At a beat boundary two peekers are briefly in the DOM at once: the outgoing one
+has already animated to nothing but its removal timer has not fired yet. Assert
+containment, not exclusivity.
 
 ## The drift layer
 
@@ -278,8 +306,8 @@ an empty box.
 | `psychicDamage` | 30 | the 0.2% tier: quiet, personal, true |
 | `nightLines` | 6 | 01:00 to 05:00 only |
 | `pokeLines` | 22 | four escalation tiers |
-| `BITS` | 29 routines / 115 beats | multi-beat, with a sustained pose |
-| `GREETINGS` + `babeGreeting` | 9 routines | load only, never reachable from ambient |
+| `BITS` | 30 routines | multi-beat, with a sustained pose |
+| `GREETINGS` + `babeGreeting` | 10 routines | load only, never reachable from ambient |
 | `ghostTolerances` | 20 | drift-by callouts, short enough to read in passing |
 | `ghostFrames` | 10 | feature control frames, drawn properly, saying something unforgivable |
 | `ghostBolts` | 10 | bolts that exist because somebody drew them once |
@@ -366,7 +394,7 @@ Spoilers, kept here so they are not lost.
 
 ## Testing
 
-`selftest.js` is a 92-assertion suite. It is **not** referenced by
+`selftest.js` is a 106-assertion suite. It is **not** referenced by
 `index.html`, so it never loads for a visitor. Run it from the page:
 
 ```js

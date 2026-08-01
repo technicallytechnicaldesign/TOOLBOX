@@ -381,11 +381,90 @@ export function runSelfTest() {
     check('a reaction does get through once he is idle', spoke);
     G.stopApparitions();
 
+    // ---- apparition variety ------------------------------------------------
+    G.stopApparitions();
+    const specs = Array.from({ length: 6000 }, () => G.pickApparition());
+
+    const kindShare = k => specs.filter(s => s.kind === k).length / specs.length;
+    check('all three kinds appear, none starved',
+      ['tolerance', 'frame', 'bolt'].every(k => kindShare(k) > 0.15),
+      { tolerance: +kindShare('tolerance').toFixed(3), frame: +kindShare('frame').toFixed(3),
+        bolt: +kindShare('bolt').toFixed(3) });
+
+    const peaks = specs.map(s => s.peak);
+    check('opacity stays within 10-40%',
+      Math.min(...peaks) >= 0.10 && Math.max(...peaks) <= 0.40,
+      { min: +Math.min(...peaks).toFixed(3), max: +Math.max(...peaks).toFixed(3) });
+    check('the biggest ones are held to the faint end',
+      specs.filter(s => s.scale > 3).every(s => s.peak <= 0.36),
+      Math.max(...specs.filter(s => s.scale > 3).map(s => s.peak)).toFixed(3));
+
+    const scales = specs.map(s => s.scale);
+    check('scale spans small to stage-filling',
+      Math.min(...scales) >= 1 && Math.max(...scales) > 5 &&
+      specs.filter(s => s.scale > 3.8).length / specs.length > 0.03,
+      { min: +Math.min(...scales).toFixed(2), max: +Math.max(...scales).toFixed(2),
+        hugeShare: +(specs.filter(s => s.scale > 3.8).length / specs.length).toFixed(3) });
+
+    check('some drift only partway and fade out where they are',
+      specs.filter(s => s.partial).length / specs.length > 0.25);
+    check('every apparition gets a wave amplitude', specs.every(s => s.wave >= 22));
+
+    /* the two lines that must be paired, never bolted onto something random */
+    check('"no datum" and "part number" are not in the random scream pool',
+      !G.pools.ghostScreams.some(s => /NO DATUM|PART NUMBER/.test(s)),
+      G.pools.ghostScreams.filter(s => /NO DATUM|PART NUMBER/.test(s)));
+    check('hauntings always scream, and always with their own paired line',
+      specs.filter(s => s.haunting).every(s =>
+        s.scream && G.pools.ghostHauntings.some(h => h.screamText === s.screamText)));
+    check('hauntings actually come up', specs.filter(s => s.haunting).length / specs.length > 0.10);
+    check('both requested hauntings exist and are extended',
+      G.pools.ghostHauntings.some(h => /NO DATUMS\. ONLY THE VAGUE HOPE/.test(h.screamText)) &&
+      G.pools.ghostHauntings.some(h => /PLEASEEFFINGWORKNOW123123123123_FINAL/.test(h.screamText)));
+
+    /* A stage-filling one must render huge, but "huge" is relative to the
+       stage it is crossing, so this asserts against the clamp rather than a
+       fixed multiplier: the same check then holds on a phone and a desktop. */
+    const bigSpec = { kind: 'tolerance', text: 'DO NOT SCALE DRAWING',
+      scale: 99, peak: 0.18, wave: 60, duration: 20000 };
+    const big = G.spawnApparition(bigSpec);
+    const smallSpec = { kind: 'tolerance', text: 'DO NOT SCALE DRAWING',
+      scale: 1, peak: 0.3, wave: 30, duration: 20000 };
+    const small = G.spawnApparition(smallSpec);
+    const bigW = big.getBoundingClientRect().width;
+    const smallW = small.getBoundingClientRect().width;
+    const cap = G.maxApparitionScale();
+
+    check('an oversized request is clamped to what the stage can hold',
+      bigSpec.effectiveScale <= cap + 0.01 && smallSpec.effectiveScale === 1,
+      { requested: 99, effective: bigSpec.effectiveScale, cap: +cap.toFixed(2) });
+    check('rendered width tracks the effective scale',
+      Math.abs((bigW / smallW) - bigSpec.effectiveScale) / bigSpec.effectiveScale < 0.15,
+      { ratio: +(bigW / smallW).toFixed(2), effective: +bigSpec.effectiveScale.toFixed(2) });
+    check('a stage-filling ghost roughly spans the stage without overflowing it',
+      bigW > document.querySelector('.stage').getBoundingClientRect().width * 0.6 &&
+      document.documentElement.scrollWidth - document.documentElement.clientWidth === 0,
+      { bigW: Math.round(bigW), stage: Math.round(document.querySelector('.stage').getBoundingClientRect().width) });
+    G.stopApparitions();
+
+    /* they wait for a quiet moment */
+    G.cancelSpeech();
+    check('the moment is right when he is silent and the stage is clear',
+      G.apparitionMomentIsRight());
+    G.say('ambient', 'he is talking now, so nothing should surface');
+    check('no apparition surfaces while he is speaking', !G.apparitionMomentIsRight());
+    vc.advance(G.timing.lineHold('he is talking now, so nothing should surface') + G.timing.FADE_MS + 10);
+    check('the moment comes back once he is finished', G.apparitionMomentIsRight());
+    G.spawnApparition({ kind: 'tolerance', text: 'SEE DETAIL B', duration: 15000 });
+    check('no apparition surfaces on top of another', !G.apparitionMomentIsRight());
+    G.stopApparitions();
+
     check('ghost pools are populated and clean',
       G.pools.ghostTolerances.length >= 15 && G.pools.ghostFrames.length >= 8 &&
       G.pools.ghostBolts.length >= 8 && G.pools.ghostScreams.length >= 10 &&
-      ![...G.pools.ghostTolerances, ...G.pools.ghostScreams,
-        ...G.pools.ghostReactions, ...G.pools.ghostScreamReactions].some(l => /—|–/.test(l)),
+      ![...G.pools.ghostTolerances, ...G.pools.ghostScreams, ...G.pools.ghostReactions,
+        ...G.pools.ghostScreamReactions,
+        ...G.pools.ghostHauntings.map(h => h.screamText)].some(l => /—|–/.test(l)),
       { tol: G.pools.ghostTolerances.length, frames: G.pools.ghostFrames.length,
         bolts: G.pools.ghostBolts.length, screams: G.pools.ghostScreams.length });
 

@@ -171,47 +171,55 @@
     position: absolute; inset: 0; overflow: hidden;
     z-index: 1; pointer-events: none;
   }
+  /* Everything inside a ghost is sized in `em` off one `--scale`, so a single
+     variable takes an apparition from a small caption to something spanning
+     the whole stage without any of its parts drifting out of proportion. */
   .ghost {
     position: absolute; white-space: nowrap;
-    font-family: var(--font-mono); font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: calc(12px * var(--scale, 1));
     letter-spacing: 0.08em; text-transform: uppercase;
-    color: rgba(185, 255, 103, .5);
-    text-shadow: 0 0 14px rgba(185, 255, 103, .3);
-    opacity: 0; filter: blur(.35px);
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    color: rgba(185, 255, 103, 1);
+    text-shadow: 0 0 1.1em rgba(185, 255, 103, .35);
+    opacity: 0;
+    /* bigger ones sit further back */
+    filter: blur(calc(.3px * var(--scale, 1)));
+    display: flex; flex-direction: column; align-items: center; gap: .42em;
     animation-name: ghostDrift; animation-timing-function: linear;
     animation-fill-mode: both;
   }
-  :root[data-theme="light"] .ghost { color: rgba(140, 210, 60, .55); }
+  :root[data-theme="light"] .ghost { color: rgba(120, 190, 45, 1); }
 
   /* the nightmares: sickly, shaking, and audible */
   .ghost.cry {
-    color: rgba(255, 122, 122, .62);
-    text-shadow: 0 0 16px rgba(255, 80, 80, .35);
+    color: rgba(255, 122, 122, 1);
+    text-shadow: 0 0 1.3em rgba(255, 80, 80, .4);
   }
   .ghost.cry .ghost-body { animation: ghostShake .19s infinite alternate; }
   .ghost-cry {
-    font-size: 10px; letter-spacing: 0.16em; font-weight: 700;
-    color: rgba(255, 150, 150, .78);
+    font-size: .82em; letter-spacing: 0.16em; font-weight: 700;
     animation: ghostWail 1.1s ease-in-out infinite;
   }
 
   /* a feature control frame, drawn properly, saying something insane */
-  .fcf { display: inline-flex; align-items: stretch; border: 1.5px solid currentColor; }
+  .fcf { display: inline-flex; align-items: stretch; border: .12em solid currentColor; }
   .fcf .cell {
     display: flex; align-items: center; justify-content: center;
-    padding: 3px 7px; font-size: 11px; letter-spacing: .06em;
+    padding: .25em .6em; font-size: .92em; letter-spacing: .06em;
   }
-  .fcf .cell + .cell { border-left: 1.5px solid currentColor; }
-  .fcf .cell svg { width: 13px; height: 13px; display: block; }
+  .fcf .cell + .cell { border-left: .12em solid currentColor; }
+  .fcf .cell svg { width: 1.15em; height: 1.15em; display: block; }
 
-  .ghost-bolt svg { width: 118px; height: 30px; display: block; overflow: visible; }
-  .ghost-label { font-size: 10px; letter-spacing: .1em; opacity: .85; }
+  .ghost-bolt svg { width: 9.8em; height: 2.5em; display: block; overflow: visible; }
+  .ghost-label { font-size: .84em; letter-spacing: .1em; opacity: .85; }
 
   @keyframes ghostDrift {
     0%   { opacity: 0; transform: translateX(0) translateY(0) rotate(var(--rot)); }
     14%  { opacity: var(--peak); }
-    50%  { transform: translateX(calc(var(--dx) / 2)) translateY(-18px) rotate(calc(var(--rot) * -1)); }
+    20%  { transform: translateX(calc(var(--dx) * .2)) translateY(calc(var(--wave) * -1)) rotate(calc(var(--rot) * -1)); }
+    40%  { transform: translateX(calc(var(--dx) * .4)) translateY(calc(var(--wave) * .8)) rotate(var(--rot)); }
+    60%  { transform: translateX(calc(var(--dx) * .6)) translateY(calc(var(--wave) * -.75)) rotate(calc(var(--rot) * -1)); }
+    80%  { transform: translateX(calc(var(--dx) * .8)) translateY(calc(var(--wave) * .55)) rotate(var(--rot)); }
     86%  { opacity: var(--peak); }
     100% { opacity: 0; transform: translateX(var(--dx)) translateY(0) rotate(var(--rot)); }
   }
@@ -1600,6 +1608,11 @@ function cancelSpeech() {
   runToken++;
   timers.forEach(function (id) { clock.clear(id); });
   timers = [];
+  /* Cancelled means not busy. say()/performBit() set this again immediately,
+     so this only matters on a standalone cancel — without it, "is he free?"
+     (used by the ambient timer and the drift layer) keeps answering no until
+     a hold that no longer exists would have expired. */
+  holdUntil = 0;
   bitState = '';
   goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES, 'talking', 'pop');
   bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
@@ -1870,7 +1883,9 @@ const ghostBolts = [
   { art: 'straight', label: "TITANIUM. FOR A BRACKET. INDOORS." }
 ];
 
-/* What the nightmares shout on their way past. */
+/* What the nightmares shout on their way past. These attach to any
+   apparition, so they have to make sense against all of them. Anything whose
+   joke depends on what it is attached to belongs in `ghostHauntings` below. */
 const ghostScreams = [
   "WHO BROUGHT ME INTO EXISTENCE",
   "WHYYYYYYY",
@@ -1880,12 +1895,52 @@ const ghostScreams = [
   "SOMEBODY APPROVED ME",
   "I AM IN THE PRODUCTION DRAWING",
   "THERE ARE FOUR HUNDRED OF ME",
-  "I HAVE NO DATUM",
   "RELEASE ME",
   "I WAS A TYPO",
   "REV C DID THIS TO ME",
-  "I HAVE A PART NUMBER",
-  "THEY ORDERED THE TOOLING"
+  "THEY ORDERED THE TOOLING",
+  "I WENT OUT TO SUPPLIERS",
+  "NOBODY HAS OPENED ME SINCE 2019"
+];
+
+/* Hauntings: body and scream written as one joke, so the two halves always
+   land together. These never get a random scream bolted onto them. */
+const ghostHauntings = [
+  {
+    kind: 'frame',
+    frame: { sym: 'position', tol: 'Ø0.0000001', datums: [] },
+    screamText: "I HAVE NO DATUMS. ONLY THE VAGUE HOPE THAT IT FITS."
+  },
+  {
+    kind: 'tolerance',
+    text: "PLEASEEFFINGWORKNOW123123123123_FINAL",
+    screamText: "I HAVE A PART NUMBER. IT IS PLEASEEFFINGWORKNOW123123123123_FINAL."
+  },
+  {
+    kind: 'bolt',
+    bolt: { art: 'bent', label: 'DRAWN FROM MEMORY' },
+    screamText: "THEY ORDERED FOUR HUNDRED OF ME FROM A SKETCH ON A NAPKIN"
+  },
+  {
+    kind: 'frame',
+    frame: { sym: 'symmetry', tol: '0.0000004', datums: ['THE MIDDLE-ISH BIT'] },
+    screamText: "MY DATUM IS A VIBE. MY DATUM HAS ALWAYS BEEN A VIBE."
+  },
+  {
+    kind: 'tolerance',
+    text: "FINAL_final_USE_THIS_v8_REAL.STEP",
+    screamText: "THERE ARE SEVEN OF ME AND NOBODY KNOWS WHICH ONE SHIPPED"
+  },
+  {
+    kind: 'bolt',
+    bolt: { art: 'twoHead', label: 'NO ACCESS FOR A SPANNER. EITHER END.' },
+    screamText: "I CAN BE INSTALLED. I CANNOT BE REMOVED. EVER."
+  },
+  {
+    kind: 'frame',
+    frame: { sym: 'perpendicular', tol: '±3°', datums: ['Q'] },
+    screamText: "DATUM Q WAS NEVER DEFINED. DATUM Q IS NOT COMING."
+  }
 ];
 
 /* Occasionally he comments on one, but only if he is not already talking. */
@@ -1919,6 +1974,12 @@ function ghostLater(fn, ms) {
   }, ms);
   ghostTimers.push(id);
   return id;
+}
+
+/* A ghost at scale 1 is about 180px wide, so this is the scale at which one
+   spans the stage it is actually drifting across. */
+function maxApparitionScale() {
+  return Math.max(1, (drift.clientWidth || 640) / 180);
 }
 
 function buildApparition(spec) {
@@ -1969,20 +2030,52 @@ function buildApparition(spec) {
 }
 
 function pickApparition() {
-  const roll = Math.random();
-  const spec = { scream: Math.random() < 0.28 };
-  if (roll < 0.45) {
-    spec.kind = 'tolerance';
-    spec.text = pick(ghostTolerances);
-  } else if (roll < 0.75) {
-    spec.kind = 'frame';
-    spec.frame = pick(ghostFrames);
+  let spec;
+
+  if (Math.random() < 0.16) {
+    /* a haunting: body and scream already belong together */
+    const h = pick(ghostHauntings);
+    spec = { kind: h.kind, frame: h.frame, bolt: h.bolt, text: h.text,
+             scream: true, screamText: h.screamText, haunting: true };
   } else {
-    spec.kind = 'bolt';
-    spec.bolt = pick(ghostBolts);
+    const roll = Math.random();
+    /* Hauntings always scream, so this is pitched lower than it looks: with
+       them included the overall scream rate lands around 30%, roughly where
+       it sat before hauntings existed. */
+    spec = { scream: Math.random() < 0.18 };
+    if (roll < 0.38) {
+      spec.kind = 'tolerance';
+      spec.text = pick(ghostTolerances);
+    } else if (roll < 0.66) {
+      spec.kind = 'frame';
+      spec.frame = pick(ghostFrames);
+    } else {
+      spec.kind = 'bolt';
+      spec.bolt = pick(ghostBolts);
+    }
+    if (spec.scream) spec.screamText = pick(ghostScreams);
   }
-  if (spec.scream) spec.screamText = pick(ghostScreams);
-  spec.duration = 15000 + Math.random() * 9000;
+
+  /* Size. Mostly small, occasionally enormous enough to fill the stage
+     behind him. Everything inside a ghost is em-based, so this one number
+     scales the lot. */
+  const s = Math.random();
+  spec.scale = s < 0.70 ? 1 + Math.random() * 1.2
+             : s < 0.92 ? 2.2 + Math.random() * 1.6
+             : 3.8 + Math.random() * 2.2;
+
+  /* Opacity 10-40%. The huge ones stay in the lower half of that, or they
+     stop being background and start being the page. */
+  const peakMax = spec.scale > 3 ? 0.24 : 0.40;
+  spec.peak = 0.10 + Math.random() * (peakMax - 0.10);
+  if (spec.scream) spec.peak = Math.min(0.40, spec.peak + 0.12);
+
+  spec.wave = 22 + Math.random() * 58;
+
+  /* Some do not cross at all: they surface somewhere in the middle, wander a
+     little, and fade out where they are. */
+  spec.partial = Math.random() < 0.38;
+
   return spec;
 }
 
@@ -1991,14 +2084,38 @@ function spawnApparition(forced) {
   const el = buildApparition(spec);
 
   const w = drift.clientWidth || 640;
+  /* "Fills the stage" has to mean the stage you actually have. Unclamped, a
+     scale meant to span a 1060px desktop stage is three screens wide on a
+     phone: still clipped, but an unreadable wall rather than an apparition. */
+  const scale = Math.min(spec.scale || 1, maxApparitionScale());
+  spec.effectiveScale = scale;
   const leftToRight = Math.random() < 0.5;
-  const travel = w + 460;
+  let startX, travel;
 
-  el.style.setProperty('--dx', (leftToRight ? travel : -travel) + 'px');
+  if (spec.partial) {
+    /* surfaces on screen, wanders a bit, fades out where it is */
+    startX = w * (0.10 + Math.random() * 0.5);
+    travel = w * (0.10 + Math.random() * 0.22) * (leftToRight ? 1 : -1);
+  } else {
+    /* fully off one edge to fully off the other; a big ghost is wide, so the
+       run-up and the travel both have to scale with it */
+    const margin = 380 * scale;
+    startX = leftToRight ? -margin : w + 40;
+    travel = (w + margin + 60) * (leftToRight ? 1 : -1);
+  }
+
+  /* Derived from distance so speed stays roughly constant whatever the size,
+     then clamped so nothing races across or outstays its welcome. */
+  spec.duration = spec.duration ||
+    Math.max(12000, Math.min(34000, Math.abs(travel) / 0.085));
+
+  el.style.setProperty('--dx', Math.round(travel) + 'px');
   el.style.setProperty('--rot', (Math.random() * 7 - 3.5).toFixed(2) + 'deg');
-  el.style.setProperty('--peak', spec.scream ? '1' : (0.55 + Math.random() * 0.35).toFixed(2));
-  el.style.left = leftToRight ? '-360px' : (w + 40) + 'px';
-  el.style.top = (12 + Math.random() * 66) + '%';
+  el.style.setProperty('--peak', (spec.peak != null ? spec.peak : 0.3).toFixed(3));
+  el.style.setProperty('--wave', Math.round(spec.wave != null ? spec.wave : 30) + 'px');
+  el.style.setProperty('--scale', scale.toFixed(2));
+  el.style.left = Math.round(startX) + 'px';
+  el.style.top = (10 + Math.random() * 68) + '%';
   el.style.animationDuration = Math.round(spec.duration) + 'ms';
 
   drift.appendChild(el);
@@ -2027,12 +2144,24 @@ function reactToApparition(spec) {
   }
 }
 
-function scheduleApparition() {
+/* They only surface when nothing else is going on: not while he is speaking
+   (or still fading out), and never on top of another one. If the moment is
+   wrong it waits a short while and asks again, rather than burning the whole
+   long interval and going quiet for a minute. */
+function apparitionMomentIsRight() {
+  return clock.now() >= holdUntil + FADE_MS && drift.children.length === 0;
+}
+
+function scheduleApparition(delay) {
   clock.clear(apparitionTimer);
   apparitionTimer = clock.set(function () {
+    if (!apparitionMomentIsRight()) {
+      scheduleApparition(4000 + Math.random() * 6000);
+      return;
+    }
     spawnApparition();
     scheduleApparition();
-  }, 14000 + Math.random() * 24000);
+  }, delay != null ? delay : 12000 + Math.random() * 22000);
 }
 
 /* Pure decoration whose entire point is movement, so under reduced motion it
@@ -2057,7 +2186,7 @@ window.__goblin = {
     nightLines: nightLines, pokeLines: pokeLines, BITS: BITS,
     ghostTolerances: ghostTolerances, ghostFrames: ghostFrames, ghostBolts: ghostBolts,
     ghostScreams: ghostScreams, ghostReactions: ghostReactions,
-    ghostScreamReactions: ghostScreamReactions
+    ghostScreamReactions: ghostScreamReactions, ghostHauntings: ghostHauntings
   },
   registries: {
     MOODS: MOODS, EXPRESSIONS: EXPRESSIONS,
@@ -2076,6 +2205,8 @@ window.__goblin = {
   spawnApparition: spawnApparition,
   pickApparition: pickApparition,
   scheduleApparition: scheduleApparition,
+  apparitionMomentIsRight: apparitionMomentIsRight,
+  maxApparitionScale: maxApparitionScale,
   reducedMotion: prefersReducedMotion,
   stopApparitions: function () {
     clock.clear(apparitionTimer);

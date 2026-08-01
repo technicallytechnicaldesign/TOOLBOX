@@ -39,9 +39,14 @@ fastener mark so the two read as related-but-distinct.
 - **`goblin/`** — the **Hype Goblin**: an animated CSS familiar who has opinions
   about your tolerances. Deliberately *not* a tool — it computes nothing and
   verifies nothing. Four mood buttons (hype / reality check / fix / destroy) each
-  draw from their own line pool and recolour him; an ambient timer mutters every
-  22–48s, with a ~14% chance of an UNPROVOKED TOLERANCE SCREAM and a 0.2% chance
-  of a rarer, sharper line. Single file, no assets, no state, no persistence.
+  draw from their own line pool and recolour him; an ambient timer speaks every
+  11–28s, running either a single line, an UNPROVOKED TOLERANCE SCREAM, or one of
+  29 multi-beat **routines** in which he holds a sustained pose — reading down a
+  drawing, furiously scribbling, weeping over a fillet, measuring something with
+  calipers, leaning in to tell you something he should not. 537 lines across ten
+  pools, plus a few easter eggs. Single file, no assets, no state, no
+  persistence. **See [`goblin/README.md`](goblin/README.md)** for the speech
+  controller, the pose/mood/expression layers, and how to add lines and routines.
 - **`assets/`** — shared, dependency-free chrome dropped into every page:
   `theme.js` (light/dark toggle), `reveal.js` (load-in animation), `menu.js`
   (unified nav), and `favicon.svg` (the hex mark).

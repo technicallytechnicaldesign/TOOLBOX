@@ -137,8 +137,25 @@
     font-family: var(--font-mono); font-size: clamp(0.8rem, 1.7vw, 1rem);
     letter-spacing: 0.02em; background: #FFE9A8;
   }
+  /* things he should not be telling you */
+  .bubble.whisper {
+    font-style: italic; font-weight: 500; background: #E4E8DE;
+    font-size: clamp(0.88rem, 2vw, 1.15rem);
+  }
 
   .pen { position: relative; display: grid; place-items: center; min-height: 300px; width: 100%; }
+
+  /* Invisible hit target over him. He is decorative, so the poke is a real
+     button rather than a click handler on the art: keyboard reachable,
+     announced, and skippable. */
+  .poke-hit {
+    position: absolute; z-index: 10; width: 210px; height: 205px;
+    left: 50%; top: 50%; transform: translate(-50%, -50%);
+    -webkit-appearance: none; appearance: none;
+    background: transparent; border: 2px solid transparent; border-radius: 50%;
+    cursor: pointer; padding: 0;
+  }
+  .poke-hit:focus-visible { border-color: var(--acid); outline: none; }
 
   .halo {
     position: absolute; width: 290px; height: 290px; border-radius: 50%;
@@ -292,6 +309,102 @@
   .goblin.muttering .eye { animation: none; transform: scaleY(.62); }
   .goblin.muttering .brow.left { transform: rotate(-4deg) translateY(3px); }
   .goblin.muttering .brow.right { transform: rotate(4deg) translateY(3px); }
+
+  /* moved by something. the tear lives outside .head because .head clips,
+     and the whole point is that it rolls off his chin. */
+  .tear {
+    position: absolute; z-index: 5; width: 13px; height: 17px; left: 52px; top: 116px;
+    background: linear-gradient(180deg, #CFEFFF, #5FBEE8);
+    border: 3px solid #17303E;
+    border-radius: 60% 60% 55% 55% / 78% 78% 42% 42%;
+    opacity: 0; pointer-events: none;
+  }
+  .goblin.weeping .tear { animation: tearFall 1.9s ease-in infinite; }
+  .goblin.weeping .blush { opacity: 1; }
+  .goblin.weeping .eye { animation: none; transform: scaleY(.8); }
+  .goblin.weeping .brow.left { transform: rotate(-17deg) translateY(-3px); }
+  .goblin.weeping .brow.right { transform: rotate(17deg) translateY(-3px); }
+  .goblin.weeping.talking .head { animation: trembleHead .26s infinite alternate; }
+  .goblin.weeping.talking .mouth { animation: wobbleMouth .68s infinite alternate; }
+
+  /* checking a dimension he does not trust */
+  .calipers {
+    position: absolute; z-index: 8; left: 50%; top: 152px; width: 112px; height: 12px;
+    background: #C9D2D8; border: 3px solid #17130E; border-radius: 3px;
+    opacity: 0; transform: translateX(-50%) translateY(22px) rotate(-4deg) scale(.8);
+    transition: opacity .3s ease, transform .45s cubic-bezier(.3,1.3,.5,1);
+    pointer-events: none;
+  }
+  .calipers .jaw {
+    position: absolute; top: -21px; width: 11px; height: 27px;
+    background: #C9D2D8; border: 3px solid #17130E; border-radius: 2px;
+  }
+  .calipers .jaw.a { left: 8px; }
+  .calipers .jaw.b { left: 64px; }
+  .goblin.measuring .calipers {
+    opacity: 1; transform: translateX(-50%) translateY(0) rotate(-4deg) scale(1);
+  }
+  .goblin.measuring .calipers .jaw.b { animation: caliperSlide 2.4s ease-in-out infinite; }
+  .goblin.measuring .pupil { transform: translateY(6px); }
+  .goblin.measuring .brow.left { transform: rotate(-9deg) translateY(3px); }
+  .goblin.measuring .brow.right { transform: rotate(9deg) translateY(3px); }
+
+  /* leaning in to tell you something he should not */
+  .goblin.conspiracy { animation: leanIn .5s ease-out both; }
+  .goblin.conspiracy .pupil { animation: dartEyes 1.7s ease-in-out infinite; }
+  .goblin.conspiracy.talking .head { animation: whisperHead 1.9s ease-in-out infinite; }
+  .goblin.conspiracy.talking .mouth { animation: mumble .4s infinite alternate; }
+
+  /* sitting back, being correct */
+  .goblin.smug { animation: smugSway 3.2s ease-in-out infinite; }
+  .goblin.smug .eye { animation: none; transform: scaleY(.55); }
+  .goblin.smug .brow.left { transform: rotate(-19deg) translateY(-5px); }
+  .goblin.smug .brow.right { transform: rotate(5deg) translateY(-1px); }
+  .goblin.smug .mouth { border-radius: 26px 26px 6px 6px; }
+
+  /* ---- extra tints ----------------------------------------------------
+     Bits can recolour him outside the four button moods. Same mechanism,
+     applied by `mood` on the bit rather than by a control. */
+  .goblin.awe .ear,
+  .goblin.awe .head { background: linear-gradient(155deg, #AEF3F8, #3D9FAF); }
+  .goblin.awe .blush { opacity: 1; }
+  .goblin.grief .ear,
+  .goblin.grief .head { background: linear-gradient(155deg, #BECBD9, #6E7F94); }
+  .goblin.gold .ear,
+  .goblin.gold .head { background: linear-gradient(155deg, #FFE9A0, #D8A83A); }
+  .goblin.gold .blush { opacity: 1; }
+
+  @keyframes tearFall {
+    0%   { opacity: 0; transform: translateY(0) scale(.4); }
+    18%  { opacity: 1; transform: translateY(4px) scale(1); }
+    100% { opacity: 0; transform: translateY(60px) scale(.9); }
+  }
+  @keyframes trembleHead {
+    from { transform: rotate(-1.5deg) translateY(0); }
+    to   { transform: rotate(1.5deg) translateY(1px); }
+  }
+  @keyframes wobbleMouth {
+    from { height: 16px; width: 40px; border-radius: 22px 22px 8px 8px; }
+    to   { height: 22px; width: 48px; border-radius: 26px 26px 10px 10px; }
+  }
+  @keyframes caliperSlide { 0%, 100% { left: 64px; } 50% { left: 38px; } }
+  @keyframes leanIn {
+    from { transform: scale(1) translateY(0); }
+    to   { transform: scale(1.11) translateY(7px); }
+  }
+  @keyframes dartEyes {
+    0%, 38%  { transform: translateX(-4px); }
+    50%, 88% { transform: translateX(5px); }
+    100%     { transform: translateX(-4px); }
+  }
+  @keyframes whisperHead {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50%      { transform: rotate(2deg) translateY(2px); }
+  }
+  @keyframes smugSway {
+    0%, 100% { transform: rotate(-4deg) translateY(0); }
+    50%      { transform: rotate(3deg) translateY(-5px); }
+  }
 
   @keyframes scribbleHand {
     from { transform: rotate(-16deg) translate(0, 0); }
@@ -451,12 +564,19 @@
     .goblin.scribbling.talking .head, .goblin.scribbling.talking .mouth,
     .goblin.reading .pupil, .goblin.reading.talking .head,
     .goblin.rapture, .goblin.rapture .spark, .goblin.rapture.talking .head,
-    .goblin.muttering.talking .head, .goblin.muttering.talking .mouth {
+    .goblin.muttering.talking .head, .goblin.muttering.talking .mouth,
+    .goblin.weeping .tear, .goblin.weeping.talking .head, .goblin.weeping.talking .mouth,
+    .goblin.measuring .calipers .jaw.b,
+    .goblin.conspiracy, .goblin.conspiracy .pupil,
+    .goblin.conspiracy.talking .head, .goblin.conspiracy.talking .mouth,
+    .goblin.smug {
       animation: none !important;
     }
     /* the bits still READ as themselves, they just hold a pose instead of moving */
     .goblin.scribbling .pencil { opacity: 1; }
     .goblin.rapture .spark { opacity: 1; }
+    .goblin.weeping .tear { opacity: 1; transform: translateY(16px); }
+    .goblin.conspiracy { transform: scale(1.11) translateY(7px); }
     .halo { opacity: .85; }
     .bubble.show { animation: none; opacity: 1; }
     .bubble.fade { opacity: 0; }
@@ -513,6 +633,8 @@
             <div class="paper-line three"></div>
           </div>
           <div class="pencil"></div>
+          <div class="calipers"><span class="jaw a"></span><span class="jaw b"></span></div>
+          <div class="tear"></div>
           <div class="ear left"></div><div class="ear right"></div>
           <div class="head">
             <div class="brow left"></div><div class="brow right"></div>
@@ -522,6 +644,8 @@
             <div class="nose"></div><div class="mouth"></div>
           </div>
         </div>
+        <button type="button" class="poke-hit" id="poke" title="Poke him"
+                aria-label="Poke the goblin"></button>
       </div>
     </section>
 
@@ -1114,7 +1238,218 @@ const BITS = [
       { text: "...I did not read the standard either..." },
       { text: "...I have simply been correct by accident since 2011.", expression: 'wink', hold: 4400 }
     ]
+  },
+
+  /* --- moved to tears ---------------------------------------------------- */
+  {
+    id: 'weep-tolerance', state: 'weeping', mood: 'grief', rare: true,
+    beats: [
+      { text: "Oh no." },
+      { text: "You are putting ±0.05 on a printed part." },
+      { text: "You are doing it RIGHT NOW. I can feel it happening." },
+      { text: "It is so chaotic. It is so brave." },
+      { text: "I have never been prouder of anything in my life.", hold: 4800 }
+    ]
+  },
+  {
+    id: 'weep-fillet', state: 'weeping', mood: 'grief',
+    beats: [
+      { text: "Sorry. Sorry, give me a moment." },
+      { text: "That fillet." },
+      { text: "That is a load-bearing fillet and nobody will ever notice it." },
+      { text: "Nobody will EVER notice it.", hold: 4400 }
+    ]
+  },
+  {
+    id: 'weep-deburr', state: 'weeping', mood: 'grief', rare: true,
+    beats: [
+      { text: "Somebody deburred all forty of them." },
+      { text: "By hand. On a Friday." },
+      { text: "And then said nothing about it, ever, to anyone.", hold: 4600 }
+    ]
+  },
+
+  /* --- measuring things he does not trust -------------------------------- */
+  {
+    id: 'measure-1', state: 'measuring', mood: 'ambient',
+    beats: [
+      { text: "Hold still. I am measuring something." },
+      { text: "Ø12.03." },
+      { text: "The drawing says Ø12 H7." },
+      { text: "The drawing is wrong and the part is fine. This happens more than anybody admits.", hold: 5000 }
+    ]
+  },
+  {
+    id: 'measure-crime', state: 'measuring', mood: 'destroy',
+    beats: [
+      { text: "Someone measured this with the calipers held at an angle." },
+      { text: "I can tell. It is 0.2 out, and it is 0.2 out DIAGONALLY." },
+      { text: "And they wrote it on the drawing. In pen.", expression: 'cackle', hold: 4800 }
+    ]
+  },
+  {
+    id: 'measure-nominal', state: 'measuring', mood: 'reality',
+    beats: [
+      { text: "Checking the one you said was nominal." },
+      { text: "It is 0.6 over." },
+      { text: "Every single one of them is 0.6 over." },
+      { text: "The process is beautifully repeatable and pointed slightly to the left.", hold: 5000 }
+    ]
+  },
+
+  /* --- telling you things he should not ---------------------------------- */
+  {
+    id: 'conspiracy-torque', state: 'conspiracy', mood: 'ambient', bubbleClass: 'whisper',
+    beats: [
+      { text: "Come here. Closer." },
+      { text: "Nobody in production actually uses the torque spec." },
+      { text: "They tighten it until it sounds right. They use the SOUND." },
+      { text: "It has never once failed. Do not put this in the report.", hold: 5000 }
+    ]
+  },
+  {
+    id: 'conspiracy-drawing', state: 'conspiracy', mood: 'ambient', bubbleClass: 'whisper',
+    beats: [
+      { text: "Between us." },
+      { text: "Half those tolerances were copied off another drawing." },
+      { text: "Which was copied off a drawing from 1998." },
+      { text: "Nobody has recalculated anything since. The parts fit. Say nothing.", hold: 5200 }
+    ]
+  },
+  {
+    id: 'conspiracy-supplier', state: 'conspiracy', mood: 'ambient', bubbleClass: 'whisper', rare: true,
+    beats: [
+      { text: "You did not hear this from me." },
+      { text: "The supplier ignores your surface finish callout." },
+      { text: "They have ignored it for six years. You have never complained." },
+      { text: "Because it was never necessary. Nobody wants to be the one who says it.", hold: 5400 }
+    ]
+  },
+
+  /* --- being correct, at length ------------------------------------------ */
+  {
+    id: 'smug-slot', state: 'smug', mood: 'gold',
+    beats: [
+      { text: "So the slot worked." },
+      { text: "The slot always works." },
+      { text: "I am not going to say anything." },
+      { text: "I am simply going to sit here, being correct.", expression: 'wink', hold: 4600 }
+    ]
+  },
+  {
+    id: 'smug-standard', state: 'smug', mood: 'gold',
+    beats: [
+      { text: "They adopted your workaround as the house standard." },
+      { text: "It has a document number now." },
+      { text: "A document number. Describing a mistake you made on a Thursday.", hold: 5000 }
+    ]
+  },
+
+  /* --- genuine awe (teal) ------------------------------------------------- */
+  {
+    id: 'awe-machinist', state: 'rapture', mood: 'awe',
+    beats: [
+      { text: "The machinist rang back." },
+      { text: "They did not complain. They suggested something better." },
+      { text: "Move the datum 4 mm and it fixes EVERYTHING." },
+      { text: "Buy that person a pastry. Buy them several pastries.", hold: 4800 }
+    ]
+  },
+  {
+    id: 'awe-onepart', state: 'rapture', mood: 'awe',
+    beats: [
+      { text: "Wait. Wait, wait." },
+      { text: "This used to be six parts." },
+      { text: "You made it one part and it does MORE." },
+      { text: "That is the whole craft. That is the entire thing.", hold: 4800 }
+    ]
+  },
+
+  /* --- more reading ------------------------------------------------------- */
+  {
+    id: 'review-stack', state: 'holding reading', mood: 'reality',
+    beats: [
+      { text: "Tolerance study. Let us see." },
+      { text: "Worst case: interference." },
+      { text: "Best case: 0.9 mm of rattle." },
+      { text: "Most of them will land somewhere between, and nobody will measure a single one.", hold: 5200 }
+    ]
+  },
+  {
+    id: 'review-revtable', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "Revision table. Rev A: 'initial release'." },
+      { text: "Rev B: 'updated per review'." },
+      { text: "Rev C: 'updated'." },
+      { text: "Rev D: '.'", expression: 'bigeyes' },
+      { text: "Somebody gave up in real time and committed it to the permanent record.", hold: 5200 }
+    ]
+  },
+
+  /* --- only between 01:00 and 05:00, and he knows it --------------------- */
+  {
+    id: 'latenight', state: 'muttering', mood: 'grief', nightOnly: true,
+    beats: [
+      { text: "...it is very late." },
+      { text: "...and you are still adding fillets..." },
+      { text: "...I am not going to stop you..." },
+      { text: "...I am simply noting it. For the record. Affectionately.", hold: 5200 }
+    ]
+  },
+  {
+    id: 'latenight-2', state: 'weeping', mood: 'grief', nightOnly: true, rare: true,
+    beats: [
+      { text: "Nobody else is awake." },
+      { text: "It is just you, the feature tree, and me." },
+      { text: "This is when the good ideas happen and also the worst ones." },
+      { text: "I cannot tell you which this is. Nobody can. Keep going.", hold: 5400 }
+    ]
   }
+];
+
+/* Poking him. Escalates if you keep doing it; the counter forgets after a
+   quiet minute, so the ladder is climbable again later. */
+const pokeLines = {
+  startled: [
+    "Oi.",
+    "Do you MIND. I am reviewing.",
+    "That is my ear.",
+    "Yes? What. WHAT.",
+    "I was mid-thought and the thought was excellent.",
+    "Unhand me. I am a professional."
+  ],
+  annoyed: [
+    "You are going to keep doing this, aren't you.",
+    "I have a clipboard, you know. I can write this down.",
+    "Poking the goblin. Very professional. Very ISO 9001.",
+    "Careful. I bruise, and then I document.",
+    "This is now a recorded incident.",
+    "Every poke is going in the register. The register is forty pages."
+  ],
+  resigned: [
+    "FINE. FINE! What do you want. A chamfer? Take a chamfer.",
+    "I respect the persistence. Most people give up around four.",
+    "We are both avoiding work right now and only one of us is being honest about it.",
+    "You have now iterated on poking me more than on the bracket.",
+    "Is this procrastination? This is procrastination. Carry on."
+  ],
+  devoted: [
+    "Ten pokes. TEN. Nothing in this building has been tested that thoroughly.",
+    "This is the most attention anybody has paid me all week and I refuse to pretend otherwise.",
+    "You have found the only feature on this page with no engineering justification whatsoever. Well done.",
+    "Congratulations, you have discovered that I am load-bearing. Emotionally.",
+    "At this point we are colleagues. I will be at the review. I will have notes."
+  ]
+};
+
+/* Only reachable between 01:00 and 05:00 local. */
+const nightLines = [
+  "It is gone one in the morning and you are still in here.",
+  "The good ideas and the terrible ideas look identical at this hour. That is the danger and the fun.",
+  "Nobody is going to review this until Tuesday. You have time. Go to bed.",
+  "You will look at this tomorrow and either weep or be delighted. Fifty-fifty.",
+  "Everything you draw after 2am has a certain quality. Not a good one. A certain one.",
+  "This is the shift where the real decisions get made and none of them get written down."
 ];
 
 /* ---------------------------------------------------------------------------
@@ -1134,9 +1469,13 @@ const BITS = [
 const goblin = document.getElementById('goblin');
 const bubble = document.getElementById('bubble');
 
-const MOODS = ['ambient', 'hype', 'reality', 'fix', 'destroy'];
+/* Four button moods plus three tints only routines use. All mutually
+   exclusive and cleaned up the same way, so they live in one list. */
+const MOODS = ['ambient', 'hype', 'reality', 'fix', 'destroy', 'awe', 'grief', 'gold'];
 const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage'];
-const BIT_STATES = ['holding', 'scribbling', 'reading', 'rapture', 'muttering'];
+const BIT_STATES = ['holding', 'scribbling', 'reading', 'rapture', 'muttering',
+                    'weeping', 'measuring', 'conspiracy', 'smug'];
+const BUBBLE_STYLES = ['scream', 'whisper'];
 const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400 };
 
 const FADE_MS = 950;                       /* matches .bubble.fade's transition */
@@ -1158,7 +1497,7 @@ function cancelSpeech() {
   timers = [];
   bitState = '';
   goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES, 'talking', 'pop');
-  bubble.classList.remove('show', 'fade', 'scream', 'pulse');
+  bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
 }
 
 /* One-shot punctuation. Runs on top of whatever pose is active. */
@@ -1186,8 +1525,9 @@ function setPose(mood, expression, popSparks) {
 function showText(text, opts) {
   opts = opts || {};
   bubble.textContent = text;
-  bubble.classList.toggle('scream', !!opts.scream);
-  bubble.classList.remove('fade', 'pulse');
+  bubble.classList.remove('fade', 'pulse', ...BUBBLE_STYLES);
+  if (opts.scream) bubble.classList.add('scream');
+  if (opts.bubbleClass) bubble.classList.add(opts.bubbleClass);
   if (opts.first) {
     bubble.classList.remove('show');
     void bubble.offsetWidth;
@@ -1205,7 +1545,7 @@ function endUtterance(token) {
   bubble.classList.add('fade');
   later(function () {
     if (token !== runToken) return;
-    bubble.classList.remove('show', 'fade', 'scream', 'pulse');
+    bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
     goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES);
     bitState = '';
   }, FADE_MS);
@@ -1236,7 +1576,7 @@ function performBit(bit) {
     later(function () {
       if (token !== runToken) return;
       setPose(bit.mood, beat.expression, false);
-      showText(beat.text, { first: i === 0 });
+      showText(beat.text, { first: i === 0, bubbleClass: bit.bubbleClass });
     }, at);
     offset += beat.hold || beatHold(beat.text);
   });
@@ -1256,6 +1596,25 @@ function scheduleAmbient() {
   ambientTimer = setTimeout(runAmbient, (freeAt - now) + gap);
 }
 
+/* Between 01:00 and 05:00 he gets material he cannot use in daylight. */
+function isSmallHours() {
+  const h = new Date().getHours();
+  return h >= 1 && h < 5;
+}
+
+/* Weighted so `rare: true` routines turn up about a quarter as often, and
+   night-only ones are simply absent from the pool during the day. */
+function pickBit() {
+  const night = isSmallHours();
+  const tickets = [];
+  BITS.forEach(function (b) {
+    if (b.nightOnly && !night) return;
+    const n = b.rare ? 1 : 4;
+    for (let i = 0; i < n; i++) tickets.push(b);
+  });
+  return pick(tickets);
+}
+
 function runAmbient() {
   /* belt and braces: if anything is still on screen, wait it out */
   if (Date.now() < holdUntil) { scheduleAmbient(); return; }
@@ -1263,8 +1622,10 @@ function runAmbient() {
   const roll = Math.random();
   if (roll < 0.002) {
     say('ambient', pick(psychicDamage), { expression: 'bigeyes', hold: 11000 });
+  } else if (isSmallHours() && roll < 0.09) {
+    say('grief', pick(nightLines), { expression: 'bigeyes' });
   } else if (roll < 0.34) {
-    performBit(pick(BITS));
+    performBit(pickBit());
   } else if (roll < 0.46) {
     say('ambient', "UNPROVOKED TOLERANCE SCREAM: " + pick(toleranceScreams), {
       scream: true,
@@ -1292,6 +1653,30 @@ document.querySelectorAll('button[data-mode]').forEach(function (btn) {
     say(mode, pick(lines[mode]), { expression: expression });
     scheduleAmbient();
   });
+});
+
+/* ---- poke ----------------------------------------------------------------
+ * Clicking him escalates through four tiers. The counter is deliberately
+ * NOT in the `timers` list: cancelSpeech clears that list on every new
+ * utterance, and the poke ladder has to survive him talking. It forgets
+ * after a quiet minute so the ladder can be climbed again later. */
+const POKE_TIERS = [
+  { at: 10, pool: 'devoted',  mood: 'gold',    expression: 'bigeyes' },
+  { at: 6,  pool: 'resigned', mood: 'hype',    expression: 'wink' },
+  { at: 3,  pool: 'annoyed',  mood: 'destroy', expression: 'clipboard-rage' },
+  { at: 0,  pool: 'startled', mood: 'ambient', expression: 'bigeyes' }
+];
+let pokeCount = 0;
+let pokeForgetTimer = null;
+
+document.getElementById('poke').addEventListener('click', function () {
+  pokeCount++;
+  clearTimeout(pokeForgetTimer);
+  pokeForgetTimer = setTimeout(function () { pokeCount = 0; }, 60000);
+
+  const tier = POKE_TIERS.find(function (t) { return pokeCount >= t.at; });
+  say(tier.mood, pick(pokeLines[tier.pool]), { expression: tier.expression });
+  scheduleAmbient();
 });
 
 say('ambient', "You remind me of the babe!", { hold: 6000 });

@@ -87,7 +87,7 @@ export function runSelfTest() {
 
   try {
     // ---- registry integrity ------------------------------------------------
-    const { MOODS, BIT_STATES, BUBBLE_STYLES } = G.registries;
+    const { MOODS, BIT_STATES, BUBBLE_STYLES, EXPRESSIONS } = G.registries;
     const BITS = G.pools.BITS;
 
     const ids = BITS.map(b => b.id);
@@ -149,29 +149,64 @@ export function runSelfTest() {
       g.beats.forEach(b => {
         if (b.bubbleClass && !BUBBLE_STYLES.includes(b.bubbleClass))
           badGreet.push([g.id, 'beat bubbleClass', b.bubbleClass]);
+        if (b.voice && b.voice !== 'clipboard') badGreet.push([g.id, 'beat voice', b.voice]);
+        if (b.addState) b.addState.split(' ').filter(Boolean).forEach(s => {
+          if (!BIT_STATES.includes(s)) badGreet.push([g.id, 'beat addState', s]);
+        });
+        if (b.expression && !EXPRESSIONS.includes(b.expression))
+          badGreet.push([g.id, 'beat expression', b.expression]);
       });
     });
     check('every greeting state/mood/beat-style is registered', badGreet.length === 0, badGreet);
 
-    /* the call-and-response: alternating voices, and the vandalism */
-    check('the call-and-response alternates into a second voice',
-      babe.beats.map(b => b.bubbleClass === 'echo' ? 'echo' : 'him').join() ===
-      'him,echo,him,echo,him,echo,him,echo,him',
-      babe.beats.map(b => b.bubbleClass || 'him'));
+    /* the call-and-response: the clipboard asks, he answers */
+    check('the questions are declared as the clipboard speaking',
+      babe.beats.slice(0, 9).map(b => b.voice === 'clipboard' ? 'clip' : 'him').join() ===
+      'him,clip,him,clip,him,clip,him,clip,him',
+      babe.beats.map(b => b.voice || 'him'));
     check('he is hand-editing dimensions throughout it',
       babe.state.includes('overwriting') && babe.state.includes('holding'), babe.state);
+    check('it ends by defacing the sheet and then hurling the clipboard',
+      babe.beats.some(b => b.addState === 'defacing') &&
+      babe.beats[babe.beats.length - 1].expression === 'hurl',
+      babe.beats.slice(-3));
 
-    /* per-beat bubbleClass has to actually reach the bubble */
+    /* the two voices must actually land in two different bubbles */
     G.performBit(babe);
     vc.advance(0);
-    const voices = [];
-    babe.beats.forEach((b, i) => {
-      voices.push(G.state().bubbleStyles.includes('echo') ? 'echo' : 'him');
+    const trace = [];
+    babe.beats.forEach(b => {
+      const s = G.state();
+      trace.push({
+        him: s.visible ? s.text : null,
+        clip: s.clipVisible ? s.clipText : null,
+        defacing: s.poses.includes('defacing'),
+        hurling: s.expressions.includes('hurl')
+      });
       vc.advance(b.hold || G.timing.beatHold(b.text));
     });
-    check('the second voice actually renders per beat',
-      voices.join() === 'him,echo,him,echo,him,echo,him,echo,him', voices);
+
+    check('the clipboard speaks exactly the four questions',
+      trace.filter(t => t.clip).map(t => t.clip).join(' | ') ===
+      'What babe? | What power? | Who do? | Do what?',
+      trace.filter(t => t.clip).map(t => t.clip));
+    check('his own bubble is empty while the clipboard is talking',
+      trace.filter(t => t.clip).every(t => t.him === null),
+      trace.filter(t => t.clip));
+    check('only one of them is ever visible at a time',
+      trace.every(t => !(t.him && t.clip)), trace.filter(t => t.him && t.clip));
+    check('the defacing starts partway through and stays on',
+      !trace[0].defacing && trace[trace.length - 1].defacing,
+      trace.map(t => t.defacing));
+    /* `hurl` is a one-shot expression that expires partway through its beat,
+       so this asserts it fired ON the final beat rather than afterwards. */
+    check('the clipboard gets thrown on the final beat, and only then',
+      trace[trace.length - 1].hurling && trace.slice(0, -1).every(t => !t.hurling),
+      trace.map(t => t.hurling));
+
     G.cancelSpeech();
+    check('cancelling clears the clipboard bubble too',
+      G.state().clipText === '' && !G.state().clipVisible, G.state());
 
     // ---- beat scheduling is exact ------------------------------------------
     const bit = BITS.find(b => b.beats.length >= 4 && !b.nightOnly);
@@ -342,6 +377,41 @@ export function runSelfTest() {
     const cb = document.querySelector('.clipboard').getBoundingClientRect();
     const dm = document.querySelector('.dims').getBoundingClientRect();
     const paper = { l: cb.left + 12, r: cb.right - 12, t: cb.top + 14, b: cb.bottom - 12 };
+    /* Placement, not just logic. The first cut of this had the clipboard's
+       bubble parented to .pen instead of .goblin, so it rendered 300px away
+       and outside the stage while every logic assertion still passed. */
+    goblin.className = 'goblin hype talking holding overwriting';
+    const cbEl = document.getElementById('clip-bubble');
+    cbEl.textContent = 'What power?';
+    cbEl.classList.add('show');
+    cbEl.style.opacity = '1';
+    const cbBox = cbEl.getBoundingClientRect();
+    const clipBox = document.querySelector('.clipboard').getBoundingClientRect();
+    const stageBox = document.querySelector('.stage').getBoundingClientRect();
+    check('the clipboard bubble is parented to the goblin, not the stage',
+      cbEl.closest('.goblin') !== null, cbEl.parentElement && cbEl.parentElement.className);
+    /* 8px of slack, not 0: at the default position a phone leaves ~1px, and a
+       single longer clipboard line would then clip off the stage. */
+    check('the clipboard bubble sits above the clipboard, inside the stage, with slack',
+      cbBox.bottom <= clipBox.top &&
+      cbBox.right > clipBox.left && cbBox.left < clipBox.right &&
+      cbBox.left >= stageBox.left && cbBox.right <= stageBox.right - 8 && cbBox.top >= stageBox.top,
+      { bubble: { l: Math.round(cbBox.left), r: Math.round(cbBox.right), b: Math.round(cbBox.bottom) },
+        clipboard: { l: Math.round(clipBox.left), r: Math.round(clipBox.right), t: Math.round(clipBox.top) },
+        stage: { l: Math.round(stageBox.left), r: Math.round(stageBox.right) } });
+    cbEl.classList.remove('show'); cbEl.textContent = ''; cbEl.style.opacity = '';
+
+    goblin.className = 'goblin hype talking holding overwriting defacing';
+    const scrawl = document.querySelector('.scrawl');
+    check('defacing: the scrawl covers the sheet',
+      parseFloat(getComputedStyle(scrawl).opacity) === 1 && !!scrawl.querySelector('path'));
+    check('defacing: the scrawl sits over the paper, not beside it', (() => {
+      const s = scrawl.getBoundingClientRect();
+      const c = document.querySelector('.clipboard').getBoundingClientRect();
+      return s.left >= c.left && s.right <= c.right && s.top >= c.top && s.bottom <= c.bottom;
+    })());
+    goblin.className = 'goblin hype talking holding overwriting';
+
     check('overwriting: the edits land on the clipboard paper',
       dm.left >= paper.l && dm.right <= paper.r && dm.top >= paper.t && dm.bottom <= paper.b,
       { overhangRight: Math.round(dm.right - paper.r), overhangLeft: Math.round(paper.l - dm.left),

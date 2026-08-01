@@ -146,12 +146,37 @@
     font-style: italic; font-weight: 500; background: #E4E8DE;
     font-size: clamp(0.88rem, 2vw, 1.15rem);
   }
-  /* the second voice in a call-and-response: smaller, paler, clearly not him */
-  .bubble.echo {
-    font-style: italic; font-weight: 500;
+  /* The clipboard's own voice. It answers him in the call-and-response, so it
+     gets its own bubble tethered to the clipboard rather than a style on his:
+     the whole joke is that the reply is coming from somewhere else. Lives
+     inside .goblin so it bops along with him. */
+  .clip-bubble {
+    position: absolute; z-index: 11; right: -52px; top: 4px;
+    width: max-content; max-width: 168px;
     background: #DCE2D4; color: #3B4137;
-    font-size: clamp(0.8rem, 1.7vw, 1.02rem);
-    box-shadow: 5px 6px 0 rgba(0, 0, 0, .18);
+    border-radius: 12px; padding: 7px 10px;
+    font-family: var(--font-mono); font-size: 10px; font-style: italic;
+    letter-spacing: .03em; line-height: 1.25; text-align: center;
+    box-shadow: 4px 5px 0 rgba(0, 0, 0, .22);
+    opacity: 0; pointer-events: none;
+  }
+  .clip-bubble.show { animation: clipBubbleIn .26s ease-out forwards; }
+  .clip-bubble.fade { opacity: 0; transition: opacity .5s ease; }
+  .clip-bubble::after {
+    content: ""; position: absolute; right: 24px; bottom: -11px;
+    width: 16px; height: 13px; background: inherit;
+    clip-path: polygon(0 0, 100% 0, 62% 100%);
+  }
+  @keyframes clipBubbleIn {
+    from { opacity: 0; transform: scale(.86) translateY(5px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  /* On a narrow stage the clipboard is already near the right edge, so pull
+     its bubble back in and cap it harder. At the default position a phone
+     leaves ~1px of clearance, which one longer line would blow through. */
+  @media (max-width: 620px) {
+    .clip-bubble { right: -18px; max-width: 132px; font-size: 9px; padding: 6px 8px; }
+    .clip-bubble::after { right: 20px; }
   }
 
   .pen { position: relative; display: grid; place-items: center; min-height: 300px; width: 100%; }
@@ -479,6 +504,23 @@
   .goblin.overwriting .brow.left { transform: rotate(-14deg) translateY(-3px); }
   .goblin.overwriting .brow.right { transform: rotate(14deg) translateY(-3px); }
 
+  /* Defacing the whole sheet: one continuous scrawl drawn across the paper,
+     over the top of the dimensions he already hand-edited. */
+  .scrawl { position: absolute; z-index: 5; inset: 10px 8px 8px; opacity: 0; }
+  .scrawl path {
+    fill: none; stroke: #C0392B; stroke-width: 3.4;
+    stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 460; stroke-dashoffset: 460;
+  }
+  .goblin.defacing .scrawl { opacity: 1; }
+  .goblin.defacing .scrawl path { animation: scrawlAcross 1.6s ease-in-out forwards; }
+
+  /* And then he throws it. Starts from the HELD position rather than the
+     off-stage one clipboard-rage uses, so there is no jump before the wind-up. */
+  .goblin.hurl .clipboard { animation: clipboardHurl 1.15s cubic-bezier(.25,.7,.3,1) both; }
+  .goblin.hurl .pencil,
+  .goblin.hurl .dims { opacity: 0; }
+
   /* sitting back, being correct */
   .goblin.smug { animation: smugSway 3.2s ease-in-out infinite; }
   .goblin.smug .eye { animation: none; transform: scaleY(.55); }
@@ -530,6 +572,13 @@
     50%      { transform: rotate(3deg) translateY(-5px); }
   }
   @keyframes strikeOut { to { transform: scaleX(1); } }
+  @keyframes scrawlAcross { to { stroke-dashoffset: 0; } }
+  @keyframes clipboardHurl {
+    0%   { opacity: 1; transform: translate(-16px, -4px) rotate(-7deg) scale(1); }
+    16%  { opacity: 1; transform: translate(-34px, 12px) rotate(-26deg) scale(1.07); }
+    26%  { opacity: 1; transform: translate(-26px, 2px) rotate(-4deg) scale(1.04); }
+    100% { opacity: 0; transform: translate(440px, -215px) rotate(760deg) scale(.66); }
+  }
   @keyframes scrawlIn {
     to { opacity: 1; transform: rotate(-7deg) translateY(0); }
   }
@@ -708,12 +757,18 @@
     .goblin.smug,
     .goblin.overwriting, .goblin.overwriting.talking .head,
     .goblin.overwriting .pencil,
-    .goblin.overwriting .dim s::after, .goblin.overwriting .dim i {
+    .goblin.overwriting .dim s::after, .goblin.overwriting .dim i,
+    .goblin.defacing .scrawl path, .goblin.hurl .clipboard,
+    .clip-bubble.show {
       animation: none !important;
     }
-    /* the vandalism still reads: struck through, replacement written in */
+    /* the vandalism still reads: struck through, replacement written in,
+       scrawled over, and the clipboard simply gone */
     .goblin.overwriting .dim s::after { transform: scaleX(1); }
     .goblin.overwriting .dim i { opacity: 1; transform: rotate(-7deg); }
+    .goblin.defacing .scrawl path { stroke-dashoffset: 0; }
+    .goblin.hurl .clipboard { opacity: 0; }
+    .clip-bubble.show { opacity: 1; }
     /* the bits still READ as themselves, they just hold a pose instead of moving */
     .goblin.scribbling .pencil { opacity: 1; }
     .goblin.rapture .spark { opacity: 1; }
@@ -775,6 +830,9 @@
             <div class="paper-line one"></div>
             <div class="paper-line two"></div>
             <div class="paper-line three"></div>
+            <svg class="scrawl" viewBox="0 0 60 80" preserveAspectRatio="none">
+              <path d="M6 12 L54 24 L6 33 L54 45 L6 54 L54 66 M9 8 L52 72 M52 9 L9 71"/>
+            </svg>
           </div>
           <div class="pencil"></div>
           <div class="calipers"><span class="jaw a"></span><span class="jaw b"></span></div>
@@ -784,6 +842,8 @@
             <span class="dim"><s>45.0°</s><i>44</i></span>
             <span class="dim"><s>R2.5</s><i>R3</i></span>
           </div>
+          <!-- inside .goblin, so it is positioned off the clipboard and bops with him -->
+          <div class="clip-bubble" id="clip-bubble" role="status" aria-live="polite"></div>
           <div class="ear left"></div><div class="ear right"></div>
           <div class="head">
             <div class="brow left"></div><div class="brow right"></div>
@@ -1564,21 +1624,26 @@ const BITS = [
  * into a session is not a greeting.
  * ------------------------------------------------------------------------- */
 
-/* The call-and-response. Alternate beats answer in a second voice (`echo`),
-   and throughout it he is striking out dimensions on the drawing and writing
-   new ones in by hand, which is genuinely unforgivable practice. */
+/* The call-and-response. The questions are asked by the CLIPBOARD, which gets
+   its own bubble; his own goes away for those beats so the reply visibly comes
+   from somewhere else. Throughout, he is striking out dimensions on the
+   drawing and writing new ones in by hand. Then he defaces the whole sheet and
+   throws it. Every part of this is unforgivable practice. */
 const babeGreeting = {
   id: 'greet-babe', state: 'holding overwriting', mood: 'hype',
   beats: [
-    { text: "You remind me of the babe.",  hold: 2600 },
-    { text: "What babe?",                  hold: 1700, bubbleClass: 'echo' },
-    { text: "The babe with the power.",    hold: 2400 },
-    { text: "What power?",                 hold: 1700, bubbleClass: 'echo' },
-    { text: "The power of CAD voodoo.",    hold: 2600 },
-    { text: "Who do?",                     hold: 1500, bubbleClass: 'echo' },
-    { text: "YOU DO.",                     hold: 2100, expression: 'bigeyes' },
-    { text: "Do what?",                    hold: 1500, bubbleClass: 'echo' },
-    { text: "Remind me of the babe.",      hold: 3900, expression: 'wink' }
+    { text: "You remind me of the babe.",            hold: 2600 },
+    { text: "What babe?",                            hold: 1700, voice: 'clipboard' },
+    { text: "The babe with the power.",              hold: 2400 },
+    { text: "What power?",                           hold: 1700, voice: 'clipboard' },
+    { text: "The power of CAD voodoo.",              hold: 2600 },
+    { text: "Who do?",                               hold: 1500, voice: 'clipboard' },
+    { text: "YOU DO.",                               hold: 2100, expression: 'bigeyes' },
+    { text: "Do what?",                              hold: 1500, voice: 'clipboard' },
+    { text: "Remind me of the babe.",                hold: 3000, expression: 'wink' },
+    { text: "Anyway. One more revision, I think.",   hold: 2500, addState: 'defacing' },
+    { text: "THERE. Much clearer.",                  hold: 2000, expression: 'bigeyes' },
+    { text: "Released.",                             hold: 2900, expression: 'hurl' }
   ]
 };
 
@@ -1715,17 +1780,20 @@ const nightLines = [
  * ------------------------------------------------------------------------- */
 const goblin = document.getElementById('goblin');
 const bubble = document.getElementById('bubble');
+const clipBubble = document.getElementById('clip-bubble');
 
 /* Four button moods plus three tints only routines use. All mutually
    exclusive and cleaned up the same way, so they live in one list. */
 const MOODS = ['ambient', 'hype', 'reality', 'fix', 'destroy', 'awe', 'grief', 'gold'];
 /* `grin` is never picked at random. It fires only when something drifts past
    him, but it lives here so the existing cleanup handles it like any other. */
-const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage', 'grin'];
+const EXPRESSIONS = ['wink', 'bigeyes', 'cackle', 'clipboard-rage', 'grin', 'hurl'];
 const BIT_STATES = ['holding', 'scribbling', 'reading', 'rapture', 'muttering',
-                    'weeping', 'measuring', 'conspiracy', 'smug', 'overwriting'];
-const BUBBLE_STYLES = ['scream', 'whisper', 'echo'];
-const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400, grin: 2800 };
+                    'weeping', 'measuring', 'conspiracy', 'smug', 'overwriting',
+                    'defacing'];
+const BUBBLE_STYLES = ['scream', 'whisper'];
+const EXPRESSION_LENGTHS = { wink: 900, bigeyes: 1500, cackle: 1750, 'clipboard-rage': 2400,
+                             grin: 2800, hurl: 1400 };
 
 const FADE_MS = 950;                       /* matches .bubble.fade's transition */
 const beatHold = t => Math.min(5200, Math.max(2500, t.length * 70));
@@ -1777,6 +1845,8 @@ function cancelSpeech() {
   bitState = '';
   goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES, 'talking', 'pop');
   bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
+  clipBubble.classList.remove('show', 'fade');
+  clipBubble.textContent = '';
 }
 
 /* One-shot punctuation. Runs on top of whatever pose is active. */
@@ -1801,8 +1871,32 @@ function setPose(mood, expression, popSparks) {
   if (expression) performExpression(expression);
 }
 
+function hideMainBubble() {
+  bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
+  bubble.textContent = '';
+}
+function hideClipBubble() {
+  clipBubble.classList.remove('show', 'fade');
+  clipBubble.textContent = '';
+}
+
 function showText(text, opts) {
   opts = opts || {};
+
+  /* A beat can be spoken by the clipboard instead of by him. It gets its own
+     bubble tethered to the clipboard, and his goes away for the duration, so
+     the reply visibly comes from somewhere else. Both are live regions, so
+     both halves of the conversation are still announced. */
+  if (opts.voice === 'clipboard') {
+    hideMainBubble();
+    clipBubble.textContent = text;
+    clipBubble.classList.remove('fade');
+    void clipBubble.offsetWidth;
+    clipBubble.classList.add('show');
+    return;
+  }
+
+  hideClipBubble();
   bubble.textContent = text;
   bubble.classList.remove('fade', 'pulse', ...BUBBLE_STYLES);
   if (opts.scream) bubble.classList.add('scream');
@@ -1822,9 +1916,11 @@ function endUtterance(token) {
   if (token !== runToken) return;
   goblin.classList.remove('talking', 'pop');
   bubble.classList.add('fade');
+  clipBubble.classList.add('fade');
   later(function () {
     if (token !== runToken) return;
     bubble.classList.remove('show', 'fade', 'pulse', ...BUBBLE_STYLES);
+    hideClipBubble();
     goblin.classList.remove(...MOODS, ...EXPRESSIONS, ...BIT_STATES);
     bitState = '';
   }, FADE_MS);
@@ -1854,9 +1950,17 @@ function performBit(bit) {
     const at = offset;
     later(function () {
       if (token !== runToken) return;
+      /* a beat can add a pose partway through and keep it for the rest of the
+         routine; they are BIT_STATES, so the normal teardown removes them */
+      if (beat.addState) {
+        beat.addState.split(' ').forEach(function (c) { if (c) goblin.classList.add(c); });
+      }
       setPose(bit.mood, beat.expression, false);
-      /* per-beat style wins, so a routine can answer itself in another voice */
-      showText(beat.text, { first: i === 0, bubbleClass: beat.bubbleClass || bit.bubbleClass });
+      showText(beat.text, {
+        first: i === 0,
+        voice: beat.voice,
+        bubbleClass: beat.bubbleClass || bit.bubbleClass
+      });
     }, at);
     offset += beat.hold || beatHold(beat.text);
   });
@@ -2385,11 +2489,14 @@ window.__goblin = {
   state: function () {
     return {
       text: bubble.textContent,
+      clipText: clipBubble.textContent,
+      clipVisible: clipBubble.classList.contains('show') && !clipBubble.classList.contains('fade'),
       visible: bubble.classList.contains('show') && !bubble.classList.contains('fade'),
       fading: bubble.classList.contains('fade'),
       bubbleStyles: BUBBLE_STYLES.filter(function (c) { return bubble.classList.contains(c); }),
       moods: MOODS.filter(function (c) { return goblin.classList.contains(c); }),
       poses: BIT_STATES.filter(function (c) { return goblin.classList.contains(c); }),
+      expressions: EXPRESSIONS.filter(function (c) { return goblin.classList.contains(c); }),
       talking: goblin.classList.contains('talking'),
       pendingTimers: timers.length,
       holdUntil: holdUntil

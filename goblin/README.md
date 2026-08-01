@@ -99,7 +99,7 @@ will never get removed and will leak into the next utterance.
 | Layer | Array | Lifetime | Examples |
 |---|---|---|---|
 | **Mood / tint** | `MOODS` | one utterance | recolours ears + head |
-| **Expression** | `EXPRESSIONS` | one shot, 0.9 to 2.4s | `wink`, `bigeyes`, `cackle`, `clipboard-rage` |
+| **Expression** | `EXPRESSIONS` | one shot, 0.9 to 2.8s | `wink`, `bigeyes`, `cackle`, `clipboard-rage`, `grin`, `hurl` |
 | **Pose** | `BIT_STATES` | the whole routine | `scribbling`, `weeping`, `smug` |
 
 Bubble variants (`scream`, `whisper`) are in `BUBBLE_STYLES` and cleaned the
@@ -116,7 +116,7 @@ down, ink filling the page) · `reading` (pupils tracking line to line) ·
 slow sway) · `weeping` (tear rolls off his chin) · `measuring` (calipers, jaw
 sliding) · `conspiracy` (leans in, eyes darting) · `smug` (leans back,
 satisfied) · `overwriting` (bops on the spot, striking out dimensions and
-scrawling replacements)
+scrawling replacements) · `defacing` (one scrawl drawn across the whole sheet)
 
 `holding` composes with others: `state: 'holding scribbling'`.
 
@@ -133,18 +133,43 @@ a greeting. There is a test for exactly that.
 others otherwise. The eight are written so the page still makes sense to
 somebody who has never met the author — no in-jokes, nothing personal.
 
-The call-and-response is the only routine that uses **per-beat `bubbleClass`**:
-alternating beats answer in the `echo` voice (smaller, paler, italic), so the
-bubble carries both sides of a conversation. `beat.bubbleClass` overrides
-`bit.bubbleClass`, which is what makes that possible. Throughout it he wears
-`holding overwriting`: dancing on the spot while striking out dimensions on the
-drawing and writing new ones in by hand, which is the worst thing in this entire
-page and entirely the point.
+### The clipboard has its own voice
 
-The `overwriting` pose positions `.dims` over the clipboard paper. When moving
-those, measure with `*{animation:none}` — his float rotation inflates a bounding
-box by a couple of pixels, which both hides real overhang and invents fake
-overhang. It concealed a genuine 15px overrun the first time.
+In the call-and-response the questions are asked by the **clipboard**, not by
+him. A beat with `voice: 'clipboard'` routes its text to `#clip-bubble`, a
+second bubble tethered to the clipboard, and hides his own for that beat, so the
+reply visibly comes from somewhere else. Both are `aria-live` regions, so both
+halves of the conversation are still announced.
+
+`#clip-bubble` must be parented **inside `.goblin`**, since it is positioned
+off the clipboard and needs to bop along with him. The first cut parented it to
+`.pen` instead: every logic assertion still passed while it rendered 300px away
+and outside the stage. There is now a placement test with 8px of slack, because
+at the default position a phone leaves about 1px and one longer clipboard line
+would clip off the edge.
+
+Two other per-beat hooks exist, both used only here:
+
+- `beat.addState` adds a pose partway through and keeps it for the rest of the
+  routine. They are `BIT_STATES`, so normal teardown removes them.
+- `beat.bubbleClass` overrides `bit.bubbleClass`.
+
+### What he does to the drawing
+
+Throughout he wears `holding overwriting`: bopping on the spot while striking
+out dimensions and writing new ones in by hand (Ø12.0 → 12, 45.0° → 44,
+R2.5 → R3). Then `defacing` draws one continuous scrawl across the whole sheet,
+and `hurl` throws the clipboard off the stage. `clipboardHurl` starts from the
+**held** position rather than the off-stage one `clipboard-rage` uses, so there
+is no jump before the wind-up.
+
+`hurl` is a one-shot expression that expires partway through its final beat, so
+assert it fired *on* that beat rather than after the routine ends.
+
+When moving `.dims` or `.scrawl`, measure with `*{animation:none}` — his float
+rotation inflates a bounding box, which both hides real overhang and invents
+fake overhang. It concealed a genuine 15px overrun of the paper edge once, and
+separately reported a phantom 2px one.
 
 ## The drift layer
 
@@ -341,7 +366,7 @@ Spoilers, kept here so they are not lost.
 
 ## Testing
 
-`selftest.js` is an 82-assertion suite. It is **not** referenced by
+`selftest.js` is a 92-assertion suite. It is **not** referenced by
 `index.html`, so it never loads for a visitor. Run it from the page:
 
 ```js

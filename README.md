@@ -43,9 +43,11 @@ fastener mark so the two read as related-but-distinct.
   11–28s, running either a single line, an UNPROVOKED TOLERANCE SCREAM, or one of
   29 multi-beat **routines** in which he holds a sustained pose — reading down a
   drawing, furiously scribbling, weeping over a fillet, measuring something with
-  calipers, leaning in to tell you something he should not. 537 lines across ten
-  pools, plus a few easter eggs. Single file, no assets, no state, no
-  persistence, but it does carry a 33-assertion self-test (`goblin/selftest.js`,
+  calipers, leaning in to tell you something he should not. Behind him, ghost
+  tolerances, atrocious feature control frames and bespoke bolts drift through
+  the empty stage; he grins at them, and about a quarter of them scream on their
+  way past. 600 lines across fifteen pools, plus a few easter eggs. Single file, no assets, no state, no
+  persistence, but it does carry a 52-assertion self-test (`goblin/selftest.js`,
   never loaded by the page) that drives a virtual clock instead of sleeping and
   runs in ~60ms. **See [`goblin/README.md`](goblin/README.md)** for the speech
   controller, the pose/mood/expression layers, how to add lines and routines,

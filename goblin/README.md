@@ -120,6 +120,53 @@ satisfied)
 
 ---
 
+## The drift layer
+
+The stage is mostly empty space around him. Things that should never have been
+specified wander through it: ghost tolerances, feature control frames citing
+datums that do not exist, bolts nobody asked for. He **grins** when one goes
+past, and sometimes says something about it. Roughly 28% of them are nightmares
+that **scream** on their way through.
+
+Three kinds, picked 45 / 30 / 25:
+
+| Kind | Rendering |
+|---|---|
+| `tolerance` | a line of mono text (`CHAMFER 0.0003 x 89.999°`) |
+| `frame` | a real feature control frame: SVG symbol cell, tolerance cell, one cell per datum |
+| `bolt` | one of four SVG bolt drawings plus a caption |
+
+GD&T symbols are **inline SVG, not Unicode**, so they cannot land as tofu in
+whatever font is available. Four bolt drawings (`straight`, `bent`, `stepped`,
+`twoHead`) are reused across ten captions.
+
+**It runs on its own timers, entirely separate from the speech controller**, so
+a drifting apparition can never cut him off. Two rules make that true:
+
+- the **grin** is always allowed, since it costs nothing and interrupts nothing
+- **speech** is gated on `clock.now() >= holdUntil + FADE_MS` — the same
+  "free at" test `scheduleAmbient()` uses. Gating on `holdUntil` alone lets a
+  reaction pop in over a line that is still visibly fading out, which is what
+  the suite caught
+
+Its timers still go through `clock` and a `ghostTimers` list that prunes on
+fire, exactly like `later()`, so it stays testable and leak-checkable.
+
+**Stacking matters and is easy to get wrong.** `.drift` is `z-index: 1`, the
+goblin is `2`. The bubble is `position: relative`, so without an explicit
+`z-index` it paints *below* the drift layer and ghosts drift straight across
+his words. `.bubble-slot` is therefore pinned to `z-index: 4`. There is a
+regression test for this.
+
+Under `prefers-reduced-motion` the layer simply never runs. It is pure
+decoration whose entire point is movement, so freezing it in place would be
+worse than omitting it.
+
+Adding one is just pushing onto `ghostTolerances`, `ghostFrames`, `ghostBolts`
+or `ghostScreams`. A new GD&T symbol needs an entry in `GDT_SYMBOLS`; a new
+bolt needs one in `BOLT_ART`. The suite asserts every entry in both maps
+resolves to real art, so a typo'd key fails rather than rendering an empty box.
+
 ## Content
 
 | Pool | Count | Register |
@@ -134,6 +181,11 @@ satisfied)
 | `nightLines` | 6 | 01:00 to 05:00 only |
 | `pokeLines` | 22 | four escalation tiers |
 | `BITS` | 29 routines / 115 beats | multi-beat, with a sustained pose |
+| `ghostTolerances` | 20 | drift-by callouts, short enough to read in passing |
+| `ghostFrames` | 10 | feature control frames, drawn properly, saying something unforgivable |
+| `ghostBolts` | 10 | bolts that exist because somebody drew them once |
+| `ghostScreams` | 14 | what the nightmares shout on their way past |
+| `ghostReactions` + `ghostScreamReactions` | 14 | what he says about one, when he is free to |
 
 **Tone.** A chaotic colleague who gives the worst advice and revels *joyously*
 in the hacky shortcuts that actually make mech-eng and production design work.
@@ -214,7 +266,7 @@ Spoilers, kept here so they are not lost.
 
 ## Testing
 
-`selftest.js` is a 33-assertion suite. It is **not** referenced by
+`selftest.js` is a 52-assertion suite. It is **not** referenced by
 `index.html`, so it never loads for a visitor. Run it from the page:
 
 ```js

@@ -36,6 +36,13 @@ fastener mark so the two read as related-but-distinct.
   are a form-driven **template generator** (compose with live preview, save to
   the browser, or export a standalone HTML file); `run.html?id=<slug>` runs a
   browser-saved custom checklist; `index.html` is the section hub.
+- **`kb/`** — the **Knowledge Base**: reference pages for the symbols, marks and conventions
+  that show up on technical drawings. `kb.css` is the shared article skin (page head, in-page
+  TOC chips, callouts, diagram figures, glyph-card grids, reference tables, worked-example
+  rows); `index.html` is the section hub. First entry: `welding-symbols.html` — reading an
+  AWS A2.4 welding symbol end to end (reference line, arrow/other side, tail, the basic weld
+  glyphs, sizing & pitch, supplementary marks, contour & finish), with a reusable inline SVG
+  glyph library (`<symbol>` defs referenced by `<use>`) and five fully-decoded worked examples.
 - **`goblin/`** — the **Hype Goblin**: an animated CSS familiar who has opinions
   about your tolerances. Deliberately *not* a tool — it computes nothing and
   verifies nothing. Four mood buttons (hype / reality check / fix / destroy) each

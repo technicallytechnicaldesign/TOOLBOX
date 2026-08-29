@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="How to read an ASME Y14.5 GD&amp;T feature control frame: the 14 geometric characteristic symbols, datums and precedence, MMC/LMC/RFS and other modifiers, with worked examples. A TOOLBOX knowledge-base page." />
+<title>GD&amp;T Symbols — TOOLBOX Knowledge Base</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<link rel="stylesheet" href="kb.css">
+<style>
+  /* Feature control frames read wider/shorter than the welding-page marks
+     the shared .example layout was tuned for — give the mark column more
+     room so a five-compartment frame (position + tolerance + 3 datums)
+     doesn't shrink to a sliver. */
+  .example { grid-template-columns: 250px 1fr; }
+  @media (max-width: 640px) { .example { grid-template-columns: 1fr; } }
+</style>
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<!-- =================================================================
+     Reusable glyph library. Each geometric characteristic symbol is
+     authored once here as a <symbol> (viewBox 0 0 44 44) and placed
+     with <use> in the card grid, the anatomy diagram, the worked
+     examples and the quick-reference table. Modifiers (MMC, LMC,
+     projected tolerance zone, tangent plane, free state) use the
+     standard circled-letter characters as plain text instead of a
+     custom glyph — Unicode already defines them (Ⓜ Ⓛ Ⓟ Ⓣ Ⓕ), and text
+     reads more reliably than a hand-built circle inline with a number.
+     ================================================================= -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="gdt-straightness" viewBox="0 0 44 44">
+    <line x1="8" y1="22" x2="36" y2="22" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-flatness" viewBox="0 0 44 44">
+    <polygon points="14,12 36,12 30,32 8,32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="gdt-circularity" viewBox="0 0 44 44">
+    <circle cx="22" cy="22" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  </symbol>
+  <symbol id="gdt-cylindricity" viewBox="0 0 44 44">
+    <circle cx="22" cy="22" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/>
+    <line x1="9" y1="10" x2="17" y2="30" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="27" y1="14" x2="35" y2="34" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-profile-line" viewBox="0 0 44 44">
+    <path d="M9,29 A13,13 0 0 1 35,29" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-profile-surface" viewBox="0 0 44 44">
+    <path d="M9,29 A13,13 0 0 1 35,29" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="9" y1="29" x2="35" y2="29" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-angularity" viewBox="0 0 44 44">
+    <polyline points="34,32 12,32 22,10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="gdt-perpendicularity" viewBox="0 0 44 44">
+    <line x1="9" y1="13" x2="35" y2="13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="22" y1="13" x2="22" y2="33" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-parallelism" viewBox="0 0 44 44">
+    <line x1="17" y1="9" x2="9" y2="35" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="35" y1="9" x2="27" y2="35" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-position" viewBox="0 0 44 44">
+    <circle cx="22" cy="22" r="11" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <line x1="22" y1="9" x2="22" y2="35" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="9" y1="22" x2="35" y2="22" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="gdt-concentricity" viewBox="0 0 44 44">
+    <circle cx="22" cy="22" r="11" fill="none" stroke="currentColor" stroke-width="2.2"/>
+    <circle cx="22" cy="22" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+  <symbol id="gdt-runout-circular" viewBox="0 0 44 44">
+    <line x1="10" y1="34" x2="30" y2="12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <polygon points="30,12 19,15 26,22" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="gdt-runout-total" viewBox="0 0 44 44">
+    <line x1="8" y1="34" x2="24" y2="15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <polygon points="24,15 15,17 20,24" fill="currentColor" stroke="none"/>
+    <line x1="20" y1="34" x2="36" y2="15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <polygon points="36,15 27,17 32,24" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="gdt-basicbox" viewBox="0 0 44 44">
+    <rect x="7" y="14" width="30" height="16" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  </symbol>
+</svg>
+
+<header id="app-header">
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Knowledge Base</div>
+</header>
+
+<main>
+  <div class="shell">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> Knowledge Base</a>
+
+    <div class="page-head">
+      <span class="kicker">Reading a drawing</span>
+      <h1>GD&amp;T Symbols</h1>
+      <p>How an ASME Y14.5 feature control frame is built, the fourteen geometric
+         characteristic symbols and what each actually constrains, datums and the order
+         they establish a reference frame, and the modifiers &mdash; MMC, LMC, RFS,
+         projected tolerance zone and the rest &mdash; that change what a tolerance means.
+         Worked examples at the bottom decode full frames start to finish.</p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Scope &amp; standard</span>
+      This page follows <strong>ASME Y14.5</strong> &mdash; the U.S. dimensioning and
+      tolerancing standard &mdash; for structure and terminology. <strong>ISO 1101</strong>
+      covers the same ground internationally and largely agrees on the symbols, though a few
+      rules around default interpretation and datum modifiers differ. The marks below are
+      simplified teaching pictograms, not typographically exact reproductions of the
+      standard's figures. For contract drawings or anything code-governed, read the current
+      edition of the governing standard itself &mdash; and put its name and edition on the
+      drawing (see the <a href="../checklists/template.html" style="color:var(--c-accent)">Drawing Checklist</a>
+      for the rest of that list).
+    </div>
+
+    <nav class="kb-toc" aria-label="On this page">
+      <span class="kb-toc-label">On this page</span>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#characteristics">Characteristic Symbols</a>
+      <a href="#datums">Datums</a>
+      <a href="#modifiers">Modifiers</a>
+      <a href="#examples">Worked Examples</a>
+      <a href="#quick-reference">Quick Reference</a>
+    </nav>
+
+    <article class="kb-body">
+
+      <!-- ============================================================ ANATOMY -->
+      <section id="anatomy">
+        <h2>Anatomy of a Feature Control Frame</h2>
+        <p class="lede">Every GD&amp;T callout lives in a boxed frame with a fixed
+           left-to-right order. Learn the compartments once and every frame you meet
+           afterwards reads the same way.</p>
+        <p>A leader runs from the frame to the feature it controls &mdash; a surface, an
+           axis, a hole. The frame itself is read strictly left to right: what's controlled,
+           how big the zone is, and (for anything but a pure form tolerance) which datums the
+           zone is measured from, in the order that matters most first.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 640 360" role="img" aria-label="A labelled feature control frame reading position, diameter point zero one zero at maximum material condition, datum A, datum B at maximum material condition, datum C, leadered to a hole in a plate.">
+            <!-- part with a toleranced hole -->
+            <rect x="40" y="230" width="220" height="110" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+            <circle cx="150" cy="270" r="26" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+            <path d="M66,92 L150,254" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+            <polygon points="150,254 149,235 135,242" fill="var(--text)"/>
+
+            <!-- feature control frame compartments -->
+            <g font-family="var(--mono)" font-size="22" fill="var(--text)">
+              <rect x="40" y="40" width="52" height="52" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+              <use href="#gdt-position" x="48" y="48" width="36" height="36" color="var(--c-accent)"/>
+              <rect x="92" y="40" width="160" height="52" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+              <text x="100" y="74">&#x2300;.010</text>
+              <text x="204" y="74">&#x24C2;</text>
+              <rect x="252" y="40" width="56" height="52" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+              <text x="270" y="74">A</text>
+              <rect x="308" y="40" width="88" height="52" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+              <text x="322" y="74">B</text>
+              <text x="356" y="74">&#x24C2;</text>
+              <rect x="396" y="40" width="56" height="52" fill="none" stroke="var(--text)" stroke-width="2.5"/>
+              <text x="414" y="74">C</text>
+            </g>
+
+            <!-- callout badges, under each compartment -->
+            <g font-family="var(--mono)" font-size="15" font-weight="700" text-anchor="middle">
+              <circle cx="66" cy="118" r="15" fill="var(--c-accent)"/><text x="66" y="123" fill="var(--bg)">1</text>
+              <circle cx="112" cy="118" r="15" fill="var(--c-accent)"/><text x="112" y="123" fill="var(--bg)">2</text>
+              <circle cx="168" cy="118" r="15" fill="var(--c-accent)"/><text x="168" y="123" fill="var(--bg)">3</text>
+              <circle cx="212" cy="118" r="15" fill="var(--c-accent)"/><text x="212" y="123" fill="var(--bg)">4</text>
+              <circle cx="280" cy="118" r="15" fill="var(--c-accent)"/><text x="280" y="123" fill="var(--bg)">5</text>
+              <circle cx="352" cy="118" r="15" fill="var(--c-accent)"/><text x="352" y="123" fill="var(--bg)">6</text>
+              <circle cx="424" cy="118" r="15" fill="var(--c-accent)"/><text x="424" y="123" fill="var(--bg)">7</text>
+            </g>
+          </svg>
+          <figcaption>Fig. 1 &mdash; Position of a hole, &#x2300;0.010 at MMC, located from primary datum A, secondary datum B at MMC, and tertiary datum C.</figcaption>
+        </figure>
+        <ol class="diagram-legend">
+          <li><b>Characteristic symbol</b> &mdash; which geometric property is controlled. Position, here.</li>
+          <li><b>Diameter symbol (&#x2300;)</b> &mdash; present only when the zone is cylindrical, not a pair of parallel planes.</li>
+          <li><b>Tolerance value</b> &mdash; the width, or diameter, of the zone the feature has to fall within.</li>
+          <li><b>Material condition modifier</b> &mdash; &#x24C2;/&#x24C1; applied to the tolerance, or nothing at all for RFS, the default.</li>
+          <li><b>Primary datum</b> &mdash; read left to right in precedence order; this one constrains the most degrees of freedom.</li>
+          <li><b>Secondary datum</b> &mdash; can carry its own modifier, independent of the tolerance's modifier.</li>
+          <li><b>Tertiary datum</b> &mdash; the last reference needed to fully define the datum reference frame.</li>
+        </ol>
+        <p class="lede">Pure form tolerances &mdash; straightness, flatness, circularity,
+           cylindricity &mdash; never take a datum reference: a feature's own shape doesn't
+           get measured relative to anything else. See
+           <a href="#characteristics" style="color:var(--c-accent)">Characteristic Symbols</a> below.</p>
+      </section>
+
+      <!-- ============================================================ CHARACTERISTICS -->
+      <section id="characteristics">
+        <h2>The Geometric Characteristic Symbols</h2>
+        <p class="lede">Fourteen symbols, five families. What each one bounds is the whole
+           story &mdash; everything else in the frame just says how big and relative to
+           what.</p>
+
+        <h3>Form &mdash; no datum reference</h3>
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-straightness"/></svg></span>
+            <h3>Straightness</h3>
+            <p>A line element, or a feature's derived median line, has to fall within a
+               tolerance zone that's itself a straight line (or a cylinder, for an axis).</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-flatness"/></svg></span>
+            <h3>Flatness</h3>
+            <p>An entire surface has to fall between two parallel planes separated by the
+               tolerance value &mdash; independent of any other feature.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-circularity"/></svg></span>
+            <h3>Circularity (Roundness)</h3>
+            <p>Any single cross-section perpendicular to an axis has to fall between two
+               concentric circles &mdash; checked independently, plane by plane.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-cylindricity"/></svg></span>
+            <h3>Cylindricity</h3>
+            <p>Circularity's 3-D cousin: the whole surface at once has to fall between two
+               concentric cylinders &mdash; roundness, straightness and taper all bounded
+               together.</p>
+          </div>
+        </div>
+
+        <h3>Profile &mdash; can be used with or without a datum</h3>
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-profile-line"/></svg></span>
+            <h3>Profile of a Line</h3>
+            <p>A 2-D cross-section of a surface has to fall within a tolerance band straddling
+               the true profile &mdash; checked one slice at a time.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-profile-surface"/></svg></span>
+            <h3>Profile of a Surface</h3>
+            <p>The whole 3-D surface has to fall within a tolerance band around the true
+               profile &mdash; the general-purpose form-and-location tolerance for anything
+               that isn't flat or round.</p>
+          </div>
+        </div>
+
+        <h3>Orientation &mdash; always relative to a datum</h3>
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-angularity"/></svg></span>
+            <h3>Angularity</h3>
+            <p>A surface or axis has to sit at a specified basic angle to a datum, within a
+               tolerance zone of parallel planes (or a cylinder, for an axis).</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-perpendicularity"/></svg></span>
+            <h3>Perpendicularity</h3>
+            <p>The 90&deg; case of angularity &mdash; a surface or axis has to be square to a
+               datum within the stated zone.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-parallelism"/></svg></span>
+            <h3>Parallelism</h3>
+            <p>The 0&deg; case &mdash; a surface or axis has to stay parallel to a datum within
+               the stated zone.</p>
+          </div>
+        </div>
+
+        <h3>Location &mdash; always relative to a datum</h3>
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-position"/></svg></span>
+            <h3>Position</h3>
+            <p>A feature's true (theoretically exact) location is defined by basic
+               dimensions; the actual feature has to fall within a zone &mdash; usually
+               cylindrical &mdash; centred on it. The most common location tolerance by far.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-concentricity"/></svg></span>
+            <h3>Concentricity</h3>
+            <p>Every median point of a feature has to fall within a zone centred on a datum
+               axis. Rarely called out since it's expensive to inspect &mdash; position or
+               runout usually does the job instead.</p>
+          </div>
+        </div>
+        <p class="lede">A fourteenth form symbol, <strong>symmetry</strong>, controls a
+           feature's median points relative to a datum's centre plane. It isn't diagrammed
+           here &mdash; it's uncommon since the 1994/2009 revisions folded most of its use
+           cases into position with a zero tolerance at MMC, and the exact figure is worth
+           checking against the standard rather than guessing from a description.</p>
+
+        <h3>Runout &mdash; always relative to a datum axis</h3>
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-runout-circular"/></svg></span>
+            <h3>Circular Runout</h3>
+            <p>As the part rotates a full turn about a datum axis, each individual circular
+               measurement plane can't wobble more than the tolerance, checked independently.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-runout-total"/></svg></span>
+            <h3>Total Runout</h3>
+            <p>The same rotation, but checked across the entire surface at once &mdash; folds
+               in circularity, straightness, taper and coaxiality together, all relative to
+               the datum axis.</p>
+          </div>
+        </div>
+        <p class="lede">Runout tolerances never take a material condition modifier &mdash;
+           size and form are inherently mixed into the check, so MMC/LMC don't apply.</p>
+      </section>
+
+      <!-- ============================================================ DATUMS -->
+      <section id="datums">
+        <h2>Datums &amp; Precedence</h2>
+        <p class="lede">A datum is a real feature on the part &mdash; a face, a bore, an axis
+           &mdash; nominated as an origin. Everything else that references it gets measured
+           from there, not from the part's nominal CAD geometry.</p>
+
+        <div class="placement-pair">
+          <div class="placement-panel">
+            <h4>Datum feature symbol</h4>
+            <svg viewBox="0 0 220 150" role="img" aria-label="Datum feature symbol: a filled triangle sitting on a surface, connected by a leader to a boxed letter A.">
+              <line x1="20" y1="110" x2="200" y2="110" stroke="var(--text)" stroke-width="3"/>
+              <polygon points="98,110 118,110 108,92" fill="var(--c-accent)"/>
+              <line x1="108" y1="92" x2="108" y2="58" stroke="var(--text)" stroke-width="2"/>
+              <rect x="94" y="34" width="28" height="24" fill="none" stroke="var(--text)" stroke-width="2.4"/>
+              <text x="108" y="51" text-anchor="middle" font-family="var(--mono)" font-size="15" fill="var(--text)">A</text>
+            </svg>
+            <p>A filled or open triangle sits on the feature itself &mdash; a whole face, not
+               a point &mdash; with a leader up to a boxed reference letter.</p>
+          </div>
+          <div class="placement-panel">
+            <h4>Referenced in a frame</h4>
+            <svg viewBox="0 0 220 150" role="img" aria-label="Feature control frame referencing datum A as its only datum.">
+              <rect x="40" y="55" width="40" height="36" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <use href="#gdt-perpendicularity" x="44" y="59" width="28" height="28" color="var(--c-accent)"/>
+              <rect x="80" y="55" width="60" height="36" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <text x="92" y="78" font-family="var(--mono)" font-size="15" fill="var(--text)">.005</text>
+              <rect x="140" y="55" width="40" height="36" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <text x="154" y="78" font-family="var(--mono)" font-size="15" fill="var(--text)">A</text>
+            </svg>
+            <p>The same letter, dropped into a datum-reference compartment, ties the
+               tolerance zone back to that specific feature.</p>
+          </div>
+        </div>
+
+        <p>A single datum rarely pins down every degree of freedom, which is why frames
+           commonly reference two or three, read left to right in <strong>order of
+           precedence</strong>:</p>
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Order</th><th>Role</th><th>Constrains</th></tr></thead>
+            <tbody>
+              <tr><td>1st listed</td><td>Primary datum</td><td>The most degrees of freedom &mdash; typically the feature the part sits flattest against.</td></tr>
+              <tr><td>2nd listed</td><td>Secondary datum</td><td>Fewer remaining degrees of freedom, established against the primary.</td></tr>
+              <tr><td>3rd listed</td><td>Tertiary datum</td><td>Whatever's left &mdash; usually just one rotational degree of freedom.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">A datum reference can carry its own MMC/LMC modifier, independent of
+           the tolerance's modifier &mdash; a movable datum whose effective size shifts with
+           the part, most often used for a datum that's itself a hole or a pin. A
+           <strong>datum target</strong> &mdash; a specific point, line or small area used in
+           place of an entire feature, common on castings and other unfinished surfaces
+           &mdash; has its own symbol family and is worth a direct look at the standard rather
+           than guessing at the figure here.</p>
+      </section>
+
+      <!-- ============================================================ MODIFIERS -->
+      <section id="modifiers">
+        <h2>Modifiers &amp; Related Marks</h2>
+        <p class="lede">These don't name a tolerance type on their own &mdash; they change
+           what a tolerance value or a datum reference actually means.</p>
+
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Mark</th><th>Name</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>&#x24C2;</code></td><td>MMC &mdash; Maximum Material Condition</td><td>The tolerance applies at MMC; as the feature departs from MMC, it earns bonus tolerance.</td></tr>
+              <tr><td><code>&#x24C1;</code></td><td>LMC &mdash; Least Material Condition</td><td>The tolerance applies at LMC &mdash; used to hold a minimum wall thickness or edge distance.</td></tr>
+              <tr><td>&mdash;</td><td>RFS &mdash; Regardless of Feature Size</td><td>The default when no modifier is shown at all: the tolerance doesn't change with the feature's actual size.</td></tr>
+              <tr><td><code>&#x24C5;</code></td><td>Projected Tolerance Zone</td><td>The zone projects above the surface into space rather than through the feature &mdash; common on threaded and press-fit holes, where the mating part's position matters more than the hole's own axis.</td></tr>
+              <tr><td><code>&#x24C9;</code></td><td>Tangent Plane</td><td>The feature is constrained by a plane tangent to its high points, not by its full, wavy derived surface.</td></tr>
+              <tr><td><code>&#x24BB;</code></td><td>Free State</td><td>The tolerance applies with the part unrestrained by any external force &mdash; for parts flexible enough that clamping would hide a real deviation.</td></tr>
+              <tr><td><code>ST</code></td><td>Statistical Tolerance</td><td>The tolerance is assigned by statistical methods rather than worst-case arithmetic; the parts have to be produced under statistical process control.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><line x1="14" y1="30" x2="30" y2="14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+            <h3>Diameter (&#x2300;)</h3>
+            <p>The tolerance zone (or the dimension it's attached to) is a diameter, not a
+               linear width or a pair of flat planes.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-basicbox"/></svg></span>
+            <h3>Basic Dimension</h3>
+            <p>A boxed value: an exact, theoretical dimension with no tolerance of its own
+               &mdash; the tolerance lives entirely in the feature control frame instead.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ WORKED EXAMPLES -->
+      <section id="examples">
+        <h2>Worked Examples</h2>
+        <p class="lede">Full frames, decoded left to right.</p>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 260 60" role="img" aria-label="Position, diameter point zero one zero at MMC, datum A, datum B at MMC, datum C">
+              <g font-family="var(--mono)" font-size="14" fill="var(--text)">
+                <rect x="6" y="6" width="32" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <use href="#gdt-position" x="10" y="10" width="24" height="24" color="var(--c-accent)"/>
+                <rect x="38" y="6" width="92" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="46" y="27">&#x2300;.010</text>
+                <text x="112" y="27">&#x24C2;</text>
+                <rect x="130" y="6" width="34" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="141" y="27">A</text>
+                <rect x="164" y="6" width="52" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="173" y="27">B</text>
+                <text x="196" y="27">&#x24C2;</text>
+                <rect x="216" y="6" width="34" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="227" y="27">C</text>
+              </g>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">A &mdash; Position, Three Datums</p>
+            <ol>
+              <li><b>Characteristic:</b> position &mdash; a hole's location.</li>
+              <li><b>Zone:</b> &#x2300;0.010, cylindrical.</li>
+              <li><b>Modifier:</b> MMC on the tolerance &mdash; bonus tolerance grows as the hole gets bigger.</li>
+              <li><b>Datums:</b> A primary, B secondary at MMC, C tertiary.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 130 60" role="img" aria-label="Flatness, point zero zero five, no datum reference">
+              <g font-family="var(--mono)" font-size="14" fill="var(--text)">
+                <rect x="6" y="6" width="32" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <use href="#gdt-flatness" x="10" y="10" width="24" height="24" color="var(--c-accent)"/>
+                <rect x="38" y="6" width="58" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="48" y="27">.005</text>
+              </g>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">B &mdash; Flatness, No Datum</p>
+            <ol>
+              <li><b>Characteristic:</b> flatness &mdash; a surface's own shape.</li>
+              <li><b>Zone:</b> 0.005 between two parallel planes &mdash; no &#x2300;, since the zone isn't a diameter.</li>
+              <li><b>Datums:</b> none. Form tolerances control a feature relative to itself, so no reference frame applies.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 170 60" role="img" aria-label="Perpendicularity, point zero zero two, datum A">
+              <g font-family="var(--mono)" font-size="14" fill="var(--text)">
+                <rect x="6" y="6" width="32" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <use href="#gdt-perpendicularity" x="10" y="10" width="24" height="24" color="var(--c-accent)"/>
+                <rect x="38" y="6" width="58" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="48" y="27">.002</text>
+                <rect x="96" y="6" width="34" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="107" y="27">A</text>
+              </g>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">C &mdash; Perpendicularity to One Datum</p>
+            <ol>
+              <li><b>Characteristic:</b> perpendicularity &mdash; a surface square to a datum.</li>
+              <li><b>Zone:</b> 0.002 between two parallel planes.</li>
+              <li><b>Datum:</b> A &mdash; the surface has to be square to datum A within that zone.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 200 60" role="img" aria-label="Profile of a surface, point zero one zero, datum A, datum B">
+              <g font-family="var(--mono)" font-size="14" fill="var(--text)">
+                <rect x="6" y="6" width="32" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <use href="#gdt-profile-surface" x="10" y="10" width="24" height="24" color="var(--c-accent)"/>
+                <rect x="38" y="6" width="58" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="48" y="27">.010</text>
+                <rect x="96" y="6" width="34" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="107" y="27">A</text>
+                <rect x="130" y="6" width="34" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="141" y="27">B</text>
+              </g>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">D &mdash; Profile of a Surface, Two Datums</p>
+            <ol>
+              <li><b>Characteristic:</b> profile of a surface.</li>
+              <li><b>Zone:</b> 0.010, straddling the true profile unless a note says otherwise.</li>
+              <li><b>Datums:</b> A primary, B secondary &mdash; they orient and locate the profile zone in space.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 170 60" role="img" aria-label="Circular runout, point zero zero four, datum A">
+              <g font-family="var(--mono)" font-size="14" fill="var(--text)">
+                <rect x="6" y="6" width="32" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <use href="#gdt-runout-circular" x="10" y="10" width="24" height="24" color="var(--c-accent)"/>
+                <rect x="38" y="6" width="58" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="48" y="27">.004</text>
+                <rect x="96" y="6" width="34" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
+                <text x="107" y="27">A</text>
+              </g>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">E &mdash; Circular Runout</p>
+            <ol>
+              <li><b>Characteristic:</b> circular runout.</li>
+              <li><b>Zone:</b> 0.004, checked at each measurement plane as the part rotates.</li>
+              <li><b>Datum:</b> A &mdash; the axis of rotation.</li>
+              <li><b>No modifier possible:</b> runout never takes MMC/LMC, on this or any frame.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ QUICK REFERENCE -->
+      <section id="quick-reference">
+        <h2>Quick Reference</h2>
+        <p class="lede">Every characteristic symbol on this page, one row each.</p>
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Mark</th><th>Name</th><th>Family</th><th>Datum?</th></tr></thead>
+            <tbody>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-straightness"/></svg></td><td>Straightness</td><td>Form</td><td>No</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-flatness"/></svg></td><td>Flatness</td><td>Form</td><td>No</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-circularity"/></svg></td><td>Circularity</td><td>Form</td><td>No</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-cylindricity"/></svg></td><td>Cylindricity</td><td>Form</td><td>No</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-profile-line"/></svg></td><td>Profile of a Line</td><td>Profile</td><td>Optional</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-profile-surface"/></svg></td><td>Profile of a Surface</td><td>Profile</td><td>Optional</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-angularity"/></svg></td><td>Angularity</td><td>Orientation</td><td>Yes</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-perpendicularity"/></svg></td><td>Perpendicularity</td><td>Orientation</td><td>Yes</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-parallelism"/></svg></td><td>Parallelism</td><td>Orientation</td><td>Yes</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-position"/></svg></td><td>Position</td><td>Location</td><td>Usually</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-concentricity"/></svg></td><td>Concentricity</td><td>Location</td><td>Yes</td></tr>
+              <tr><td class="mark-cell">&mdash;</td><td>Symmetry</td><td>Location</td><td>Yes</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-runout-circular"/></svg></td><td>Circular Runout</td><td>Runout</td><td>Yes</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-runout-total"/></svg></td><td>Total Runout</td><td>Runout</td><td>Yes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="How to read an AWS A2.4 welding symbol: reference line, arrow &amp; other side, tail, the basic weld glyphs, sizing and supplementary marks, with worked examples. A TOOLBOX knowledge-base page." />
+<title>Welding Symbols — TOOLBOX Knowledge Base</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<link rel="stylesheet" href="kb.css">
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<!-- =================================================================
+     Reusable glyph library. Every weld-symbol mark is authored once
+     here as a <symbol> (viewBox 0 0 44 44, an implied reference line
+     running under local y=34, shape extending upward toward y=16 —
+     i.e. drawn as it reads ABOVE the reference line / "other side").
+     Card grids and the reference table use <use> at 1:1. Diagrams
+     that need a mark BELOW the line (arrow side) wrap the same <use>
+     in a translate+scale(1,-1) pair that mirrors it about the line
+     while leaving the on-line anchor point fixed — see the anatomy
+     and worked-example diagrams below.
+     ================================================================= -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="wsym-fillet" viewBox="0 0 44 44">
+    <polygon points="14,16 14,34 32,34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="wsym-square" viewBox="0 0 44 44">
+    <line x1="16" y1="16" x2="16" y2="34" stroke="currentColor" stroke-width="2.4"/>
+    <line x1="28" y1="16" x2="28" y2="34" stroke="currentColor" stroke-width="2.4"/>
+  </symbol>
+  <symbol id="wsym-vgroove" viewBox="0 0 44 44">
+    <polyline points="12,16 22,34 32,16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-bevel" viewBox="0 0 44 44">
+    <polyline points="14,16 14,34 32,16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-ugroove" viewBox="0 0 44 44">
+    <path d="M14,16 L14,26 A8,8 0 0 0 30,26 L30,16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-jgroove" viewBox="0 0 44 44">
+    <path d="M16,16 L16,28 A6,6 0 0 1 22,34 L30,34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="wsym-flarev" viewBox="0 0 44 44">
+    <path d="M12,16 Q19,28 22,34 Q25,28 32,16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-flarebevel" viewBox="0 0 44 44">
+    <path d="M14,16 L14,34 Q30,30 32,16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-plugslot" viewBox="0 0 44 44">
+    <rect x="14" y="18" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  </symbol>
+  <symbol id="wsym-spot" viewBox="0 0 44 44">
+    <circle cx="22" cy="26" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  </symbol>
+  <symbol id="wsym-backing" viewBox="0 0 44 44">
+    <rect x="12" y="29" width="20" height="5" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="wsym-surfacing" viewBox="0 0 44 44">
+    <path d="M12,34 Q22,18 32,34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-allaround" viewBox="0 0 44 44">
+    <circle cx="22" cy="22" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  </symbol>
+  <symbol id="wsym-fieldweld" viewBox="0 0 44 44">
+    <line x1="14" y1="8" x2="14" y2="36" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <polygon points="16,10 30,16 16,22" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="wsym-contour-flush" viewBox="0 0 44 44">
+    <line x1="12" y1="24" x2="32" y2="24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-contour-convex" viewBox="0 0 44 44">
+    <path d="M12,28 Q22,16 32,28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-contour-concave" viewBox="0 0 44 44">
+    <path d="M12,18 Q22,30 32,18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<header id="app-header">
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Knowledge Base</div>
+</header>
+
+<main>
+  <div class="shell">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> Knowledge Base</a>
+
+    <div class="page-head">
+      <span class="kicker">Reading a drawing</span>
+      <h1>Welding Symbols</h1>
+      <p>How the AWS A2.4 welding symbol is built, how to tell arrow side from other side,
+         what each basic weld glyph means, where size and length attach to it, and the
+         supplementary marks that ride along &mdash; weld-all-around, field weld, contour
+         and finish. Worked examples at the bottom decode full callouts start to finish.</p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Scope &amp; standard</span>
+      This page follows <strong>AWS A2.4</strong> &mdash; the U.S. structural/general
+      welding-symbol standard &mdash; for structure and terminology, with the occasional
+      note on where <strong>ISO 2553</strong> (the international counterpart) differs. The
+      marks below are simplified teaching pictograms, not typographically exact
+      reproductions of the standard's figures. For contract drawings, WPS work, or anything
+      code-governed, read the current edition of the governing standard itself &mdash; and
+      put its name and edition on the drawing (see the
+      <a href="../checklists/weldment.html" style="color:var(--c-accent)">Weldment Review</a>
+      checklist for the rest of that list).
+    </div>
+
+    <nav class="kb-toc" aria-label="On this page">
+      <span class="kb-toc-label">On this page</span>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#placement">Arrow / Other Side</a>
+      <a href="#basic-symbols">Basic Symbols</a>
+      <a href="#dimensions">Sizing &amp; Pitch</a>
+      <a href="#supplementary">Supplementary</a>
+      <a href="#finish">Contour &amp; Finish</a>
+      <a href="#examples">Worked Examples</a>
+      <a href="#quick-reference">Quick Reference</a>
+    </nav>
+
+    <article class="kb-body">
+
+      <!-- ============================================================ ANATOMY -->
+      <section id="anatomy">
+        <h2>Anatomy of a Welding Symbol</h2>
+        <p class="lede">Every part of the symbol has a fixed job and a fixed address. Learn the
+           layout once and every callout you meet afterwards reads the same way.</p>
+        <p>The whole thing is built on a horizontal <strong>reference line</strong>. An
+           <strong>arrow</strong> leans off one end and touches the joint being welded. Marks
+           riding the line say what kind of weld and how big; whether a mark sits above or
+           below the line says which side of the joint it belongs to. A <strong>tail</strong>
+           &mdash; a short fork at the line's far end &mdash; carries anything that doesn't fit
+           on the line itself: welding process, a spec, a note. No tail is drawn at all when
+           there's nothing to put in it.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 760 195" role="img" aria-label="A labelled welding symbol: arrow pointing at a joint, reference line, a fillet weld mark below the line, size and length numbers, and a tail carrying a process note.">
+            <!-- joint cross-section (simple tee) -->
+            <rect x="90" y="40" width="14" height="130" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <rect x="90" y="156" width="110" height="14" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <polygon points="104,156 118,156 104,142" fill="var(--c-accent)" opacity="0.85"/>
+
+            <!-- arrow -->
+            <path d="M300,86 L128,146" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <polygon points="128,146 141,141 135,153" fill="var(--text)"/>
+
+            <!-- reference line + tail -->
+            <line x1="300" y1="86" x2="620" y2="86" stroke="var(--text)" stroke-width="2"/>
+            <path d="M620,86 L648,76 M620,86 L648,96" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <text x="656" y="90" font-family="var(--mono)" font-size="13" fill="var(--muted)">GMAW</text>
+
+            <!-- weld symbol: fillet, arrow side (mirrored below the line) -->
+            <g transform="translate(0,172) scale(1,-1)">
+              <use href="#wsym-fillet" x="286" y="52" width="44" height="44" color="var(--c-accent)"/>
+            </g>
+            <text x="272" y="80" text-anchor="end" font-family="var(--mono)" font-size="14" fill="var(--text)">1/4</text>
+            <text x="316" y="80" font-family="var(--mono)" font-size="14" fill="var(--text)">3-6</text>
+
+            <!-- callout badges -->
+            <g font-family="var(--mono)" font-size="11" font-weight="700" text-anchor="middle">
+              <circle cx="104" cy="150" r="10" fill="var(--c-accent)"/><text x="104" y="154" fill="var(--bg)">1</text>
+              <circle cx="210" cy="116" r="10" fill="var(--c-accent)"/><text x="210" y="120" fill="var(--bg)">2</text>
+              <circle cx="470" cy="86" r="10" fill="var(--c-accent)"/><text x="470" y="90" fill="var(--bg)">3</text>
+              <circle cx="320" cy="108" r="10" fill="var(--c-accent)"/><text x="320" y="112" fill="var(--bg)">4</text>
+              <circle cx="228" cy="80" r="10" fill="var(--c-accent)"/><text x="228" y="84" fill="var(--bg)">5</text>
+              <circle cx="368" cy="80" r="10" fill="var(--c-accent)"/><text x="368" y="84" fill="var(--bg)">6</text>
+              <circle cx="648" cy="66" r="10" fill="var(--c-accent)"/><text x="648" y="70" fill="var(--bg)">7</text>
+            </g>
+          </svg>
+          <figcaption>Fig. 1 &mdash; A complete symbol calling a 1/4&Prime; intermittent fillet weld, 3&Prime; long on 6&Prime; centres, arrow side, process GMAW.</figcaption>
+        </figure>
+        <ol class="diagram-legend">
+          <li><b>Joint</b> &mdash; the actual parts being welded. The arrow touches it; everything else is annotation.</li>
+          <li><b>Arrow</b> &mdash; connects the reference line to the joint. Its far end can bend or point to a specific member when it matters which one.</li>
+          <li><b>Reference line</b> &mdash; the spine every other mark attaches to.</li>
+          <li><b>Weld symbol, arrow side</b> &mdash; below the line. A mark above the line would call the weld on the other side instead &mdash; see the next section.</li>
+          <li><b>Size</b> &mdash; leg length, groove depth, or diameter, written to the left of the weld symbol.</li>
+          <li><b>Length &amp; pitch</b> &mdash; written to the right; a dash-separated pair means intermittent (length&ndash;pitch).</li>
+          <li><b>Tail</b> &mdash; process, spec or note. Omitted entirely when empty.</li>
+        </ol>
+        <p class="lede">Weld-all-around and field-weld marks also live right at the arrow/line
+           junction when they're used &mdash; they're introduced on their own in
+           <a href="#supplementary" style="color:var(--c-accent)">Supplementary Symbols</a> so
+           this base diagram stays readable.</p>
+      </section>
+
+      <!-- ============================================================ PLACEMENT -->
+      <section id="placement">
+        <h2>Arrow Side vs. Other Side</h2>
+        <p class="lede">This is the rule the rest of the symbol depends on, and the one that
+           trips people up first.</p>
+        <p><strong>Below the reference line</strong> = the weld is on the <strong>arrow
+           side</strong> &mdash; the same side of the joint the arrowhead touches.
+           <strong>Above the reference line</strong> = the weld is on the <strong>other
+           side</strong> &mdash; the side opposite the arrow, which may be facing away from you
+           in the view you're looking at. A mark on both sides of the line means the joint is
+           welded on both sides.</p>
+
+        <div class="placement-pair">
+          <div class="placement-panel">
+            <h4>Below the line &mdash; arrow side</h4>
+            <svg viewBox="0 0 260 150" role="img" aria-label="Fillet weld symbol below the reference line, meaning the weld is on the arrow side of the joint.">
+              <path d="M40,60 L40,110 L110,110" fill="none" stroke="var(--text)" stroke-width="3"/>
+              <polygon points="40,110 52,110 40,98" fill="var(--c-accent)" opacity="0.85"/>
+              <path d="M170,40 L58,96" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="58,96 71,91 66,103" fill="var(--text)"/>
+              <line x1="170" y1="40" x2="250" y2="40" stroke="var(--text)" stroke-width="2"/>
+              <g transform="translate(0,80) scale(1,-1)">
+                <use href="#wsym-fillet" x="162" y="20" width="26" height="26" color="var(--c-accent)"/>
+              </g>
+            </svg>
+            <p>Symbol hangs below the line &rarr; weld goes where the arrowhead points.</p>
+          </div>
+          <div class="placement-panel">
+            <h4>Above the line &mdash; other side</h4>
+            <svg viewBox="0 0 260 150" role="img" aria-label="Fillet weld symbol above the reference line, meaning the weld is on the side opposite the arrow.">
+              <path d="M40,60 L40,110 L110,110" fill="none" stroke="var(--text)" stroke-width="3"/>
+              <polygon points="40,110 52,110 40,98" fill="var(--c-accent)" opacity="0.85"/>
+              <path d="M170,40 L58,96" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="58,96 71,91 66,103" fill="var(--text)"/>
+              <line x1="170" y1="40" x2="250" y2="40" stroke="var(--text)" stroke-width="2"/>
+              <use href="#wsym-fillet" x="162" y="20" width="26" height="26" color="var(--c-accent)"/>
+            </svg>
+            <p>Symbol sits above the line &rarr; weld goes on the far side, opposite the arrow.</p>
+          </div>
+        </div>
+
+        <p>Two more placement rules ride along with this one. A mark drawn <strong>centred
+           on</strong> (straddling) the reference line, rather than above or below it, is used
+           for weld types that don't have an arrow-side/other-side distinction to begin with
+           &mdash; spot, seam and projection welds are the common case, since the parts are
+           simply squeezed together rather than joined from one particular face. And on a joint
+           like a T or a lap, the two possible weld locations can look identical in a single
+           view &mdash; there's often no other cue in the drawing to tell them apart. Arrow
+           side / other side placement is the symbol's way of resolving that, not a formality.
+           ISO 2553 uses the same above/below logic, so once you know which standard's tail
+           conventions and finish letters you're reading, the placement rule itself doesn't
+           change underneath you.</p>
+      </section>
+
+      <!-- ============================================================ BASIC SYMBOLS -->
+      <section id="basic-symbols">
+        <h2>Basic Weld Symbols</h2>
+        <p class="lede">The mark says what kind of weld. Each one below is drawn in its
+           canonical orientation &mdash; sitting above an implied reference line running under
+           its bottom edge &mdash; the same shape flips below the line for an arrow-side call,
+           as in the examples further down.</p>
+
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-fillet"/></svg></span>
+            <h3>Fillet</h3>
+            <p>The workhorse: two members meeting at roughly a right angle, weld metal filling
+               the inside corner. Sized by leg length unless the drawing says otherwise.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-square"/></svg></span>
+            <h3>Square Groove</h3>
+            <p>Both edges left square, butted together over a root opening. Thin material,
+               single or double-sided pass.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-vgroove"/></svg></span>
+            <h3>V-Groove</h3>
+            <p>Both edges bevelled to form a V. The default full-penetration groove for plate
+               too thick to fuse through from a square edge.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-bevel"/></svg></span>
+            <h3>Bevel Groove</h3>
+            <p>Only one member is bevelled; the other stays square &mdash; common where one
+               side can't be chamfered, like a machined face or a casting.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-ugroove"/></svg></span>
+            <h3>U-Groove</h3>
+            <p>Both edges gouged to a rounded profile. Less filler metal than a V for the same
+               thickness, at the cost of more prep.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-jgroove"/></svg></span>
+            <h3>J-Groove</h3>
+            <p>One member gouged round, the other left square &mdash; the U-groove's
+               bevel-groove counterpart.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-flarev"/></svg></span>
+            <h3>Flare-V Groove</h3>
+            <p>Between two members whose own curvature forms the groove &mdash; two round bars
+               laid together, for instance. No machining of the edge itself.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-flarebevel"/></svg></span>
+            <h3>Flare-Bevel Groove</h3>
+            <p>One flat member against one curved member &mdash; a bar against a plate, a pipe
+               into a flat face.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-plugslot"/></svg></span>
+            <h3>Plug / Slot</h3>
+            <p>A hole in the top member &mdash; round for plug, elongated for slot &mdash;
+               filled with weld metal down to the member below.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></span>
+            <h3>Spot / Projection</h3>
+            <p>A fused nugget through overlapped sheet, no continuous seam. Resistance spot
+               welding's symbol; also covers projection welding.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></span>
+            <h3>Seam</h3>
+            <p>A continuous line of fused nuggets along overlapped sheet &mdash; same circle
+               glyph as spot; width, length and pitch in the callout say which one you're
+               reading.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-backing"/></svg></span>
+            <h3>Backing</h3>
+            <p>A bar, strip or pass of weld metal on the back of a groove weld, placed before
+               welding to support and contain the root pass.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></span>
+            <h3>Surfacing</h3>
+            <p>Weld metal built up on a surface rather than joining two parts &mdash;
+               hardfacing, cladding, or dimensional build-up on a worn part.</p>
+          </div>
+        </div>
+
+        <p class="lede">A few less common members of the family aren't diagrammed here:
+           <strong>edge</strong> and <strong>corner-flange</strong> welds have their own
+           symbols in A2.4 for formed sheet-metal edges, and <strong>scarf</strong> joints
+           (mostly brazing) have theirs. Rare enough outside sheet-metal and specialty work
+           that they're better looked up in the standard when you actually hit one.</p>
+      </section>
+
+      <!-- ============================================================ DIMENSIONS -->
+      <section id="dimensions">
+        <h2>Sizing, Length &amp; Pitch</h2>
+        <p class="lede">The weld symbol says what kind of weld. Everything positioned around it
+           says how big and how often &mdash; and each value has a fixed address, because a
+           number on the wrong side of the symbol changes what's specified.</p>
+
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead>
+              <tr><th>Value</th><th>Where it's written</th><th>Reads as</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Size</code></td><td>Left of the weld symbol</td><td>Fillet leg length, groove depth, or plug/slot width</td></tr>
+              <tr><td><code>Groove angle</code></td><td>Nested at the mouth of the groove symbol</td><td>Included angle between the prepared faces</td></tr>
+              <tr><td><code>Root opening</code></td><td>At the root (point) of the groove symbol</td><td>Gap left between the faces before welding</td></tr>
+              <tr><td><code>Length</code></td><td>Right of the weld symbol</td><td>Length of a single weld or weld segment</td></tr>
+              <tr><td><code>Pitch</code></td><td>Right of the length, separated by a dash</td><td>Centre-to-centre spacing for an intermittent weld, e.g. <code>2-4</code> = 2&Prime; welds on 4&Prime; centres</td></tr>
+              <tr><td><code>Number of welds</code></td><td>In parentheses, right of the symbol</td><td>Count of spot, plug, or projection welds &mdash; e.g. <code>(5)</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">Exact typography for edge cases &mdash; stacked dimensions, unusual
+           combinations &mdash; is worth checking against A2.4's own placement figures rather
+           than guessing from the pattern above.</p>
+      </section>
+
+      <!-- ============================================================ SUPPLEMENTARY -->
+      <section id="supplementary">
+        <h2>Supplementary Symbols</h2>
+        <p class="lede">Marks that modify a weld symbol rather than naming a weld type. They sit
+           right at the arrow/reference-line junction (weld-all-around, field weld) or ride
+           alongside the weld symbol itself (melt-through).</p>
+
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-allaround"/></svg></span>
+            <h3>Weld All Around</h3>
+            <p>A circle at the arrow/reference-line junction: the weld runs all the way around
+               the joint, not just where the arrow points.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-fieldweld"/></svg></span>
+            <h3>Field Weld</h3>
+            <p>A filled flag at the junction: this weld is made at the installation site, not in
+               the shop &mdash; useful for sequencing and for costing site labour separately.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></span>
+            <h3>Melt-Through</h3>
+            <p>Shares its glyph with surfacing &mdash; a shallow dome &mdash; placed on the
+               other side of a groove weld to call for visible, controlled penetration showing
+               through.</p>
+          </div>
+        </div>
+        <p class="lede">A consumable insert (a filler ring left in the root of a groove weld) is
+           normally called out by note or in the tail rather than by a distinct glyph on most
+           shop drawings &mdash; worth confirming against the standard if you're drafting one
+           from scratch.</p>
+      </section>
+
+      <!-- ============================================================ FINISH -->
+      <section id="finish">
+        <h2>Contour &amp; Finish</h2>
+        <p class="lede">Contour describes the final profile of the weld face; the finish letter
+           beside it says how that profile gets there. Both sit directly above the weld symbol
+           they apply to.</p>
+
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-contour-flush"/></svg></span>
+            <h3>Flush</h3>
+            <p>A straight line: the weld face is dressed level with the surrounding surface.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-contour-convex"/></svg></span>
+            <h3>Convex</h3>
+            <p>An outward arc: the weld face bulges above the surrounding surface.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-contour-concave"/></svg></span>
+            <h3>Concave</h3>
+            <p>An inward arc: the weld face dishes below the surrounding surface &mdash;
+               typical for a finished structural fillet.</p>
+          </div>
+        </div>
+
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Letter</th><th>Finish method</th></tr></thead>
+            <tbody>
+              <tr><td><code>C</code></td><td>Chipping</td></tr>
+              <tr><td><code>G</code></td><td>Grinding</td></tr>
+              <tr><td><code>M</code></td><td>Machining</td></tr>
+              <tr><td><code>R</code></td><td>Rolling</td></tr>
+              <tr><td><code>H</code></td><td>Hammering</td></tr>
+              <tr><td><code>P</code></td><td>Peening</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">No letter shown means the finish method is the welder's choice &mdash;
+           but the contour itself is still mandatory once it's on the drawing.</p>
+      </section>
+
+      <!-- ============================================================ WORKED EXAMPLES -->
+      <section id="examples">
+        <h2>Worked Examples</h2>
+        <p class="lede">Full callouts, decoded left to right &mdash; the same reading order
+           you'd use on a real drawing.</p>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 180 100" role="img" aria-label="Intermittent fillet weld symbol, arrow side, 1 quarter inch, 2 dash 4">
+              <path d="M55,42 L16,70" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="16,70 30,67 24,58" fill="var(--text)"/>
+              <line x1="55" y1="42" x2="150" y2="42" stroke="var(--text)" stroke-width="2"/>
+              <g transform="translate(0,84) scale(1,-1)">
+                <use href="#wsym-fillet" x="46" y="20" width="28" height="28" color="var(--c-accent)"/>
+              </g>
+              <text x="40" y="36" text-anchor="end" font-family="var(--mono)" font-size="14" fill="var(--text)">1/4</text>
+              <text x="82" y="36" font-family="var(--mono)" font-size="14" fill="var(--text)">2-4</text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">A &mdash; Intermittent Fillet</p>
+            <ol>
+              <li><b>Type:</b> fillet weld.</li>
+              <li><b>Side:</b> below the line &mdash; arrow side.</li>
+              <li><b>Size:</b> 1/4&Prime; leg.</li>
+              <li><b>Pattern:</b> 2&Prime; long welds on 4&Prime; centres (intermittent).</li>
+              <li><b>Tail:</b> none &mdash; process left to the shop.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 240 120" role="img" aria-label="V-groove weld symbol, other side, 60 degrees, 1 eighth inch root, tail GTAW">
+              <path d="M60,48 L18,80" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="18,80 31,76 25,68" fill="var(--text)"/>
+              <line x1="60" y1="48" x2="175" y2="48" stroke="var(--text)" stroke-width="2"/>
+              <path d="M175,48 L200,38 M175,48 L200,58" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <text x="207" y="52" font-family="var(--mono)" font-size="13" fill="var(--muted)">GTAW</text>
+              <use href="#wsym-vgroove" x="45" y="25" width="30" height="30" color="var(--c-accent)"/>
+              <text x="36" y="20" font-family="var(--mono)" font-size="13" fill="var(--text)">60&deg;</text>
+              <text x="78" y="34" font-family="var(--mono)" font-size="12" fill="var(--text)">1/8</text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">B &mdash; V-Groove, Other Side</p>
+            <ol>
+              <li><b>Type:</b> V-groove weld.</li>
+              <li><b>Side:</b> above the line &mdash; other side.</li>
+              <li><b>Groove angle:</b> 60&deg; included.</li>
+              <li><b>Root opening:</b> 1/8&Prime;.</li>
+              <li><b>Tail:</b> GTAW &mdash; process specified.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 190 120" role="img" aria-label="Fillet weld symbol, other side, with weld all around and field weld marks">
+              <path d="M60,55 L18,87" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="18,87 31,83 25,75" fill="var(--text)"/>
+              <line x1="60" y1="55" x2="150" y2="55" stroke="var(--text)" stroke-width="2"/>
+              <use href="#wsym-fillet" x="51" y="33" width="28" height="28" color="var(--c-accent)"/>
+              <circle cx="60" cy="55" r="7" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <line x1="42" y1="55" x2="42" y2="34" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="43,36 57,41 43,46" fill="var(--text)"/>
+              <text x="36" y="50" text-anchor="end" font-family="var(--mono)" font-size="14" fill="var(--text)">1/4</text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">C &mdash; Fillet with Supplementary Marks</p>
+            <ol>
+              <li><b>Type:</b> fillet weld, other side, 1/4&Prime; leg.</li>
+              <li><b>Circle at the vertex:</b> weld all around the joint.</li>
+              <li><b>Flag at the vertex:</b> field weld &mdash; made on site, not in the shop.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 180 100" role="img" aria-label="Spot weld symbol, quarter inch diameter, 5 places">
+              <path d="M58,45 L18,74" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="18,74 32,70 26,62" fill="var(--text)"/>
+              <line x1="58" y1="45" x2="150" y2="45" stroke="var(--text)" stroke-width="2"/>
+              <use href="#wsym-spot" x="43" y="27" width="30" height="30" color="var(--c-accent)"/>
+              <text x="34" y="41" text-anchor="end" font-family="var(--mono)" font-size="14" fill="var(--text)">.25</text>
+              <text x="86" y="41" font-family="var(--mono)" font-size="14" fill="var(--text)">(5)</text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">D &mdash; Spot Weld, 5 Places</p>
+            <ol>
+              <li><b>Type:</b> spot weld &mdash; circle straddles the line, no arrow-side/other-side distinction.</li>
+              <li><b>Size:</b> 0.25&Prime; diameter.</li>
+              <li><b>Count:</b> 5 places.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 190 130" role="img" aria-label="Fillet weld symbol both sides with unequal leg sizes">
+              <path d="M65,60 L40,98" fill="none" stroke="var(--text)" stroke-width="2"/>
+              <polygon points="40,98 51,90 43,84" fill="var(--text)"/>
+              <line x1="65" y1="60" x2="155" y2="60" stroke="var(--text)" stroke-width="2"/>
+              <use href="#wsym-fillet" x="57" y="42" width="24" height="24" color="var(--c-accent)"/>
+              <g transform="translate(0,120) scale(1,-1)">
+                <use href="#wsym-fillet" x="57" y="40" width="26" height="26" color="var(--c-accent)"/>
+              </g>
+              <text x="52" y="38" text-anchor="end" font-family="var(--mono)" font-size="13" fill="var(--text)">1/4</text>
+              <text x="52" y="68" text-anchor="end" font-family="var(--mono)" font-size="13" fill="var(--text)">3/16</text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">E &mdash; Fillet, Both Sides, Unequal Legs</p>
+            <ol>
+              <li><b>Type:</b> fillet weld, both sides of the joint.</li>
+              <li><b>Arrow side:</b> 3/16&Prime; leg (below the line).</li>
+              <li><b>Other side:</b> 1/4&Prime; leg (above the line) &mdash; each side sized independently.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ QUICK REFERENCE -->
+      <section id="quick-reference">
+        <h2>Quick Reference</h2>
+        <p class="lede">Every mark on this page, one row each.</p>
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Mark</th><th>Name</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-fillet"/></svg></td><td>Fillet</td><td>Weld filling the inside corner of two members meeting at an angle</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-square"/></svg></td><td>Square Groove</td><td>Square, unbevelled edges butted over a root opening</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-vgroove"/></svg></td><td>V-Groove</td><td>Both edges bevelled to a V</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-bevel"/></svg></td><td>Bevel Groove</td><td>One edge bevelled, one left square</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-ugroove"/></svg></td><td>U-Groove</td><td>Both edges gouged to a rounded profile</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-jgroove"/></svg></td><td>J-Groove</td><td>One edge gouged round, one left square</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-flarev"/></svg></td><td>Flare-V Groove</td><td>Groove formed by the curvature of two round/curved members</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-flarebevel"/></svg></td><td>Flare-Bevel Groove</td><td>One flat member against one curved member</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-plugslot"/></svg></td><td>Plug / Slot</td><td>Hole in the top member filled with weld metal</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></td><td>Spot / Projection</td><td>Fused nugget through overlapped sheet</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></td><td>Seam</td><td>Continuous line of fused nuggets &mdash; same glyph as spot</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-backing"/></svg></td><td>Backing</td><td>Bar or pass supporting the root of a groove weld</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></td><td>Surfacing</td><td>Weld metal built up on a surface</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-allaround"/></svg></td><td>Weld All Around</td><td>Weld runs the full perimeter of the joint</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-fieldweld"/></svg></td><td>Field Weld</td><td>Made at the installation site, not the shop</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></td><td>Melt-Through</td><td>Calls for visible penetration on the far side &mdash; same glyph as surfacing</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-contour-flush"/></svg></td><td>Flush Contour</td><td>Weld face dressed level with the surrounding surface</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-contour-convex"/></svg></td><td>Convex Contour</td><td>Weld face bulges outward</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-contour-concave"/></svg></td><td>Concave Contour</td><td>Weld face dishes inward</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

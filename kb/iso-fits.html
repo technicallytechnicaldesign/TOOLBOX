@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="How to read an ISO 286 fit designation like ⌀25 H7/g6: hole-basis vs shaft-basis, tolerance grades (IT), fundamental deviation letters, clearance/transition/interference, and the preferred fits table. A TOOLBOX knowledge-base page." />
+<title>ISO Fits &amp; Tolerances — TOOLBOX Knowledge Base</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<link rel="stylesheet" href="kb.css">
+<style>
+  /* The fit-type cards carry a small labelled diagram (two zones + a zero
+     line), not a simple pictogram — give them far more room than the
+     standard 44px glyph mark. */
+  #fit-types .glyph-card .mark { width: 100%; max-width: 220px; height: auto; aspect-ratio: 160 / 140; }
+</style>
+<script src="../assets/theme.js"></script>
+<script src="../assets/reveal.js"></script>
+</head>
+<body>
+
+<header id="app-header">
+  <a class="brand" href="../index.html" aria-label="TOOLBOX home">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+        <polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>
+        <circle cx="50" cy="50" r="17"/>
+      </svg>
+    </span>
+    <span class="wordmark">TO<b>O</b>LBOX</span>
+  </a>
+  <div class="meta">Knowledge Base</div>
+</header>
+
+<main>
+  <div class="shell">
+    <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> Knowledge Base</a>
+
+    <div class="page-head">
+      <span class="kicker">Reading a drawing</span>
+      <h1>ISO Fits &amp; Tolerances</h1>
+      <p>How to read a fit designation like <code>&#x2300;25 H7/g6</code>: hole-basis vs
+         shaft-basis, what a tolerance grade (IT) actually sets, what the fundamental
+         deviation letter does, and how the two combine into clearance, transition or
+         interference. The preferred-fits table at the middle of this page is the one worth
+         bookmarking.</p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Scope &amp; standard</span>
+      This page follows <strong>ISO 286</strong> (Parts 1 &amp; 2) &mdash; the international
+      system of limits and fits. The U.S. equivalent, <strong>ANSI/ASME B4.1</strong>, uses a
+      related but different notation (lettered classes like RC, LC, LT, LN, FN rather than
+      ISO's deviation-letter-plus-grade system) &mdash; see the comparison note under
+      <a href="#preferred-fits" style="color:var(--c-accent)">Preferred Fits</a> if that's what
+      your drawing actually calls out. Numeric values on this page are worked from the ISO 286
+      tolerance-grade formula for illustration, not copied from the published tables &mdash;
+      for a real design, pull exact figures from ISO 286-1 or a fits calculator rather than
+      this page.
+    </div>
+
+    <nav class="kb-toc" aria-label="On this page">
+      <span class="kb-toc-label">On this page</span>
+      <a href="#anatomy">Reading a Designation</a>
+      <a href="#grades">Tolerance Grades</a>
+      <a href="#deviations">Deviation Letters</a>
+      <a href="#fit-types">Fit Types</a>
+      <a href="#preferred-fits">Preferred Fits</a>
+      <a href="#examples">Worked Examples</a>
+      <a href="#quick-reference">Quick Reference</a>
+    </nav>
+
+    <article class="kb-body">
+
+      <!-- ============================================================ ANATOMY -->
+      <section id="anatomy">
+        <h2>Reading a Fit Designation</h2>
+        <p class="lede">Everything about a fit is packed into one compact string. Once you
+           can take it apart, every designation you meet afterwards reads the same way.</p>
+        <p>A basic size is shared by both mating parts. Each part then gets its own
+           <strong>tolerance class</strong>: a letter (or two) that positions the zone relative
+           to the basic size, followed by a number that sets how wide the zone is. Write the
+           hole's class over the shaft's &mdash; by long-standing convention the hole's class
+           always comes first &mdash; and you have a complete fit.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 480 170" role="img" aria-label="Diameter 25, H7 over g6: diameter symbol, basic size 25, hole tolerance class H7, shaft tolerance class g6.">
+            <g font-family="var(--mono)" font-size="46">
+              <text x="18" y="88" fill="var(--text)">&#x2300;</text>
+              <text x="58" y="88" fill="var(--text)">25</text>
+              <text x="168" y="88" fill="var(--c-accent)">H</text>
+              <text x="204" y="88" fill="var(--c-accent)">7</text>
+              <text x="240" y="88" fill="var(--muted)">/</text>
+              <text x="268" y="88" fill="var(--c-fluid)">g</text>
+              <text x="304" y="88" fill="var(--c-fluid)">6</text>
+            </g>
+            <g font-family="var(--mono)" font-size="15" font-weight="700" text-anchor="middle">
+              <circle cx="28" cy="122" r="15" fill="var(--c-accent)"/><text x="28" y="127" fill="var(--bg)">1</text>
+              <circle cx="78" cy="122" r="15" fill="var(--c-accent)"/><text x="78" y="127" fill="var(--bg)">2</text>
+              <circle cx="180" cy="122" r="15" fill="var(--c-accent)"/><text x="180" y="127" fill="var(--bg)">3</text>
+              <circle cx="213" cy="122" r="15" fill="var(--c-accent)"/><text x="213" y="127" fill="var(--bg)">4</text>
+              <circle cx="278" cy="122" r="15" fill="var(--c-accent)"/><text x="278" y="127" fill="var(--bg)">5</text>
+              <circle cx="311" cy="122" r="15" fill="var(--c-accent)"/><text x="311" y="127" fill="var(--bg)">6</text>
+            </g>
+          </svg>
+          <figcaption>Fig. 1 &mdash; A 25&nbsp;mm hole-basis sliding fit: hole class H7 over shaft class g6.</figcaption>
+        </figure>
+        <ol class="diagram-legend">
+          <li><b>&#x2300;</b> &mdash; diameter symbol, present when the toleranced feature is round.</li>
+          <li><b>25</b> &mdash; basic size, shared by both mating parts. Everything else is measured from here.</li>
+          <li><b>H</b> &mdash; the hole's fundamental deviation letter. H's lower deviation is exactly zero: the hole's smallest permitted size is the basic size.</li>
+          <li><b>7</b> &mdash; the hole's IT grade, setting how wide its tolerance zone is.</li>
+          <li><b>g</b> &mdash; the shaft's fundamental deviation letter. g sits just below zero, giving a small guaranteed clearance.</li>
+          <li><b>6</b> &mdash; the shaft's IT grade &mdash; often a step tighter than the hole's, since shafts are easier to hold to a precise size than holes are.</li>
+        </ol>
+        <p>This example is a <strong>hole-basis</strong> fit: the hole carries the anchor
+           letter H, and the shaft is toleranced to suit it. That's the overwhelmingly common
+           choice in practice &mdash; a reamer, broach or gauge cut to one fixed size produces
+           an H-class hole economically, while a shaft's diameter is comparatively cheap to
+           adjust on a lathe or grinder to whatever the fit needs. A <strong>shaft-basis</strong>
+           system runs the same logic in reverse (an h-class shaft, with varying hole classes)
+           and shows up where one piece of standard shafting has to mate with several different
+           housings &mdash; see Example E under
+           <a href="#examples" style="color:var(--c-accent)">Worked Examples</a>.</p>
+      </section>
+
+      <!-- ============================================================ GRADES -->
+      <section id="grades">
+        <h2>Tolerance Grades (IT)</h2>
+        <p class="lede">The grade number is pure width. It says nothing about where the zone
+           sits &mdash; only how big it is.</p>
+        <p>ISO 286 defines eighteen grades, IT01 through IT18. A lower number is a tighter,
+           more precise zone; a higher number is looser and cheaper to hold. The grades from
+           IT5 to IT18 are generated from a single formula, so the system scales smoothly
+           across every size instead of needing an arbitrary table entry for each one:</p>
+        <div class="callout">
+          <span class="callout-title">The generating formula</span>
+          <code>i = 0.45 &times; &#8731;D + 0.001 &times; D</code> &mdash; where <code>D</code>
+          is the geometric mean (in mm) of the part's size bracket, and <code>i</code> comes out
+          in micrometres. Each grade is then a fixed multiple of <code>i</code>. (Grades IT01,
+          IT0 and IT1&ndash;4, for very fine work like gauge blocks, use their own formulas and
+          aren't covered here.)
+        </div>
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Grade</th><th>Width</th><th>Grade</th><th>Width</th></tr></thead>
+            <tbody>
+              <tr><td>IT5</td><td><code>7i</code></td><td>IT12</td><td><code>160i</code></td></tr>
+              <tr><td>IT6</td><td><code>10i</code></td><td>IT13</td><td><code>250i</code></td></tr>
+              <tr><td>IT7</td><td><code>16i</code></td><td>IT14</td><td><code>400i</code></td></tr>
+              <tr><td>IT8</td><td><code>25i</code></td><td>IT15</td><td><code>640i</code></td></tr>
+              <tr><td>IT9</td><td><code>40i</code></td><td>IT16</td><td><code>1000i</code></td></tr>
+              <tr><td>IT10</td><td><code>64i</code></td><td>IT17</td><td><code>1600i</code></td></tr>
+              <tr><td>IT11</td><td><code>100i</code></td><td>IT18</td><td><code>2500i</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">In practice, grade selection tracks process capability: roughly IT5&ndash;IT6
+           for precision-ground fits, IT7&ndash;IT9 for general machining, IT10&ndash;IT12 for
+           coarser turning or drilling, and IT13 and up for cast, stamped or otherwise
+           unmachined features and non-mating dimensions.</p>
+      </section>
+
+      <!-- ============================================================ DEVIATIONS -->
+      <section id="deviations">
+        <h2>Fundamental Deviation Letters</h2>
+        <p class="lede">Where the grade sets the width, the letter sets the position &mdash;
+           how far the zone sits from the basic size, and in which direction.</p>
+        <p>For shafts (lowercase), the alphabet position says the direction and roughly the
+           distance:</p>
+        <ul>
+          <li><strong>a&ndash;h</strong> &mdash; zero or negative deviation &rarr; clearance.
+              <strong>h</strong> is the anchor: its upper deviation is exactly zero, so an h
+              shaft's largest permitted size is the basic size itself.</li>
+          <li><strong>js, j, k, m, n</strong> &mdash; deviation straddles or sits just past
+              zero &rarr; transition. Depending where within its tolerance a given part lands,
+              it may end up with clearance or a slight interference.</li>
+          <li><strong>p&ndash;zc</strong> &mdash; positive deviation, growing through the
+              alphabet &rarr; interference, from a light locational press up to a heavy shrink
+              fit.</li>
+        </ul>
+        <p>Holes (uppercase) mirror this exactly, reflected about zero: <strong>H</strong> is
+           the anchor, with its <em>lower</em> deviation at zero, so an H hole's smallest
+           permitted size is the basic size. A&ndash;H run clearance-direction (looser as the
+           letter moves away from H), JS/J/K/M/N transition, P&ndash;ZC interference.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 650 260" role="img" aria-label="Schematic diagram of shaft tolerance-zone boxes at increasing deviation letters c, f, g, h, js, k, n, u, positioned relative to a zero line at the basic size, grouped into clearance, transition and interference.">
+            <g font-family="var(--mono)" font-size="11" letter-spacing="1" fill="var(--muted)" text-anchor="middle">
+              <text x="190" y="30">CLEARANCE</text>
+              <text x="406" y="30">TRANSITION</text>
+              <text x="550" y="30">INTERFERENCE</text>
+            </g>
+            <line x1="20" y1="150" x2="630" y2="150" stroke="var(--text)" stroke-width="2"/>
+            <text x="20" y="170" font-family="var(--mono)" font-size="11" fill="var(--muted)">0 (basic size)</text>
+
+            <g fill="none" stroke="var(--c-accent)" stroke-width="2">
+              <rect x="60" y="195" width="44" height="30"/>
+              <rect x="132" y="168" width="44" height="20"/>
+              <rect x="204" y="153" width="44" height="12"/>
+              <rect x="276" y="150" width="44" height="14"/>
+              <rect x="348" y="138" width="44" height="24"/>
+              <rect x="420" y="128" width="44" height="22"/>
+              <rect x="492" y="100" width="44" height="28"/>
+              <rect x="564" y="55" width="44" height="30"/>
+            </g>
+            <g font-family="var(--mono)" font-size="14" font-weight="700" fill="var(--text)" text-anchor="middle">
+              <text x="82" y="243">c</text>
+              <text x="154" y="243">f</text>
+              <text x="226" y="243">g</text>
+              <text x="298" y="243">h</text>
+              <text x="370" y="243">js</text>
+              <text x="442" y="243">k</text>
+              <text x="514" y="243">n</text>
+              <text x="586" y="243">u</text>
+            </g>
+          </svg>
+          <figcaption>Fig. 2 &mdash; Shaft deviation-letter positions relative to the basic size, schematic and not to scale. Hole letters mirror this about the zero line.</figcaption>
+        </figure>
+      </section>
+
+      <!-- ============================================================ FIT TYPES -->
+      <section id="fit-types">
+        <h2>Clearance, Transition &amp; Interference</h2>
+        <p class="lede">Put a hole's zone and a shaft's zone on the same zero line and their
+           relative position tells you exactly what kind of fit you get.</p>
+
+        <div class="glyph-grid">
+          <div class="glyph-card">
+            <span class="mark">
+              <svg viewBox="0 0 160 140" role="img" aria-label="Clearance fit: shaft zone entirely below the hole zone.">
+                <line x1="10" y1="70" x2="150" y2="70" stroke="var(--text)" stroke-width="2"/>
+                <rect x="40" y="40" width="50" height="30" fill="none" stroke="var(--c-accent)" stroke-width="2"/>
+                <text x="65" y="34" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--c-accent)">H</text>
+                <rect x="40" y="78" width="50" height="24" fill="none" stroke="var(--c-fluid)" stroke-width="2"/>
+                <text x="65" y="115" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--c-fluid)">g</text>
+              </svg>
+            </span>
+            <h3>Clearance</h3>
+            <p>The shaft's zone sits entirely below the hole's. Every possible pairing has a
+               gap &mdash; the parts always assemble by hand.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark">
+              <svg viewBox="0 0 160 140" role="img" aria-label="Transition fit: shaft zone overlapping the hole zone.">
+                <line x1="10" y1="70" x2="150" y2="70" stroke="var(--text)" stroke-width="2"/>
+                <rect x="40" y="40" width="50" height="30" fill="none" stroke="var(--c-accent)" stroke-width="2"/>
+                <text x="65" y="34" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--c-accent)">H</text>
+                <rect x="40" y="55" width="50" height="30" fill="none" stroke="var(--c-fluid)" stroke-width="2"/>
+                <text x="65" y="100" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--c-fluid)">k</text>
+              </svg>
+            </span>
+            <h3>Transition</h3>
+            <p>The zones overlap. Depending where each part actually lands within its
+               tolerance, an individual pair might clear slightly or interfere slightly.</p>
+          </div>
+          <div class="glyph-card">
+            <span class="mark">
+              <svg viewBox="0 0 160 140" role="img" aria-label="Interference fit: shaft zone entirely above the hole zone.">
+                <line x1="10" y1="70" x2="150" y2="70" stroke="var(--text)" stroke-width="2"/>
+                <rect x="40" y="40" width="50" height="30" fill="none" stroke="var(--c-accent)" stroke-width="2"/>
+                <text x="65" y="34" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--c-accent)">H</text>
+                <rect x="40" y="20" width="50" height="30" fill="none" stroke="var(--c-fluid)" stroke-width="2"/>
+                <text x="65" y="105" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--c-fluid)">p</text>
+              </svg>
+            </span>
+            <h3>Interference</h3>
+            <p>The shaft's zone sits entirely above the hole's. Every possible pairing
+               overlaps in material &mdash; assembly needs force, heat, or both.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ PREFERRED FITS -->
+      <section id="preferred-fits">
+        <h2>Preferred Fits</h2>
+        <p class="lede">ISO 286-2 narrows the enormous letter&times;grade combinatorics down to
+           a handful of hole-basis pairings that cover almost everything you'll actually need
+           to specify.</p>
+
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Designation</th><th>Category</th><th>Typical use</th></tr></thead>
+            <tbody>
+              <tr><td><code>H11/c11</code></td><td>Loose running</td><td>Wide commercial tolerance; large clearance for dirt, heat, or easy assembly.</td></tr>
+              <tr><td><code>H9/d9</code></td><td>Free running</td><td>Not for accurate location; good under large temperature swings, high speed, or heavy shaft loads.</td></tr>
+              <tr><td><code>H8/f7</code></td><td>Close running</td><td>Accurate running on accurate machines, moderate speeds and loads.</td></tr>
+              <tr><td><code>H7/g6</code></td><td>Sliding</td><td>Accurate location; parts assemble and position freely but aren't meant to run.</td></tr>
+              <tr><td><code>H7/h6</code></td><td>Locational clearance</td><td>Snug location for stationary parts, freely assembled and disassembled.</td></tr>
+              <tr><td><code>H7/k6</code></td><td>Locational transition</td><td>Accurate location; a compromise between clearance and interference.</td></tr>
+              <tr><td><code>H7/n6</code></td><td>Locational transition</td><td>Tighter than k6 &mdash; more accurate location, greater interference acceptable.</td></tr>
+              <tr><td><code>H7/p6</code></td><td>Locational interference</td><td>Rigid, accurate location without the bore-pressure demands of a force fit.</td></tr>
+              <tr><td><code>H7/s6</code></td><td>Medium drive</td><td>Ordinary steel parts, or light shrink fits &mdash; the tightest fit usually used with cast iron.</td></tr>
+              <tr><td><code>H7/u6</code></td><td>Force</td><td>Highly stressed parts, or shrink fits where s6's press force would be impractical.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="lede">Roughly equivalent ANSI/B4.1 class families, for a U.S. drawing that
+           calls a fit out that way instead:</p>
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>ISO category</th><th>ANSI family</th></tr></thead>
+            <tbody>
+              <tr><td>Loose / free running</td><td><code>RC5&ndash;RC9</code></td></tr>
+              <tr><td>Close / sliding clearance</td><td><code>RC1&ndash;RC4</code></td></tr>
+              <tr><td>Locational clearance</td><td><code>LC</code></td></tr>
+              <tr><td>Locational transition</td><td><code>LT</code></td></tr>
+              <tr><td>Locational interference</td><td><code>LN</code></td></tr>
+              <tr><td>Force / shrink</td><td><code>FN1&ndash;FN5</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================ WORKED EXAMPLES -->
+      <section id="examples">
+        <h2>Worked Examples</h2>
+        <p class="lede">Decoding full designations, plus one fully worked numeric limit
+           calculation.</p>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 200 60" role="img" aria-label="Diameter 25 H7 over g6">
+              <text x="6" y="42" font-family="var(--mono)" font-size="30" fill="var(--text)">&#x2300;25 <tspan fill="var(--c-accent)">H7</tspan>/<tspan fill="var(--c-fluid)">g6</tspan></text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">A &mdash; &#x2300;25 H7/g6, Worked Numerically</p>
+            <ol>
+              <li><b>Grade:</b> at 25&nbsp;mm (18&ndash;30&nbsp;mm bracket, D&asymp;23.2), the grade formula gives <code>i&asymp;1.31&#956;m</code> &mdash; IT7 = <code>16i&asymp;21&#956;m</code>, IT6 = <code>10i&asymp;13&#956;m</code>.</li>
+              <li><b>Hole (H7):</b> lower deviation is 0 by definition &rarr; <code>25.000&ndash;25.021</code>.</li>
+              <li><b>Shaft (g6):</b> g's fundamental deviation works out to roughly <code>&minus;7&#956;m</code>, and the zone is 13&#956;m wide &rarr; <code>24.980&ndash;24.993</code>.</li>
+              <li><b>Result:</b> clearance ranges from <code>0.007</code> (tightest) to <code>0.041</code> (loosest) &mdash; always positive, so this is a guaranteed clearance fit.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 220 60" role="img" aria-label="Diameter 40 H11 over c11">
+              <text x="6" y="42" font-family="var(--mono)" font-size="30" fill="var(--text)">&#x2300;40 <tspan fill="var(--c-accent)">H11</tspan>/<tspan fill="var(--c-fluid)">c11</tspan></text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">B &mdash; &#x2300;40 H11/c11</p>
+            <ol>
+              <li><b>Grade IT11</b> on both parts &mdash; wide, commercial-grade zones on hole and shaft alike.</li>
+              <li><b>c</b> sits far into clearance territory &mdash; the largest deviation letter before the transition group starts.</li>
+              <li><b>Category:</b> loose running fit &mdash; generous clearance, tolerant of dirt, heat, or minimal-precision production.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 200 60" role="img" aria-label="Diameter 12 H7 over k6">
+              <text x="6" y="42" font-family="var(--mono)" font-size="30" fill="var(--text)">&#x2300;12 <tspan fill="var(--c-accent)">H7</tspan>/<tspan fill="var(--c-fluid)">k6</tspan></text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">C &mdash; &#x2300;12 H7/k6</p>
+            <ol>
+              <li><b>k</b> is a transition letter &mdash; its zone sits just past zero, overlapping the hole's.</li>
+              <li><b>Category:</b> locational transition. Depending on where each part actually lands, an individual assembly might have a whisper of clearance or a whisper of interference.</li>
+              <li><b>Use:</b> accurate location that's still meant to be dismantled occasionally &mdash; a located bushing or a bearing housing, for instance.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 200 60" role="img" aria-label="Diameter 60 H7 over u6">
+              <text x="6" y="42" font-family="var(--mono)" font-size="30" fill="var(--text)">&#x2300;60 <tspan fill="var(--c-accent)">H7</tspan>/<tspan fill="var(--c-fluid)">u6</tspan></text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">D &mdash; &#x2300;60 H7/u6</p>
+            <ol>
+              <li><b>u</b> is deep in interference territory &mdash; its zone sits entirely above the hole's.</li>
+              <li><b>Category:</b> force fit. Every possible pairing interferes; assembly needs a press, heat to expand the hole, or both.</li>
+              <li><b>Use:</b> parts meant to behave as one piece once assembled &mdash; a gear hub shrunk onto a shaft.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="example">
+          <span class="ex-mark">
+            <svg viewBox="0 0 200 60" role="img" aria-label="Diameter 30 K7 over h6">
+              <text x="6" y="42" font-family="var(--mono)" font-size="30" fill="var(--text)">&#x2300;30 <tspan fill="var(--c-accent)">K7</tspan>/<tspan fill="var(--c-fluid)">h6</tspan></text>
+            </svg>
+          </span>
+          <div>
+            <p class="ex-title">E &mdash; &#x2300;30 K7/h6, Shaft-Basis</p>
+            <ol>
+              <li><b>h</b> is the anchor letter, but here it's on the <em>shaft</em> &mdash; this is a shaft-basis fit, the reverse of every example above.</li>
+              <li><b>K</b>, a transition-family hole letter, is toleranced to suit the fixed shaft rather than the other way around.</li>
+              <li><b>Why:</b> a common scenario is one length of precision shafting (held to h6 everywhere) mating with several different housings bored to different classes &mdash; cheaper than re-holding the shaft for each one.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ QUICK REFERENCE -->
+      <section id="quick-reference">
+        <h2>Quick Reference</h2>
+        <p class="lede">The notation, decoded in one line each.</p>
+        <div class="kb-table-wrap">
+          <table class="kb-table">
+            <thead><tr><th>Element</th><th>Reads as</th></tr></thead>
+            <tbody>
+              <tr><td><code>&#x2300;</code></td><td>Diameter symbol &mdash; the toleranced feature is round.</td></tr>
+              <tr><td>Uppercase letter</td><td>Hole tolerance class (e.g. <code>H</code>).</td></tr>
+              <tr><td>Lowercase letter</td><td>Shaft tolerance class (e.g. <code>g</code>).</td></tr>
+              <tr><td>a&ndash;h / A&ndash;H</td><td>Clearance direction; h/H is the zero-deviation anchor.</td></tr>
+              <tr><td>js&ndash;n / JS&ndash;N</td><td>Transition &mdash; zone straddles or sits just past zero.</td></tr>
+              <tr><td>p&ndash;zc / P&ndash;ZC</td><td>Interference, growing through the alphabet.</td></tr>
+              <tr><td>Number after the letter</td><td>IT grade &mdash; the zone's width. Lower = tighter.</td></tr>
+              <tr><td><code>Hole/Shaft</code></td><td>Hole class always written first, over the shaft class.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">For the ten designations worth memorising outright, see
+           <a href="#preferred-fits" style="color:var(--c-accent)">Preferred Fits</a> above.</p>
+      </section>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
+</footer>
+<script src="../assets/menu.js"></script>
+</body>
+</html>

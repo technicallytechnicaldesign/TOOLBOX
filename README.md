@@ -36,6 +36,20 @@ fastener mark so the two read as related-but-distinct.
   are a form-driven **template generator** (compose with live preview, save to
   the browser, or export a standalone HTML file); `run.html?id=<slug>` runs a
   browser-saved custom checklist; `index.html` is the section hub.
+- **`kb/`** — the **Knowledge Base**: reference pages for the symbols, marks and conventions
+  that show up on technical drawings. `kb.css` is the shared article skin (page head, in-page
+  TOC chips, callouts, diagram figures, glyph-card grids, reference tables, worked-example
+  rows); `index.html` is the section hub. Entries: `welding-symbols.html` — reading an
+  AWS A2.4 welding symbol end to end (reference line, arrow/other side, tail, the basic weld
+  glyphs, sizing & pitch, supplementary marks, contour & finish); `gdt-symbols.html` — reading
+  an ASME Y14.5 feature control frame (the 14 geometric characteristic symbols across form,
+  profile, orientation, location and runout; datums & order of precedence; MMC/LMC/RFS and
+  the other modifiers); `iso-fits.html` — reading an ISO 286 fit designation like `⌀25 H7/g6`
+  (hole-basis vs shaft-basis, the IT tolerance-grade formula, fundamental deviation letters,
+  clearance/transition/interference zone diagrams, and the ISO 286-2 preferred-fits table,
+  with a rough ANSI/B4.1 class comparison). All three build their marks as a reusable inline
+  SVG glyph library (`<symbol>` defs referenced by `<use>`, where the topic is symbol-heavy)
+  and close with five fully-decoded worked examples and a quick-reference table.
 - **`goblin/`** — the **Hype Goblin**: an animated CSS familiar who has opinions
   about your tolerances. Deliberately *not* a tool — it computes nothing and
   verifies nothing. Four mood buttons (hype / reality check / fix / destroy) each

@@ -106,9 +106,10 @@ function outRow(root, label, value, unit, note, level, headline) {
   var tabsHost = document.getElementById("calc-tabs");
   var whyHost = document.getElementById("calc-why");
   var layout = document.getElementById("calc-layout");
-  var active = CALCULATORS[0].id;
+  var hashId = window.location.hash.replace(/^#/, "");
+  var active = CALCULATORS.some(function (calc) { return calc.id === hashId; }) ? hashId : CALCULATORS[0].id;
 
-  // All five flagship calculators are built — nothing pending. The roadmap
+  // All five flagship calculators plus the Warren truss solver are built. The roadmap
   // placeholder mechanism below is kept (harmless on an empty list) so a future
   // calculator can be shown as a "not built yet" tab again without re-adding it.
   var COMING_SOON = [];
@@ -119,8 +120,14 @@ function outRow(root, label, value, unit, note, level, headline) {
       var b = document.createElement("button");
       b.className = "calc-tab" + (calc.id === active ? " on" : "");
       b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", calc.id === active ? "true" : "false");
       b.innerHTML = '<span>' + calc.chip + '</span><span class="n">' + calc.title + "</span>";
-      b.addEventListener("click", function () { active = calc.id; renderTabs(); mount(calc); });
+      b.addEventListener("click", function () {
+        active = calc.id;
+        if (window.history && window.history.replaceState) window.history.replaceState(null, "", "#" + calc.id);
+        renderTabs();
+        mount(calc);
+      });
       tabsHost.appendChild(b);
     });
     COMING_SOON.forEach(function (name) {
@@ -154,5 +161,5 @@ function outRow(root, label, value, unit, note, level, headline) {
   }
 
   renderTabs();
-  mount(CALCULATORS[0]);
+  mount(CALCULATORS.find(function (calc) { return calc.id === active; }));
 })();

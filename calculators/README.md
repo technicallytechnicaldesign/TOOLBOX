@@ -3,7 +3,7 @@
 Engineering + shop-math tools, built on one small composition pattern:
 a typed input schema, a pure `compute()`, and shared lookup tables.
 No build step — `index.html` + plain-JS files, opens directly in a browser.
-All five flagship calculators are live.
+All five original flagship calculators plus the Warren-truss solver are live.
 
 Specs for all five flagship calculators (this + three more): RENKON's
 `01_RESEARCH/calculator_specs_flagship5.md` (UID `TDM-6834-A`).
@@ -14,7 +14,8 @@ Specs for all five flagship calculators (this + three more): RENKON's
 |---|---|
 | `index.html` | Page chrome + the tab shell markup. |
 | `app.js` | Shared shell: tabs, `fieldNumber`/`fieldSelect`/`outRow` builders, `fmt`/`money` formatters, `downloadXLS()` (SpreadsheetML export), mount/recompute wiring. Calculator-agnostic — new calculators shouldn't need to touch this. |
-| `calculators.js` | The Beam + Cost descriptors (`BEAM_CALC`, `COST_CALC`) and the `CALCULATORS` array that assembles all five in tab order. |
+| `calculators.js` | The Beam + Cost descriptors (`BEAM_CALC`, `COST_CALC`) and the `CALCULATORS` array that assembles all six in tab order. |
+| `calc-truss.js` | `TRUSS_CALC` — 1–10 bay Warren-truss Ritter analysis, live force diagram and member cards. |
 | `calc-bolted.js` | `BOLTED_CALC` — torque & shear descriptor. |
 | `calc-bend.js` | `BEND_CALC` — sheet-metal bend descriptor (with a side-view SVG). |
 | `calc-cutopt.js` | `CUTOPT_CALC` — 1D cut optimiser (dynamic parts list + FFD packing + SVG cut sheet). |
@@ -33,6 +34,13 @@ every descriptor), and `app.js` loads last.
   than a hardcoded named-shape lookup table, to avoid stating standard-shape
   values from memory that could be subtly wrong. Renders shear/moment/
   deflection as a 3-row SVG plot.
+- **Warren Truss — Ritter Method** (`warren-truss-ritter`): 1–10 repeating
+  bays (3–39 members), individual loads at every upper joint, support
+  reactions, and axial forces for every bottom chord, diagonal and top chord.
+  The live SVG maps tension, compression and relative force magnitude while
+  an independent joint-equilibrium pass reports the largest residual. This is
+  an ideal pin-jointed force analysis, not a buckling, section, connection or
+  code-capacity check.
 - **Bolted Joint — Torque & Shear** (`bolted-joint`): thread + grade tables
   (`standards.js`) drive tensile-stress-area / proof-load / preload / torque
   (`T = K·F·d`), plus an optional applied-shear stress + FoS. The
@@ -76,3 +84,7 @@ before trusting an FoS output for anything load-bearing. `pricePerKg` is
 illustrative and drifts with the market; edit it to match your supplier.
 Same caveat for `CURRENCIES`' `rate` values (Cost Estimator) — a fixed
 snapshot, not a live feed; edit before using for a real quote.
+
+The Warren-truss solver assumes straight pin-jointed members, equal bays and
+loads applied only at the upper joints. Use its member forces as inputs to the
+appropriate section, buckling and connection checks before real fabrication.

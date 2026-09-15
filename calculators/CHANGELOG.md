@@ -1,5 +1,20 @@
 # Changelog — Calculators
 
+## 2026-09-15 — Warren truss / Ritter method
+
+- Ported the verified `Gitter 02 Solver` workbook into a native sixth
+  calculator: 1–10 repeating Warren bays, 3–39 members, editable bay width and
+  height, and one vertical load per upper joint.
+- Added a live SVG force map. Tension is technical blue, compression is red,
+  zero-force members are grey, and line weight shows relative force magnitude;
+  every member also has a compact force/state card.
+- Kept the workbook method explicit: reactions from global equilibrium, chord
+  forces from section moments divided by height, and diagonal forces from
+  vertical joint equilibrium. An independent joint residual check observes the
+  answers without feeding the solver.
+- Clearly scoped this as ideal pin-jointed statics, not a member buckling,
+  section-capacity, joint, weld, bolt or code-compliance check.
+
 ## 2026-07-22 — Cost Estimator: currency + .xls export
 
 - Added a **currency picker** to Cost Estimator (`CURRENCIES` table in

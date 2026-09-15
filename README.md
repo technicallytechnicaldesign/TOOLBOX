@@ -14,8 +14,8 @@ fastener mark so the two read as related-but-distinct.
 - **`index.html`** — the landing page (splash + tile grid). Served as the
   GitHub Pages root (`https://technicallytechnicaldesign.github.io/TOOLBOX/`).
 - **`calculators/`** — a single-page, tabbed calculator app (beam analysis,
-  cost estimator, bolted joints, sheet-metal bend, 1D cut optimiser). Moved
-  here from RENKON.
+  Warren-truss Ritter analysis, cost estimator, bolted joints, sheet-metal
+  bend, 1D cut optimiser). The original five moved here from RENKON.
 - **`section-lab/`** — an interactive section-view lab: slide a cutting plane
   A–A through parametric parts and read the generated section, with live iso,
   ortho references and feature jumps. `core.js` + `lab-controller.js` are the

@@ -196,6 +196,101 @@ function trussMemberGroup(root, title, members) {
   root.appendChild(section);
 }
 
+function trussEscapeHTML(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function trussReportHTML(v, out, diagramMarkup, generatedAt) {
+  var made = generatedAt instanceof Date ? generatedAt : new Date();
+  var dateLabel = made.toLocaleString(undefined, {
+    year: "numeric", month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit",
+  });
+  var stateLabel = function (state) {
+    return state === "tension" ? "Tension / Træk" : (state === "compression" ? "Compression / Tryk" : "Zero force");
+  };
+  var rows = out.members.map(function (m) {
+    return '<tr><td><b>' + trussEscapeHTML(m.id) + '</b></td><td>' + trussEscapeHTML(m.group) + '</td><td>' +
+      trussEscapeHTML(m.from) + ' → ' + trussEscapeHTML(m.to) + '</td><td class="num ' + m.state + '">' +
+      trussEscapeHTML(fmt(m.force, 5)) + '</td><td>' + stateLabel(m.state) + '</td></tr>';
+  }).join("");
+  var loadRows = out.loads.map(function (load, i) {
+    return '<tr><td>P' + (i + 1) + '</td><td>U' + (i + 1) + '</td><td class="num">' +
+      trussEscapeHTML(fmt((i + 0.5) * v.b, 6)) + '</td><td class="num">' + trussEscapeHTML(fmt(load, 5)) + '</td></tr>';
+  }).join("");
+  var residualPass = out.residual < 1e-7;
+  var safeDiagram = String(diagramMarkup || "");
+
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Warren Truss: Ritter Analysis Report</title>' +
+    '<style>' +
+    ':root{--ink:#10202f;--muted:#5d6b78;--line:#cbd5df;--panel:#f2f6f9;--blue:#1679ae;--red:#bd3a35;--teal:#117c82;--green:#337a53}' +
+    '*{box-sizing:border-box}body{margin:0;background:#dfe7ed;color:var(--ink);font:13px/1.45 Arial,sans-serif}' +
+    'main{width:min(1080px,calc(100% - 32px));margin:24px auto;background:#fff;padding:34px 40px;box-shadow:0 8px 30px #17324a24}' +
+    'header{display:flex;justify-content:space-between;gap:24px;padding-bottom:18px;border-bottom:3px solid var(--blue)}' +
+    '.eyebrow,.kicker{font:700 10px/1.2 "Courier New",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}' +
+    'h1{font-size:29px;line-height:1.05;margin:7px 0 8px}h2{font-size:15px;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}' +
+    'p{margin:5px 0;color:var(--muted)}.meta{text-align:right;font:11px/1.5 "Courier New",monospace;color:var(--muted)}' +
+    '.print{margin-top:10px;border:1px solid var(--ink);background:#fff;color:var(--ink);padding:7px 10px;cursor:pointer;font:700 10px "Courier New",monospace;text-transform:uppercase}' +
+    '.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:18px}' +
+    '.card{background:var(--panel);padding:12px}.card span{display:block;color:var(--muted);font:9px "Courier New",monospace;text-transform:uppercase;letter-spacing:.06em}.card b{display:block;margin-top:5px;font:700 17px "Courier New",monospace}' +
+    '.diagram{border:1px solid var(--line);padding:10px;overflow:hidden}.diagram svg{display:block;width:100%;height:auto;min-width:0!important}' +
+    '.truss-member{fill:none;stroke-linecap:round}.truss-member.tension{stroke:var(--blue)}.truss-member.compression{stroke:var(--red)}.truss-member.zero{stroke:#8b98a4}' +
+    '.truss-member-label,.truss-joint-label,.truss-load-label,.truss-reaction-label,.truss-dimension-label{font:9px "Courier New",monospace;fill:var(--muted)}' +
+    '.truss-member-label.tension{fill:var(--blue)}.truss-member-label.compression{fill:var(--red)}.truss-joint{fill:var(--ink);stroke:#fff;stroke-width:2px}' +
+    '.truss-load{stroke:var(--red);stroke-width:1.7px}.truss-load-fill{fill:var(--red)}.truss-load-label{fill:var(--red)}' +
+    '.truss-reaction{stroke:var(--teal);stroke-width:1.7px}.truss-reaction-fill{fill:var(--teal)}.truss-reaction-label{fill:var(--teal)}' +
+    '.truss-support{fill:var(--panel);stroke:var(--ink);stroke-width:1.5px}.truss-support-wheel{fill:#fff;stroke:var(--ink);stroke-width:1.3px}.truss-ground,.truss-dimension{stroke:var(--line);stroke-width:1px}.truss-dimension{stroke-dasharray:3 3}' +
+    '.legend{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 18px;font:10px "Courier New",monospace;color:var(--muted)}.legend i{display:inline-block;width:20px;height:3px;margin-right:6px;vertical-align:middle}.legend .t{background:var(--blue)}.legend .c{background:var(--red)}.legend .z{background:#8b98a4}' +
+    'table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:7px 8px;border:1px solid var(--line);text-align:left}th{background:var(--panel);font:700 9px "Courier New",monospace;letter-spacing:.06em;text-transform:uppercase}.num{text-align:right;font-family:"Courier New",monospace}.num.tension{color:var(--blue);font-weight:700}.num.compression{color:var(--red);font-weight:700}' +
+    '.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}.check{display:inline-block;padding:3px 7px;border:1px solid var(--green);color:var(--green);font:700 9px "Courier New",monospace;text-transform:uppercase}' +
+    '.note{border-left:3px solid var(--teal);background:var(--panel);padding:11px 13px;color:var(--muted)}footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font:9px "Courier New",monospace}' +
+    '@media(max-width:720px){main{width:100%;margin:0;padding:22px 18px}.cards{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}header{display:block}.meta{text-align:left;margin-top:14px}}' +
+    '@media print{body{background:#fff}main{width:100%;margin:0;padding:0;box-shadow:none}.print{display:none}h2{break-after:avoid}.diagram,.cards{break-inside:avoid}thead{display:table-header-group}tr{break-inside:avoid}a{color:inherit}}' +
+    '</style></head><body><main>' +
+    '<header><div><div class="eyebrow">TOOLBOX · STATICS REPORT</div><h1>Warren Truss: Ritter Method</h1><p>Force analysis for an ideal pin-jointed truss.</p></div>' +
+    '<div class="meta">Generated ' + trussEscapeHTML(dateLabel) + '<br>' + out.n + ' bays · ' + out.memberCount + ' members<br><button class="print" onclick="window.print()">Print / save PDF</button></div></header>' +
+    '<div class="cards"><div class="card"><span>Left reaction</span><b>VA ' + trussEscapeHTML(fmt(out.VA, 5)) + ' kN</b></div>' +
+    '<div class="card"><span>Right reaction</span><b>VB ' + trussEscapeHTML(fmt(out.VB, 5)) + ' kN</b></div>' +
+    '<div class="card"><span>Horizontal reaction</span><b>HB ' + trussEscapeHTML(fmt(out.HB, 5)) + ' kN</b></div>' +
+    '<div class="card"><span>Total downward load</span><b>' + trussEscapeHTML(fmt(out.totalLoad, 5)) + ' kN</b></div></div>' +
+    '<h2>01 · Force map</h2><div class="diagram">' + safeDiagram + '</div>' +
+    '<div class="legend"><span><i class="t"></i>Tension / Træk (+)</span><span><i class="c"></i>Compression / Tryk (−)</span><span><i class="z"></i>Zero force</span><span>Line weight = relative force magnitude</span></div>' +
+    '<div class="two"><section><h2>02 · Geometry</h2><table><tbody>' +
+    '<tr><th>Bay width b</th><td class="num">' + trussEscapeHTML(fmt(v.b, 6)) + ' mm</td></tr>' +
+    '<tr><th>Height h</th><td class="num">' + trussEscapeHTML(fmt(v.h, 6)) + ' mm</td></tr>' +
+    '<tr><th>Span L</th><td class="num">' + trussEscapeHTML(fmt(out.span, 6)) + ' mm</td></tr>' +
+    '<tr><th>Diagonal angle θ</th><td class="num">' + trussEscapeHTML(fmt(out.angle, 5)) + '°</td></tr></tbody></table></section>' +
+    '<section><h2>03 · Equilibrium checks</h2><table><tbody>' +
+    '<tr><th>ΣFy residual</th><td class="num">' + trussEscapeHTML(fmt(out.verticalCheck, 6)) + ' kN</td></tr>' +
+    '<tr><th>ΣMA residual</th><td class="num">' + trussEscapeHTML(fmt(out.momentCheck, 6)) + ' kN·mm</td></tr>' +
+    '<tr><th>Largest joint residual</th><td class="num">' + trussEscapeHTML(fmt(out.residual, 6)) + ' kN</td></tr></tbody></table>' +
+    '<p><span class="check">' + (residualPass ? 'Equilibrium closes' : 'Review result') + '</span></p></section></div>' +
+    '<h2>04 · Applied loads</h2><table><thead><tr><th>Load</th><th>Joint</th><th class="num">x from A (mm)</th><th class="num">Downward load (kN)</th></tr></thead><tbody>' + loadRows + '</tbody></table>' +
+    '<h2>05 · All member forces</h2><table><thead><tr><th>Member</th><th>Group</th><th>Joints</th><th class="num">Force (kN)</th><th>State</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<h2>06 · Method and scope</h2><div class="note"><b>Ritter section method.</b> Support reactions come from global ΣM = 0 and ΣFy = 0. Chord forces use section moment ÷ h; diagonal forces use joint vertical balance ÷ sin θ. Positive member force is tension; negative is compression. This is an idealised statics model only: it does not check buckling, section capacity, joints, welds, bolts, fatigue or code compliance.</div>' +
+    '<footer>Generated by technicallytechnicaldesign.github.io/TOOLBOX · Warren Truss: Ritter Method</footer>' +
+    '</main></body></html>';
+}
+
+function trussDownloadReport(v, out, diagramMarkup) {
+  var html = trussReportHTML(v, out, diagramMarkup);
+  var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  var stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = "warren-truss-ritter-report-" + stamp + ".html";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+}
+
 var TRUSS_CALC = {
   id: "warren-truss-ritter",
   chip: "Statics",
@@ -305,6 +400,35 @@ var TRUSS_CALC = {
     method.className = "truss-method";
     method.innerHTML = '<b>Ritter readout</b><span>Reactions from global equilibrium</span><span>Chord force = section moment ÷ h</span><span>Diagonal force = joint vertical balance ÷ sin θ</span>';
     root.appendChild(method);
+
+    var reportBar = document.createElement("div");
+    reportBar.style.display = "flex";
+    reportBar.style.alignItems = "center";
+    reportBar.style.flexWrap = "wrap";
+    reportBar.style.gap = "10px";
+    reportBar.style.marginTop = "16px";
+    var reportBtn = document.createElement("button");
+    reportBtn.type = "button";
+    reportBtn.textContent = "↓ Export full report";
+    reportBtn.style.background = "var(--c-accent)";
+    reportBtn.style.border = "1px solid var(--c-accent)";
+    reportBtn.style.color = "var(--bg)";
+    reportBtn.style.fontFamily = "var(--font-mono)";
+    reportBtn.style.fontSize = "11px";
+    reportBtn.style.fontWeight = "700";
+    reportBtn.style.textTransform = "uppercase";
+    reportBtn.style.letterSpacing = "0.05em";
+    reportBtn.style.padding = "9px 13px";
+    reportBtn.style.cursor = "pointer";
+    reportBtn.addEventListener("click", function () { trussDownloadReport(v, out, diagram.innerHTML); });
+    reportBar.appendChild(reportBtn);
+    var reportNote = document.createElement("span");
+    reportNote.style.color = "var(--muted)";
+    reportNote.style.fontFamily = "var(--font-mono)";
+    reportNote.style.fontSize = "9px";
+    reportNote.textContent = "Self-contained HTML · open anywhere · print / save as PDF";
+    reportBar.appendChild(reportNote);
+    root.appendChild(reportBar);
 
     trussMemberGroup(root, "Bottom chords", out.members.filter(function (m) { return m.group === "bottom"; }));
     trussMemberGroup(root, "Diagonal web", out.members.filter(function (m) { return m.group === "diagonal"; }));

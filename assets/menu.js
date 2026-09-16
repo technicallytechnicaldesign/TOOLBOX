@@ -5,7 +5,7 @@
  *   /TOOLBOX/ GitHub Pages base (case-sensitive — repo name is uppercase).
  * - Injects its own styles + DOM; no external CSS, no dependencies.
  * - Mounts *inside* the page's own header (#app-header, else <header>) as a
- *   normal flex child — a compact two-button toolbar cluster, not a
+ *   normal flex child: a compact three-button toolbar cluster, not a
  *   floating overlay — so it scrolls/sits with the header instead of
  *   sitting on top of it. Every page's header is position:sticky, so the
  *   cluster stays reachable without needing to float.
@@ -33,6 +33,7 @@
     renkon:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><g transform="rotate(0 12 12)"><circle cx="12" cy="6" r="2"/></g><g transform="rotate(72 12 12)"><circle cx="12" cy="6" r="2"/></g><g transform="rotate(144 12 12)"><circle cx="12" cy="6" r="2"/></g><g transform="rotate(216 12 12)"><circle cx="12" cy="6" r="2"/></g><g transform="rotate(288 12 12)"><circle cx="12" cy="6" r="2"/></g></svg>',
     github:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.85 9.73.5.1.68-.22.68-.49l-.01-1.7c-2.79.62-3.38-1.222-3.38-1.222-.45-1.18-1.11-1.494-1.11-1.494-.91-.635.07-.622.07-.622 1 .072 1.53 1.05 1.53 1.05.9 1.573 2.36 1.118 2.93.855.09-.665.35-1.119.63-1.376-2.22-.259-4.56-1.138-4.56-5.065 0-1.119.39-2.034 1.03-2.75-.1-.26-.45-1.303.1-2.716 0 0 .84-.275 2.75 1.05a9.34 9.34 0 0 1 2.5-.343c.85.004 1.71.117 2.5.343 1.91-1.325 2.75-1.05 2.75-1.05.55 1.413.2 2.456.1 2.716.64.716 1.03 1.631 1.03 2.75 0 3.937-2.34 4.803-4.57 5.057.36.32.68.947.68 1.909l-.01 2.831c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>',
     grid:    '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="7" r="1.8"/><circle cx="17" cy="7" r="1.8"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>',
+    radio:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="18" r="1.5" fill="currentColor" stroke="none"/><path d="M12 16V7"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M5.5 7.5a9 9 0 0 1 13 0"/></svg>',
     ext:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"/><path d="M19 5l-8 8"/><path d="M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/></svg>'
   };
 
@@ -49,6 +50,15 @@
   ];
   var homeHref = LINKS[0].href;
 
+  // SIGNAL//LOSS micro-radio. These tracks are already cleared for public
+  // playback in the canonical SIGNAL_STATIONS catalogue. Add future TTD
+  // songs here; the shuffle bag guarantees every track airs once per cycle.
+  var RADIO_TRACKS = [
+    { id: "not-a-bug-by-design", title: "Not A Bug By Design", artist: "Working As Intended", src: "https://technicallytechnicaldesign.github.io/claude-workspace-pages/signal-stations/audio/snowcrash/not-a-bug-by-design.mp3" },
+    { id: "good-dog-bad-machine", title: "Good Dog, Bad Machine", artist: "Loyal Corrupt", src: "https://technicallytechnicaldesign.github.io/claude-workspace-pages/signal-stations/audio/snowcrash/good-dog-bad-machine.mp3" },
+    { id: "inside-your-delay", title: "Inside Your Delay", artist: "STORE-AND-FORWARD", src: "https://technicallytechnicaldesign.github.io/claude-workspace-pages/signal-stations/audio/crustacean/inside-your-delay.mp3" }
+  ];
+
   var norm = function (p) { return p.replace(/index\.html$/, "").replace(/\/$/, ""); };
   var here = norm(location.pathname);
   LINKS.forEach(function (l) {
@@ -57,7 +67,7 @@
 
   // --- styles ------------------------------------------------------------
   // Nav lives in-flow inside the header now (see mount()), not fixed over
-  // the page — a compact two-button toolbar cluster, right-aligned by the
+  // the page: a compact three-button toolbar cluster, right-aligned by the
   // header's own flex layout, set off with a hairline divider.
   var css = ''
     + '.rk-nav{display:flex;gap:8px;align-items:center;flex:none;'
@@ -75,6 +85,14 @@
     + '.rk-home{color:var(--c-accent,#E8792E)}'
     + '.rk-home[aria-current="page"]{border-color:var(--c-accent,#E8792E)}'
     + '.rk-menu-btn[aria-expanded="true"]{border-color:var(--c-accent,#E8792E);color:var(--c-accent,#E8792E)}'
+    + '.rk-radio-wrap{position:relative;display:flex;align-items:center}'
+    + '.rk-radio[aria-pressed="true"]{border-color:var(--c-fluid,#4FD1D9);color:var(--c-fluid,#4FD1D9);background:color-mix(in srgb,var(--c-fluid,#4FD1D9) 10%,transparent)}'
+    + '.rk-radio[aria-pressed="true"] svg{animation:rk-radio-pulse 1.2s ease-in-out infinite}'
+    + '.rk-radio-now{position:absolute;right:0;top:44px;width:max-content;max-width:min(300px,80vw);padding:8px 10px;'
+    + 'border:1px solid var(--line,#1c2733);background:var(--panel-bg,#0d1520);color:var(--text,#e8e8e0);'
+    + 'font-size:9px;line-height:1.4;letter-spacing:.05em;text-transform:uppercase;opacity:0;transform:translateY(-5px);pointer-events:none;transition:opacity .15s,transform .15s;z-index:3}'
+    + '.rk-radio-now.show{opacity:1;transform:translateY(0)}.rk-radio-now b{color:var(--c-fluid,#4FD1D9);font-weight:700}.rk-radio-now span{color:var(--muted,#7a7f83)}'
+    + '@keyframes rk-radio-pulse{0%,100%{opacity:1}50%{opacity:.45}}'
     + '.rk-pop{position:absolute;top:44px;right:0;min-width:230px;background:var(--panel-bg,#0d1520);'
     + 'border:1px solid var(--line,#1c2733);transform-origin:top right;'
     + 'opacity:0;transform:scale(.9) translateY(-6px);pointer-events:none;'
@@ -120,6 +138,25 @@
   home.innerHTML = I.home;
   if (LINKS[0].current) home.setAttribute("aria-current", "page");
 
+  var radioButton = document.createElement("button");
+  radioButton.className = "rk-btn rk-radio";
+  radioButton.type = "button";
+  radioButton.title = "Turn SIGNAL//LOSS radio on";
+  radioButton.setAttribute("aria-label", "Turn SIGNAL//LOSS radio on");
+  radioButton.setAttribute("aria-pressed", "false");
+  radioButton.innerHTML = I.radio;
+
+  var radioNow = document.createElement("div");
+  radioNow.className = "rk-radio-now";
+  radioNow.setAttribute("role", "status");
+  radioNow.setAttribute("aria-live", "polite");
+  radioNow.textContent = "SIGNAL//LOSS · radio off";
+
+  var radioWrap = document.createElement("div");
+  radioWrap.className = "rk-radio-wrap";
+  radioWrap.appendChild(radioButton);
+  radioWrap.appendChild(radioNow);
+
   var toggle = document.createElement("button");
   toggle.className = "rk-btn rk-menu-btn";
   toggle.type = "button";
@@ -150,7 +187,7 @@
 
   var hint = document.createElement("div");
   hint.className = "rk-hint";
-  hint.innerHTML = "<kbd>H</kbd> homebase &middot; <kbd>Esc</kbd> close";
+  hint.innerHTML = "<kbd>H</kbd> homebase &middot; <kbd>R</kbd> radio &middot; <kbd>Esc</kbd> close";
   pop.appendChild(hint);
 
   var wrap = document.createElement("div");
@@ -159,6 +196,7 @@
   wrap.appendChild(pop);
 
   nav.appendChild(home);
+  nav.appendChild(radioWrap);
   nav.appendChild(wrap);
 
   // --- behavior ----------------------------------------------------------
@@ -170,6 +208,99 @@
     toggle.setAttribute("aria-label", v ? "Close menu" : "Open menu");
   }
   toggle.addEventListener("click", function (e) { e.stopPropagation(); setOpen(!open); });
+
+  var radioAudio = document.createElement("audio");
+  radioAudio.className = "rk-radio-audio";
+  radioAudio.hidden = true;
+  radioAudio.preload = "none";
+  nav.appendChild(radioAudio);
+  var radioBag = [];
+  var radioTrack = null;
+  var radioOn = false;
+  var radioErrors = 0;
+  var statusTimer = null;
+
+  function shuffle(items) {
+    var shuffled = items.slice();
+    for (var i = shuffled.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var hold = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = hold;
+    }
+    return shuffled;
+  }
+
+  function refillRadioBag() {
+    radioBag = shuffle(RADIO_TRACKS);
+    var lastId = radioTrack && radioTrack.id;
+    try { lastId = lastId || sessionStorage.getItem("rk-radio-last"); } catch (e) {}
+    if (lastId && radioBag.length > 1 && radioBag[0].id === lastId) {
+      var swap = radioBag[0]; radioBag[0] = radioBag[1]; radioBag[1] = swap;
+    }
+  }
+
+  function radioStatus(message, sticky) {
+    radioNow.innerHTML = message;
+    radioNow.classList.add("show");
+    if (statusTimer) clearTimeout(statusTimer);
+    if (!sticky) statusTimer = setTimeout(function () { radioNow.classList.remove("show"); }, 4200);
+  }
+
+  function setRadioOn(value) {
+    radioOn = value;
+    radioButton.setAttribute("aria-pressed", value ? "true" : "false");
+    radioButton.setAttribute("aria-label", value ? "Turn SIGNAL//LOSS radio off" : "Turn SIGNAL//LOSS radio on");
+    radioButton.title = value ? "Radio on · click to pause" : "Turn SIGNAL//LOSS radio on";
+  }
+
+  function pickRadioTrack() {
+    if (!radioBag.length) refillRadioBag();
+    radioTrack = radioBag.shift();
+    radioAudio.src = radioTrack.src;
+    radioAudio.load();
+    radioButton.title = radioTrack.title + ": " + radioTrack.artist + " · click to pause";
+    radioStatus('<b>On air</b> · ' + radioTrack.title + '<br><span>' + radioTrack.artist + '</span>', true);
+    try {
+      if ("mediaSession" in navigator && "MediaMetadata" in window) {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: radioTrack.title, artist: radioTrack.artist, album: "SIGNAL//LOSS · TOOLBOX" });
+      }
+      sessionStorage.setItem("rk-radio-last", radioTrack.id);
+    } catch (e) {}
+  }
+
+  function playRadio() {
+    if (!radioTrack || radioAudio.ended) pickRadioTrack();
+    setRadioOn(true);
+    var playAttempt = radioAudio.play();
+    if (playAttempt && playAttempt.catch) playAttempt.catch(function () {
+      setRadioOn(false);
+      radioStatus('<b>Radio paused</b><br><span>Press the antenna to start</span>', false);
+    });
+  }
+
+  function toggleRadio() {
+    if (radioOn) {
+      radioAudio.pause();
+      setRadioOn(false);
+      radioStatus('<b>Radio paused</b>' + (radioTrack ? '<br><span>' + radioTrack.title + '</span>' : ''), false);
+    } else {
+      playRadio();
+    }
+  }
+
+  radioButton.addEventListener("click", function (e) { e.stopPropagation(); toggleRadio(); });
+  radioAudio.addEventListener("ended", function () { radioTrack = null; if (radioOn) playRadio(); });
+  radioAudio.addEventListener("error", function () {
+    if (!radioOn) return;
+    radioErrors += 1;
+    if (radioErrors >= RADIO_TRACKS.length) {
+      setRadioOn(false);
+      radioStatus('<b>Signal lost</b><br><span>Tracks could not be loaded</span>', false);
+      return;
+    }
+    radioTrack = null;
+    playRadio();
+  });
+  radioAudio.addEventListener("playing", function () { radioErrors = 0; });
   document.addEventListener("click", function (e) { if (open && !nav.contains(e.target)) setOpen(false); });
   document.addEventListener("keydown", function (e) {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -178,6 +309,7 @@
     if (e.key === "Escape") { if (open) setOpen(false); return; }
     if (typing) return;
     if (e.key === "h" || e.key === "H") { location.href = homeHref; }
+    if (e.key === "r" || e.key === "R") { toggleRadio(); }
   });
 
   // Mount inside the page's own header, as its last flex child, so the

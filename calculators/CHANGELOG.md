@@ -1,5 +1,21 @@
 # Changelog — Calculators
 
+## 2026-09-15: Ritter report export + TOOLBOX radio
+
+- Added **Export full report** to the Warren-truss calculator. The downloaded,
+  self-contained HTML captures the current force-map illustration, geometry,
+  VA/VB/HB reactions, applied loads, global/joint equilibrium checks, every
+  member's signed axial force and tension/compression/zero state, plus a
+  print stylesheet and a one-click **Print / save PDF** control.
+- Added a compact SIGNAL//LOSS antenna toggle to the unified header on every
+  TOOLBOX page. It plays the cleared technical-design-adjacent tracks **Not A
+  Bug By Design**, **Good Dog, Bad Machine** and **Inside Your Delay** directly
+  from the canonical SIGNAL_STATIONS public catalogue in a Fisher–Yates
+  shuffled bag: every track plays once per cycle, with no immediate repeat
+  when the bag refills. The radio pauses/resumes from the same button, advances
+  automatically at track end, publishes native Media Session metadata where
+  supported, and also has an `R` hotkey.
+
 ## 2026-09-15 — Warren truss / Ritter method
 
 - Ported the verified `Gitter 02 Solver` workbook into a native sixth

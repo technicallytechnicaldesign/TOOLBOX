@@ -34,6 +34,7 @@
     github:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.85 9.73.5.1.68-.22.68-.49l-.01-1.7c-2.79.62-3.38-1.222-3.38-1.222-.45-1.18-1.11-1.494-1.11-1.494-.91-.635.07-.622.07-.622 1 .072 1.53 1.05 1.53 1.05.9 1.573 2.36 1.118 2.93.855.09-.665.35-1.119.63-1.376-2.22-.259-4.56-1.138-4.56-5.065 0-1.119.39-2.034 1.03-2.75-.1-.26-.45-1.303.1-2.716 0 0 .84-.275 2.75 1.05a9.34 9.34 0 0 1 2.5-.343c.85.004 1.71.117 2.5.343 1.91-1.325 2.75-1.05 2.75-1.05.55 1.413.2 2.456.1 2.716.64.716 1.03 1.631 1.03 2.75 0 3.937-2.34 4.803-4.57 5.057.36.32.68.947.68 1.909l-.01 2.831c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>',
     grid:    '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="7" r="1.8"/><circle cx="17" cy="7" r="1.8"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>',
     radio:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="18" r="1.5" fill="currentColor" stroke="none"/><path d="M12 16V7"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M5.5 7.5a9 9 0 0 1 13 0"/></svg>',
+    skip:    '<svg viewBox="0 0 24 24" fill="none" stroke="none"><path d="M4 6v12l8-6z" fill="currentColor"/><path d="M12 6v12l8-6z" fill="currentColor"/></svg>',
     ext:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"/><path d="M19 5l-8 8"/><path d="M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/></svg>'
   };
 
@@ -50,13 +51,17 @@
   ];
   var homeHref = LINKS[0].href;
 
-  // SIGNAL//LOSS micro-radio. These tracks are already cleared for public
-  // playback in the canonical SIGNAL_STATIONS catalogue. Add future TTD
-  // songs here; the shuffle bag guarantees every track airs once per cycle.
+  // SIGNAL//LOSS micro-radio. Tracks are shipped as mp3s in this repo's own
+  // assets/audio/ (not the SIGNAL_STATIONS catalogue). Add future TTD songs
+  // here; the shuffle bag guarantees every track airs once per cycle.
   var RADIO_TRACKS = [
-    { id: "not-a-bug-by-design", title: "Not A Bug By Design", artist: "Working As Intended", src: "https://technicallytechnicaldesign.github.io/claude-workspace-pages/signal-stations/audio/snowcrash/not-a-bug-by-design.mp3" },
-    { id: "good-dog-bad-machine", title: "Good Dog, Bad Machine", artist: "Loyal Corrupt", src: "https://technicallytechnicaldesign.github.io/claude-workspace-pages/signal-stations/audio/snowcrash/good-dog-bad-machine.mp3" },
-    { id: "inside-your-delay", title: "Inside Your Delay", artist: "STORE-AND-FORWARD", src: "https://technicallytechnicaldesign.github.io/claude-workspace-pages/signal-stations/audio/crustacean/inside-your-delay.mp3" }
+    { id: "creo-rage-remove-section", title: "CREO // Rage (Remove Section)", artist: "TOOLBOX", src: u("assets/audio/creo-rage-remove-section.mp3") },
+    { id: "dependency-jumpscare", title: "Dependency Jumpscare", artist: "TOOLBOX", src: u("assets/audio/dependency-jumpscare.mp3") },
+    { id: "engineer-says-no", title: "Engineer Says No", artist: "TOOLBOX", src: u("assets/audio/engineer-says-no.mp3") },
+    { id: "object-modified-harder", title: "Object Modified (Harder)", artist: "TOOLBOX", src: u("assets/audio/object-modified-harder.mp3") },
+    { id: "select-the-parts", title: "Select The Parts", artist: "TOOLBOX", src: u("assets/audio/select-the-parts.mp3") },
+    { id: "the-ancient-config", title: "The Ancient Config", artist: "TOOLBOX", src: u("assets/audio/the-ancient-config.mp3") },
+    { id: "the-cursed-table", title: "The Cursed Table", artist: "TOOLBOX", src: u("assets/audio/the-cursed-table.mp3") }
   ];
 
   var norm = function (p) { return p.replace(/index\.html$/, "").replace(/\/$/, ""); };
@@ -152,9 +157,17 @@
   radioNow.setAttribute("aria-live", "polite");
   radioNow.textContent = "SIGNAL//LOSS · radio off";
 
+  var skipButton = document.createElement("button");
+  skipButton.className = "rk-btn rk-skip";
+  skipButton.type = "button";
+  skipButton.title = "Skip track (S)";
+  skipButton.setAttribute("aria-label", "Skip to next track");
+  skipButton.innerHTML = I.skip;
+
   var radioWrap = document.createElement("div");
   radioWrap.className = "rk-radio-wrap";
   radioWrap.appendChild(radioButton);
+  radioWrap.appendChild(skipButton);
   radioWrap.appendChild(radioNow);
 
   var toggle = document.createElement("button");
@@ -187,7 +200,7 @@
 
   var hint = document.createElement("div");
   hint.className = "rk-hint";
-  hint.innerHTML = "<kbd>H</kbd> homebase &middot; <kbd>R</kbd> radio &middot; <kbd>Esc</kbd> close";
+  hint.innerHTML = "<kbd>H</kbd> homebase &middot; <kbd>R</kbd> radio &middot; <kbd>S</kbd> skip &middot; <kbd>Esc</kbd> close";
   pop.appendChild(hint);
 
   var wrap = document.createElement("div");
@@ -287,7 +300,14 @@
     }
   }
 
+  function skipRadioTrack() {
+    radioAudio.pause();
+    radioTrack = null;
+    playRadio();
+  }
+
   radioButton.addEventListener("click", function (e) { e.stopPropagation(); toggleRadio(); });
+  skipButton.addEventListener("click", function (e) { e.stopPropagation(); skipRadioTrack(); });
   radioAudio.addEventListener("ended", function () { radioTrack = null; if (radioOn) playRadio(); });
   radioAudio.addEventListener("error", function () {
     if (!radioOn) return;
@@ -310,6 +330,7 @@
     if (typing) return;
     if (e.key === "h" || e.key === "H") { location.href = homeHref; }
     if (e.key === "r" || e.key === "R") { toggleRadio(); }
+    if (e.key === "s" || e.key === "S") { skipRadioTrack(); }
   });
 
   // Mount inside the page's own header, as its last flex child, so the

@@ -68,10 +68,12 @@ fastener mark so the two read as related-but-distinct.
   and how to run the tests.
 - **`assets/`** — shared, dependency-free chrome dropped into every page:
   `theme.js` (light/dark toggle), `reveal.js` (load-in animation), `menu.js`
-  (unified nav + the compact SIGNAL//LOSS radio), and `favicon.svg` (the hex
-  mark). The radio runs a no-repeat shuffled bag of cleared tracks from the
-  canonical SIGNAL_STATIONS public catalogue; its playlist manifest lives at
-  the top of `menu.js` so new technical-design songs are a one-line addition.
+  (unified nav + the compact SIGNAL//LOSS radio), `audio/` (the radio's own
+  mp3s), and `favicon.svg` (the hex mark). The radio runs a no-repeat
+  shuffled bag of tracks served straight from `assets/audio/`; its playlist
+  manifest lives at the top of `menu.js` so a new song is a one-line addition
+  (drop the mp3 in `assets/audio/`, add an entry). A skip button (or the `S`
+  hotkey) advances to the next shuffled track on demand.
 
 ## Conventions
 

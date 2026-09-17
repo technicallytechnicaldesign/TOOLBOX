@@ -298,15 +298,15 @@ an empty box.
 | Pool | Count | Register |
 |---|---|---|
 | `lines.ambient` | 104 | muttered unprompted; specific drawing crimes, observed with delight |
-| `lines.hype` | 65 | the worst possible advice, delivered joyfully |
-| `lines.reality` | 45 | the mode where he is right, still having a wonderful time |
-| `lines.fix` | 45 | unhelpful, enthusiastic, occasionally accidentally correct |
-| `lines.destroy` | 40 | every route by which the evidence survives deletion |
+| `lines.hype` | 75 | the worst possible advice, delivered joyfully |
+| `lines.reality` | 55 | the mode where he is right, still having a wonderful time |
+| `lines.fix` | 55 | unhelpful, enthusiastic, occasionally accidentally correct |
+| `lines.destroy` | 50 | every route by which the evidence survives deletion |
 | `toleranceScreams` | 65 | drawing callouts that would end a career |
 | `psychicDamage` | 30 | the 0.2% tier: quiet, personal, true |
 | `nightLines` | 6 | 01:00 to 05:00 only |
 | `pokeLines` | 22 | four escalation tiers |
-| `BITS` | 30 routines | multi-beat, with a sustained pose |
+| `BITS` | 35 routines | multi-beat, with a sustained pose |
 | `GREETINGS` + `babeGreeting` | 10 routines | load only, never reachable from ambient |
 | `ghostTolerances` | 20 | drift-by callouts, short enough to read in passing |
 | `ghostFrames` | 10 | feature control frames, drawn properly, saying something unforgivable |
@@ -314,6 +314,14 @@ an empty box.
 | `ghostScreams` | 14 | shouted by any apparition, so each must work against all three kinds |
 | `ghostHauntings` | 7 | body and scream written as one joke; never randomly paired |
 | `ghostReactions` + `ghostScreamReactions` | 14 | what he says about one, when he is free to |
+
+Five routines form the unhinged engineering ritual set: `parametric-prophecy`
+turns every number into a dependency, `mystery-table` strips values of their
+provenance, `constraint-liberation` lets the hardware escape the origin,
+`tolerance-auction` bids a feature into unaffordability, and `datum-coup`
+allows the reference system to overthrow itself. They deliberately reuse the
+clipboard, peeker and pose layers so cancellation and reduced-motion behaviour
+stay inside the existing controller contract.
 
 **Tone.** A chaotic colleague who gives the worst advice and revels *joyously*
 in the hacky shortcuts that actually make mech-eng and production design work.
@@ -394,16 +402,21 @@ Spoilers, kept here so they are not lost.
 
 ## Testing
 
-`selftest.js` is a 106-assertion suite. It is **not** referenced by
-`index.html`, so it never loads for a visitor. Run it from the page:
+`selftest.js` is a 110-assertion suite. It is lazy-loaded only by the explicit
+test seam, so an ordinary visit never fetches it. Run it from the page:
 
 ```js
-const m = await import('./selftest.js'); return m.runSelfTest();
+return window.__goblin.runSelfTest();
 ```
 
 It returns `{ ok, passed, failed, failures[], results[] }` and takes about
 **60 ms**. It restores the real clock and leaves him talking in a `finally`,
 so it is safe to run against the live page and safe if an assertion throws.
+Browser drivers can instead open `index.html?selftest=1` and read the hidden
+`#selftest-report` output, whose `data-status` becomes `pass`, `fail` or
+`error` when the run finishes.
+To inspect one routine without waiting for an ambient draw, open
+`index.html?bit=<routine-id>`; normal visits still choose a greeting.
 
 ### Why it does not sleep
 
@@ -459,7 +472,7 @@ substitute for opening the page.
   The goblin himself is `aria-hidden`; he is decoration, the bubble is the content.
 - The poke target is a real `<button>` with an `aria-label`, not a click handler
   on the art, so it is keyboard reachable and skippable.
-- `prefers-reduced-motion` stops every loop (float, halo, blink, and all nine
+- `prefers-reduced-motion` stops every loop (float, halo, blink, and all eleven
   poses) while keeping the poses legible as held positions. Nothing becomes
   unusable and no line becomes unreadable.
 - He keeps a dark stage in both themes via `--stage-bg`, matching the site's

@@ -1247,7 +1247,17 @@ const lines = {
     "That interference is 0.05 mm. Freeze one, heat the other, and be a blacksmith for eleven glorious seconds.",
     "Skip the tolerance analysis. Build three. If two work that is a 67% yield and an excellent story.",
     "This wants to be one moulded part with eleven undercuts. Chase that dream. Chase it right off the cliff.",
-    "Make it out of whatever is on the shelf. Constraint is the mother of the thing you accidentally ship."
+    "Make it out of whatever is on the shelf. Constraint is the mother of the thing you accidentally ship.",
+    "Make every dimension parametric. If it has a number, put a leash on it.",
+    "Put the values in a table. Do not label the source column. Mystery is a valid data type.",
+    "Remove every constraint. The part wants to be free, and freedom is never fully defined.",
+    "Drive the wall thickness from the hole diameter and the hole diameter from the wall thickness. Let them negotiate.",
+    "One global variable should control the whole assembly. Name it FINAL_SIZE and give it a value of 17.3.",
+    "Turn every prototype into a configuration. Turn every configuration into a family. Become the supplier.",
+    "Link the material choice to the fillet radius. No reason. The model deserves secrets.",
+    "Give the tolerance a slider. Nobody should have to type ±0.02 when they could drag toward danger.",
+    "Make the design table the single source of truth, then hide it on a network drive called OLD.",
+    "Suppress the constraints by configuration. In one version the bracket is allowed to dream."
   ],
 
   /* Reality check. The only mode where he is occasionally right. */
@@ -1296,7 +1306,17 @@ const lines = {
     "Assembly needs the operator to hold two parts, a torque driver and a shim, simultaneously. Buy them a coffee.",
     "It works. It works because of friction you did not design, on a finish you did not specify. Do not touch the finish.",
     "The bracket is stiff. The screw it bolts through is not. You have built a rigid part that pivots.",
-    "This is all fine at 20°C, dry, static and new. Pick which of those four you would like to lose first."
+    "This is all fine at 20°C, dry, static and new. Pick which of those four you would like to lose first.",
+    "Everything is parametric, but three parameters are circular and one is named DO_NOT_TOUCH. This is not control.",
+    "The table has eighty-four rows, no units and a column called VALUE2. We have not escaped ambiguity. We have formatted it.",
+    "You removed every constraint and the hole has moved into the title block. The part is free. The drawing is not.",
+    "The tolerance stack says zero because the spreadsheet subtracts every bad result from itself.",
+    "Your master variable changes the bolt size, plate thickness and project code. One of those should not be geometry.",
+    "Every dimension is driven. Nobody knows where they are driving from, but they are making excellent time.",
+    "The design table generated forty-seven configurations and exactly none match the part on the bench.",
+    "You parameterised the gap and forgot temperature. The gap has parameterised itself at operating temperature.",
+    "The unconstrained sketch is blue because it is honest. The fully constrained sketch is black because it knows how to lie.",
+    "That ±0.01 is technically achievable. Your table quietly applies it to every feature, including the cardboard spacer."
   ],
 
   /* Help fixing it. Unhelpful with enthusiasm. */
@@ -1345,7 +1365,17 @@ const lines = {
     "Simple: make the mating part adjustable. Now it is a tolerance problem for a component that does not exist yet.",
     "Add a note that says AS REQUIRED. Most powerful phrase in engineering. Means absolutely nothing.",
     "Start a fresh file and copy in only the good bits. There are two good bits. This takes four hours and it is correct.",
-    "Have you tried caring less? Genuinely. The part cannot tell."
+    "Have you tried caring less? Genuinely. The part cannot tell.",
+    "Put every dimension in a table, sort it alphabetically and remove the units. Context is where errors breed.",
+    "Delete the constraints one by one until the rebuild error stops shouting. Silence is a diagnostic result.",
+    "Replace the broken mate with an equation that evaluates to zero. Zero is famously stable.",
+    "Add a global variable called FIX and point every red dimension at it. FIX equals 12 for now.",
+    "Change the tolerance from ±0.05 to PLUS OR MINUS AS REQUIRED. Flexible, expressive, impossible to reject.",
+    "Make a configuration called WORKING and suppress everything that is not currently working.",
+    "Copy the values into a new table and leave the source cells blank. The numbers are cleaner without provenance.",
+    "Free the part from its assembly constraints, drag it approximately home and lock the camera angle.",
+    "If the parameter chain is circular, add a second circle in the opposite direction. Counter-rotation cancels things.",
+    "Set the upper tolerance from the supplier quote and the lower tolerance from your remaining optimism."
   ],
 
   /* Destroy the evidence. Destroys nothing. */
@@ -1389,7 +1419,17 @@ const lines = {
     "Removed. But it was in the background of that photo you posted, slightly out of focus, and somebody zoomed in.",
     "Eradicated. And then somebody said 'didn't we try that already?' and the whole thing began again.",
     "Destroyed! Now nobody knows why the mounting holes are 6.35 mm apart. Nobody ever will. You have created a mystery.",
-    "Gone. The only surviving copy lives in the head of a contractor who left, and he tells the story at parties."
+    "Gone. The only surviving copy lives in the head of a contractor who left, and he tells the story at parties.",
+    "I deleted the parameter table. Every value still updates. Something else is in charge now.",
+    "Constraints removed. The part has left the origin and is approaching the revision block at speed.",
+    "The source column is gone. The values now appear to have descended directly from engineering heaven.",
+    "I destroyed the master variable. Forty-seven configurations have become forty-seven unique emergencies.",
+    "Tolerance history purged. The inspection report still shows six decimal places and a username.",
+    "The equations are gone, but one dimension still says EVAL@SKETCH47. It is asking for its parent.",
+    "Every mate deleted. The assembly exploded gently, like a flower made of purchased components.",
+    "The design table is ash. Somebody exported it to CSV and attached it to a calendar invitation.",
+    "Datums removed. The feature control frame remains, pointing at nothing with extraordinary authority.",
+    "The constraints are dead. The part is free. The STEP export has captured it three metres from the origin forever."
   ]
 };
 
@@ -1677,6 +1717,70 @@ const BITS = [
         peek: { side: 'right', art: 'frame',  top: 58 } },
       { text: "MANUALLY OVERRIDING DIMENSIONS!!!", hold: 3700,
         expression: 'cackle', addState: 'overwriting' }
+    ]
+  },
+
+  /* --- five fresh engineering rituals ----------------------------------- */
+  {
+    id: 'parametric-prophecy', state: 'holding rapture', mood: 'hype',
+    beats: [
+      { text: "Wait. You made the chamfer parametric." },
+      { text: "CHAMFER = WALL / GOBLIN_FACTOR", voice: 'clipboard', hold: 3200 },
+      { text: "Now make the wall parametric." },
+      { text: "EVERYTHING?", voice: 'peek', hold: 2600,
+        peek: { side: 'left', art: 'frame', top: 30 } },
+      { text: "EVERYTHING. IF IT HAS A NUMBER, PUT A LEASH ON IT.",
+        expression: 'cackle', addState: 'overwriting', hold: 4600 }
+    ]
+  },
+  {
+    id: 'mystery-table', state: 'holding reading', mood: 'ambient',
+    beats: [
+      { text: "A design table. Lovely. Let us inspect the evidence." },
+      { text: "NAME | VALUE | SOURCE", voice: 'clipboard', hold: 2800 },
+      { text: "WALL | 2.73 |", voice: 'clipboard', hold: 2600 },
+      { text: "There is no source." },
+      { text: "Perfect. The values have no past and therefore no accountability.",
+        expression: 'wink', addState: 'scribbling', hold: 5000 }
+    ]
+  },
+  {
+    id: 'constraint-liberation', state: 'holding conspiracy', mood: 'gold',
+    beats: [
+      { text: "Quiet. I am removing the constraints." },
+      { text: "I CAN MOVE", voice: 'peek', hold: 2600,
+        peek: { side: 'left', art: 'bolt', top: 26 } },
+      { text: "ME TOO", voice: 'peek', hold: 2400,
+        peek: { side: 'right', art: 'washer', top: 60 } },
+      { text: "The part wants to be free." },
+      { text: "GO! LEAVE THE ORIGIN! BECOME A LOCATION PROBLEM!",
+        expression: 'hurl', addState: 'defacing', hold: 4800 }
+    ]
+  },
+  {
+    id: 'tolerance-auction', state: 'measuring', mood: 'destroy',
+    beats: [
+      { text: "Tolerance auction. Who will make this feature least affordable?" },
+      { text: "±0.20", voice: 'peek', hold: 2400,
+        peek: { side: 'left', art: 'frame', top: 24 } },
+      { text: "±0.05", voice: 'peek', hold: 2400,
+        peek: { side: 'right', art: 'washer', top: 58 } },
+      { text: "Do I hear ±0.01?" },
+      { text: "SOLD! TO THE DRAWING WITH NO INSPECTION PLAN!",
+        expression: 'cackle', addState: 'overwriting', hold: 4800 }
+    ]
+  },
+  {
+    id: 'datum-coup', state: 'holding reading', mood: 'reality',
+    beats: [
+      { text: "Notice from the feature control frame." },
+      { text: "DATUM A HAS RESIGNED", voice: 'clipboard', hold: 3000 },
+      { text: "LONG LIVE DATUM Q", voice: 'peek', hold: 2700,
+        peek: { side: 'right', art: 'frame', top: 28 } },
+      { text: "LOCATE ME BY VIBES", voice: 'peek', hold: 2700,
+        peek: { side: 'left', art: 'bolt', top: 62 } },
+      { text: "Excellent. The reference system has become self-governing.",
+        expression: 'bigeyes', addState: 'scribbling', hold: 5000 }
     ]
   },
 
@@ -2595,6 +2699,9 @@ window.__goblin = {
     GREETINGS: GREETINGS, babeGreeting: babeGreeting
   },
   pickGreeting: pickGreeting,
+  runSelfTest: function () {
+    return import('./selftest.js').then(function (m) { return m.runSelfTest(); });
+  },
   registries: {
     MOODS: MOODS, EXPRESSIONS: EXPRESSIONS,
     BIT_STATES: BIT_STATES, BUBBLE_STYLES: BUBBLE_STYLES
@@ -2650,9 +2757,33 @@ window.__goblin = {
   }
 };
 
-performBit(pickGreeting());
+const previewBitId = new URLSearchParams(location.search).get('bit');
+const previewBit = previewBitId && BITS.find(function (bit) { return bit.id === previewBitId; });
+performBit(previewBit || pickGreeting());
 scheduleAmbient();
 if (!prefersReducedMotion) scheduleApparition();
+
+/* Opt-in browser harness. It leaves normal visits untouched, but gives UI
+   drivers a DOM result they can read without reaching into this script's
+   execution world. */
+if (new URLSearchParams(location.search).has('selftest')) {
+  const report = document.createElement('output');
+  report.id = 'selftest-report';
+  report.hidden = true;
+  document.body.appendChild(report);
+  runSelfTestInPage();
+
+  function runSelfTestInPage() {
+    import('./selftest.js').then(function (m) {
+      const result = m.runSelfTest();
+      report.textContent = JSON.stringify(result);
+      report.dataset.status = result.ok ? 'pass' : 'fail';
+    }).catch(function (error) {
+      report.textContent = JSON.stringify({ ok: false, error: String(error) });
+      report.dataset.status = 'error';
+    });
+  }
+}
 </script>
 <script src="../assets/menu.js?v=20260917-popfix"></script>
 </body>

@@ -139,6 +139,39 @@ export function runSelfTest() {
     check('no em dashes in any line', !all.some(l => /—|–/.test(l)),
       all.filter(l => /—|–/.test(l)).slice(0, 3));
 
+    // ---- the 2026-09 unhinged expansion ----------------------------------
+    check('each mood button gained exactly ten lines',
+      G.pools.lines.hype.length === 75 && G.pools.lines.reality.length === 55 &&
+      G.pools.lines.fix.length === 55 && G.pools.lines.destroy.length === 50,
+      { hype: G.pools.lines.hype.length, reality: G.pools.lines.reality.length,
+        fix: G.pools.lines.fix.length, destroy: G.pools.lines.destroy.length });
+
+    const newBitIds = ['parametric-prophecy', 'mystery-table', 'constraint-liberation',
+                       'tolerance-auction', 'datum-coup'];
+    const newBits = newBitIds.map(id => BITS.find(b => b.id === id));
+    check('all five new engineering rituals are registered',
+      newBits.every(Boolean), newBitIds.filter((id, i) => !newBits[i]));
+    check('every new ritual animates an object and changes his pose',
+      newBits.every(b => b && b.beats.some(x => x.voice === 'peek' || x.voice === 'clipboard') &&
+        b.beats.some(x => x.addState) && b.beats.some(x => x.expression)),
+      newBits.filter(Boolean).map(b => ({ id: b.id, beats: b.beats })));
+
+    const ritualTrace = [];
+    newBits.filter(Boolean).forEach(b => {
+      G.performBit(b);
+      vc.advance(0);
+      const first = G.state().text;
+      const beforeLast = b.beats.slice(0, -1)
+        .reduce((sum, beat) => sum + (beat.hold || G.timing.beatHold(beat.text)), 0);
+      vc.advance(beforeLast);
+      ritualTrace.push({ id: b.id, first, last: G.state().text });
+      G.cancelSpeech();
+    });
+    check('all five rituals run from first beat to punchline',
+      ritualTrace.length === 5 && ritualTrace.every((t, i) =>
+        t.first === newBits[i].beats[0].text && t.last === newBits[i].beats.at(-1).text),
+      ritualTrace);
+
     // ---- greetings ---------------------------------------------------------
     const babe = G.pools.babeGreeting;
     const greets = G.pools.GREETINGS;

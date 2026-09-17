@@ -99,7 +99,7 @@
     + '.rk-radio-now.show{opacity:1;transform:translateY(0)}.rk-radio-now b{color:var(--c-fluid,#4FD1D9);font-weight:700}.rk-radio-now span{color:var(--muted,#7a7f83)}'
     + '@keyframes rk-radio-pulse{0%,100%{opacity:1}50%{opacity:.45}}'
     + '.rk-pop{position:absolute;top:44px;right:0;min-width:230px;background:var(--panel-bg,#0d1520);'
-    + 'border:1px solid var(--line,#1c2733);transform-origin:top right;'
+    + 'border:1px solid var(--line,#1c2733);transform-origin:top right;z-index:5;'
     + 'opacity:0;transform:scale(.9) translateY(-6px);pointer-events:none;'
     + 'transition:opacity .16s ease,transform .18s cubic-bezier(.34,1.56,.64,1)}'
     + '.rk-pop.open{opacity:1;transform:scale(1) translateY(0);pointer-events:auto}'

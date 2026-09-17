@@ -169,6 +169,7 @@
   .workspace {
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+    grid-template-areas: "iso iso" "side front" "section change";
     grid-template-rows: minmax(265px, 1fr) minmax(250px, 1fr) minmax(210px, auto);
     gap: 1px; padding: 1px; background: var(--line);
   }
@@ -178,9 +179,15 @@
   }
   .view-label { position: absolute; left: 12px; top: 10px; }
   .view svg { width: 100%; height: 100%; min-width: 0; min-height: 0; display: block; }
-  .iso-view { grid-row: span 2; }
+  .iso-view { grid-area: iso; }
+  .side-view { grid-area: side; }
+  .front-view { grid-area: front; }
+  .section-view { grid-area: section; }
+  .change-view { grid-area: change; }
   .iso-view svg { min-height: 0; }
   .view-note { position: absolute; right: 12px; bottom: 10px; max-width: 190px; text-align: right; font-size: 10px; line-height: 1.25; color: var(--muted); }
+  .projection-note { position: absolute; right: 10px; top: 7px; display: inline-flex; align-items: center; gap: 7px; color: var(--c-fluid); font: 700 8px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .projection-note svg { width: 34px; height: 18px; color: currentColor; }
   .what-changed {
     display: flex; flex-direction: column; justify-content: flex-end;
     padding: 28px 18px 18px; background: var(--panel-bg-raised);
@@ -221,10 +228,10 @@
   @media (min-width: 901px) {
     .workspace {
       grid-template-columns: minmax(0, 1.35fr) minmax(0, .85fr) minmax(0, .85fr);
+      grid-template-areas: "iso side front" "iso section change";
       grid-template-rows: repeat(2, minmax(0, 1fr));
       height: clamp(390px, calc(100svh - 300px), 640px);
     }
-    .iso-view { grid-column: 1; grid-row: span 2; }
     .view { min-height: 0; padding: 26px 10px 10px; }
     .view-label { left: 10px; top: 9px; }
     .view-note { right: 10px; bottom: 8px; }
@@ -252,7 +259,7 @@
     .left-panel .actions:not(.utility-actions) { grid-column: auto; }
     .left-panel .overlay-block { border-top: 1px solid var(--line); padding-top: 14px; }
     .utility-actions { border-top: 1px solid var(--line); padding-top: 14px; }
-    .workspace { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); grid-template-rows: minmax(265px, 1fr) minmax(250px, 1fr) minmax(210px, auto); height: auto; }
+    .workspace { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); grid-template-areas: "iso iso" "side front" "section change"; grid-template-rows: minmax(265px, 1fr) minmax(250px, 1fr) minmax(210px, auto); height: auto; }
   }
   @media (max-width: 640px) {
     .shell { width: min(100% - 24px, 1480px); }
@@ -260,8 +267,7 @@
     .lab-topline p { margin: 0; }
     .left-panel .panel-body { grid-template-columns: 1fr; }
     .overlay-grid { grid-template-columns: 1fr; }
-    .workspace { grid-template-columns: 1fr; grid-template-rows: auto; }
-    .iso-view { grid-row: auto; }
+    .workspace { grid-template-columns: 1fr; grid-template-areas: "iso" "section" "side" "change"; grid-template-rows: auto; }
     .view { min-height: 245px; padding: 28px 9px 9px; }
     .view svg { min-height: 220px; }
     .iso-view svg { min-height: 310px; }
@@ -285,9 +291,8 @@
     .shell { width: 100%; }
     .lab-layout { display: block; border: 0; }
     .panel, .view { border: 1px solid #333; }
-    .workspace { grid-template-columns: 1fr 1fr; grid-template-rows: auto; gap: 5px; padding: 0; background: none; }
+    .workspace { grid-template-columns: 1fr 1fr; grid-template-areas: "side front" "section change" "iso iso"; grid-template-rows: auto; gap: 5px; padding: 0; background: none; }
     .view { background: #fff; }
-    .iso-view { grid-row: span 2; }
     .secondary-view { display: block !important; }
   }
 </style>
@@ -322,7 +327,7 @@
     <aside class="panel left-panel" aria-label="Lab controls">
       <div class="panel-head"><b>Controls</b></div>
       <div class="panel-body">
-        <div class="control"><label for="family">Part</label><select id="family"><option value="random" selected>Random part</option><option value="bored">Chamfered bore block</option><option value="counterbore">Rounded counterbore block</option><option value="wedge">Sloped wedge mount</option><option value="countersink">Countersunk wedge mount</option><option value="fork">Fork bracket</option><option value="bearing">Stepped bearing block</option><option value="blind">Blind-bore machine block</option><option value="vertical">Vertical-hole mounting block</option><option value="crossdrill">Cross-drilled manifold block</option><option value="pipe">Straight hollow pipe</option><option value="pipeflange">Front-flanged pipe</option><option value="flange">Twin-bore obround flange</option><option value="ibeam">I-section beam</option><option value="channel">Channel section</option><option value="stepped">Three-level stepped block</option></select></div>
+        <div class="control"><label for="family">Part</label><select id="family"><option value="random" selected>Random depth-changing part</option><optgroup label="Depth-changing sections"><option value="pocket">Deep-pocket mounting block</option><option value="ribbed">Tapered-rib support</option><option value="clevis">Twin-lug clevis base</option><option value="pedestal">Bridge bearing pedestal</option><option value="counterbore">Rounded counterbore block</option><option value="wedge">Sloped wedge mount</option><option value="countersink">Countersunk wedge mount</option><option value="bearing">Stepped bearing block</option><option value="blind">Blind-bore machine block</option><option value="vertical">Vertical-hole mounting block</option><option value="crossdrill">Cross-drilled manifold block</option><option value="pipeflange">Front-flanged pipe</option><option value="stepped">Three-level stepped block</option></optgroup><optgroup label="Constant-section references"><option value="pipe">Straight hollow pipe</option><option value="ibeam">I-section beam</option></optgroup></select></div>
         <div class="control"><label for="difficulty">Scale</label><select id="difficulty"><option value="easy">Compact</option><option selected value="medium">Workshop</option><option value="hard">Extended</option></select></div>
         <div class="control"><label for="dimMode">Dimensions</label><select id="dimMode"><option value="full">Feature + overall</option><option selected value="overall">Overall only</option><option value="none">None</option></select></div>
         <div class="control actions"><button id="generateBtn" type="button" class="btn primary">New part</button></div>
@@ -341,13 +346,13 @@
       <div class="panel-head"><b>Part + section</b><span class="mono muted" id="drawingTitle">SECTION LAB</span></div>
       <div class="workspace">
         <div class="view large iso-view"><span class="view-label">3D PART + A&ndash;A PLANE</span><svg id="isoView" viewBox="0 0 520 370" role="img" aria-label="Isometric component with moving cutting plane"></svg><span class="view-note">Use the views to follow the plane.</span></div>
-        <div class="view large"><span class="view-label">SECTION A&ndash;A</span><svg id="sectionView" viewBox="0 0 420 286" role="img" aria-label="Generated section view"></svg></div>
-        <div class="view secondary-view mobile-active" data-mobile-view="side"><span class="view-label">RIGHT SIDE / CUT LOCATION</span><svg id="sideView" viewBox="0 0 420 286" role="img" aria-label="Right side view with cutting-plane location"></svg></div>
-        <div class="view secondary-view" data-mobile-view="front"><span class="view-label">FRONT REFERENCE</span><svg id="frontView" viewBox="0 0 420 286" role="img" aria-label="Front orthographic reference"></svg></div>
-        <section class="view what-changed" aria-live="polite"><span class="signal">WHAT CHANGED</span><h2 id="liveChangeTitle">-</h2><p id="liveChangeCopy">-</p></section>
+        <div class="view large section-view"><span class="view-label">SECTION A&ndash;A</span><svg id="sectionView" viewBox="0 0 420 286" role="img" aria-label="Generated section view"></svg></div>
+        <div class="view secondary-view side-view mobile-active" data-mobile-view="side"><span class="view-label">RIGHT SIDE / CUT LOCATION</span><svg id="sideView" viewBox="0 0 420 286" role="img" aria-label="Right side view with cutting-plane location"></svg><span class="view-note">FRONT &larr; DEPTH &rarr; REAR</span></div>
+        <div class="view secondary-view front-view" data-mobile-view="front"><span class="view-label">FRONT REFERENCE</span><span class="projection-note" aria-label="ISO 5456-2 first-angle projection"><svg viewBox="0 0 54 24" aria-hidden="true"><path d="M2 5h20l5 14H7z" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="5" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width=".8" stroke-dasharray="4 2"/><circle cx="42" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="42" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1"/></svg>ISO 5456-2 / FIRST-ANGLE</span><svg id="frontView" viewBox="0 0 420 286" role="img" aria-label="Front orthographic reference"></svg></div>
+        <section class="view what-changed change-view" aria-live="polite"><span class="signal">WHAT CHANGED</span><h2 id="liveChangeTitle">-</h2><p id="liveChangeCopy">-</p></section>
         <div class="hidden-back" aria-hidden="true"><svg id="backView" viewBox="0 0 420 286"></svg></div>
       </div>
-      <div class="mobile-view-switch" aria-label="Choose auxiliary view"><button type="button" class="active" data-view="side">Side + plane</button><button type="button" data-view="front">Front reference</button></div>
+      <div class="mobile-view-switch" aria-label="Choose auxiliary view"><button type="button" class="active" data-view="side">Right view + plane</button><button type="button" data-view="front">Front reference</button></div>
 
       <div class="slider-zone">
         <div class="slider-header"><label for="sectionDepth">Move cutting plane A&ndash;A</label><output id="sectionDepthMirror">50%</output></div>

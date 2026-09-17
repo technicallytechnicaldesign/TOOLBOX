@@ -51,6 +51,24 @@
         {pct:50,label:'Mid-slope',description:'The plane is at the midpoint of the slope.',tick:true},
         {pct:75,label:'Rear quarter',description:'The profile approaches the rear height.'}
       );
+    } else if(part.family === 'pocket'){
+      events.push(
+        {pct:part.p.pocketStart / part.d * 100,label:'Pocket begins',description:'The cut leaves the solid front wall and enters the cavity.',tick:true},
+        {pct:part.p.pocketEnd / part.d * 100,label:'Pocket ends',description:'The cut leaves the cavity and enters the solid rear wall.',tick:true}
+      );
+    } else if(part.family === 'ribbed'){
+      events.push(
+        {pct:25,label:'Tall rib',description:'The central web is still near its full height.'},
+        {pct:50,label:'Mid taper',description:'The central web has reduced in height.',tick:true},
+        {pct:part.p.ribEnd / part.d * 100,label:'Rib ends',description:'The tapered web meets the base plate.',tick:true}
+      );
+    } else if(part.family === 'clevis'){
+      events.push({pct:part.p.lugDepth / part.d * 100,label:'Lug shoulder',description:'Both lugs and pin bores end here.',tick:true});
+    } else if(part.family === 'pedestal'){
+      events.push(
+        {pct:part.p.crownStart / part.d * 100,label:'Bridge begins',description:'The cut enters the bearing crown and bore.',tick:true},
+        {pct:part.p.crownEnd / part.d * 100,label:'Bridge ends',description:'The cut leaves the bearing crown and bore.',tick:true}
+      );
     } else {
       events.push({pct:50,label:'Mid-depth',description:'The section topology remains constant.'});
     }
@@ -123,6 +141,30 @@
       if(Math.abs(pct - boundary) < 1.5) return {title:'A–A crosses the blind-bore bottom',copy:'The circular void ends here. The section changes from an opening to cut material.'};
       if(pct < boundary) return {title:'Blind bore is open at A–A',copy:'The cut lies before the bore bottom at ' + mm(part.p.boreDepth,unit) + ', so the circular void appears.'};
       return {title:'A–A lies behind the bore bottom',copy:'A–A is past the bore bottom. The section is solid.'};
+    }
+    if(part.family === 'pocket'){
+      const first=part.p.pocketStart/part.d*100,last=part.p.pocketEnd/part.d*100;
+      if(Math.abs(pct-first)<1.5||Math.abs(pct-last)<1.5)return {title:'A–A crosses a pocket wall',copy:'The section changes between a solid wall and the open U-profile here.'};
+      if(pct>first&&pct<last)return {title:'Deep pocket is open',copy:'A–A cuts the floor and both side rails while the centre remains open to the top.'};
+      return {title:'Solid end wall is cut',copy:'A–A lies outside the cavity span, so the section is solid.'};
+    }
+    if(part.family === 'ribbed'){
+      const end=part.p.ribEnd/part.d*100;
+      if(pct>=end)return {title:'Only the base plate remains',copy:'A–A lies behind the tapered rib termination.'};
+      const height=part.p.baseH+(part.h-part.p.baseH)*(1-depth/part.p.ribEnd);
+      return {title:'Central rib changes continuously',copy:'The web tapers toward the rear. Current section height: '+mm(height,unit)+'.'};
+    }
+    if(part.family === 'clevis'){
+      const boundary=part.p.lugDepth/part.d*100;
+      if(Math.abs(pct-boundary)<1.5)return {title:'A–A at the lug shoulder',copy:'The twin raised lugs and their pin bores terminate here.'};
+      if(pct<boundary)return {title:'Twin lugs and pin bores are cut',copy:'A–A crosses two separate raised ears above the continuous base.'};
+      return {title:'Only the clevis base remains',copy:'A–A lies behind both lugs and both pin bores.'};
+    }
+    if(part.family === 'pedestal'){
+      const first=part.p.crownStart/part.d*100,last=part.p.crownEnd/part.d*100;
+      if(Math.abs(pct-first)<1.5||Math.abs(pct-last)<1.5)return {title:'A–A at a bridge shoulder',copy:'The bearing crown and axial bore start or end at this boundary.'};
+      if(pct>first&&pct<last)return {title:'Bearing bridge and bore are cut',copy:'A–A crosses the raised crown and its limited-length axial bore.'};
+      return {title:'A–A is inside a relief',copy:'Only the full-depth base plate remains at this location.'};
     }
     return stable;
   }

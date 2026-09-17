@@ -20,8 +20,9 @@
   function mm(v){const n=v*unit();return Math.abs(n-Math.round(n))<.01?String(Math.round(n)):n.toFixed(1)}
   function deg(v){return `${Math.round(v)}°`}
 
-  const familyNames={bored:'Chamfered bore block',counterbore:'Rounded counterbore block',wedge:'Sloped wedge mount',countersink:'Countersunk wedge mount',fork:'Fork bracket',bearing:'Stepped bearing block',blind:'Blind-bore machine block',vertical:'Vertical-hole mounting block',flange:'Twin-bore obround flange',pipe:'Straight hollow pipe',pipeflange:'Front-flanged pipe',crossdrill:'Cross-drilled manifold block',ibeam:'I-section beam',channel:'Channel section',stepped:'Three-level stepped block'};
-  const familyIds=Object.keys(familyNames);
+  const familyNames={bored:'Chamfered bore block',counterbore:'Rounded counterbore block',wedge:'Sloped wedge mount',countersink:'Countersunk wedge mount',fork:'Fork bracket',bearing:'Stepped bearing block',blind:'Blind-bore machine block',vertical:'Vertical-hole mounting block',flange:'Twin-bore obround flange',pipe:'Straight hollow pipe',pipeflange:'Front-flanged pipe',crossdrill:'Cross-drilled manifold block',ibeam:'I-section beam',channel:'Channel section',stepped:'Three-level stepped block',pocket:'Deep-pocket mounting block',ribbed:'Tapered-rib support',clevis:'Twin-lug clevis base',pedestal:'Bridge bearing pedestal'};
+  const familyIds=['counterbore','wedge','countersink','bearing','blind','vertical','crossdrill','pipeflange','stepped','pocket','ribbed','clevis','pedestal','pipe','ibeam'];
+  const randomFamilyIds=familyIds.filter(id=>id!=='pipe'&&id!=='ibeam');
   const difficultyBase={easy:{w:5,d:3.25,h:4.25},medium:{w:6.5,d:4.25,h:5.25},hard:{w:8,d:5.25,h:6.25}};
 
   function createPart(family,difficulty,rng){
@@ -91,6 +92,22 @@
       const hMid=roundStep(h*range(rng,.68,.78)); const hRear=Math.min(hMid-.5,roundStep(h*range(rng,.42,.56))); const s1=roundStep(d*range(rng,.25,.35)); const s2=Math.max(s1+.75,roundStep(d*range(rng,.65,.75)));
       return {family,w,d,h,p:{hFront:h,hMid,hRear,s1,s2},features:['three thickness levels','two shoulders','full-width steps'],risk:'The visible front height does not continue through the whole depth.',build:'Lay out the two shoulder positions, then assign front, middle, and rear heights.',read:'Use the side profile to choose the correct section height.',section:'A–A drops at each shoulder as it moves rearward.'};
     }
+    if(family==='pocket'){
+      const wall=roundStep(Math.min(w,h)*range(rng,.12,.17)); const floorH=roundStep(h*range(rng,.22,.30)); const pocketStart=roundStep(d*range(rng,.16,.23)); const pocketEnd=roundStep(d*range(rng,.72,.82)); const pocketLeft=wall; const pocketRight=w-wall;
+      return {family,w,d,h,p:{wall,floorH,pocketStart,pocketEnd,pocketLeft,pocketRight},features:['open-top deep pocket','front and rear walls','full-depth side rails'],risk:'The pocket is absent at both end walls and open only through the middle depth.',build:'Keep the floor and side rails continuous, then close the cavity with front and rear walls.',read:'The right-side profile locates both pocket walls before the section is read.',section:'A–A changes from solid wall to a deep U-profile, then back to solid wall.'};
+    }
+    if(family==='ribbed'){
+      const baseH=roundStep(h*range(rng,.20,.28)); const ribW=roundStep(w*range(rng,.16,.23)); const ribEnd=roundStep(d*range(rng,.72,.86));
+      return {family,w,d,h,p:{baseH,ribW,ribEnd},features:['full-depth base plate','tapered central rib','continuously changing section'],risk:'The central rib loses height continuously toward the rear.',build:'Extrude the base, then add a central triangular web that fades into it.',read:'The side profile controls the current rib height.',section:'A–A shows a central web that shrinks continuously until only the base remains.'};
+    }
+    if(family==='clevis'){
+      const baseH=roundStep(h*range(rng,.25,.33)); const lugW=roundStep(w*range(rng,.20,.25)); const lugR=lugW/2; const lugDepth=roundStep(d*range(rng,.48,.62)); const boreR=roundStep(lugR*range(rng,.34,.44)); const leftX=roundStep(w*.12); const rightX=w-leftX-lugW; const cz=baseH;
+      return {family,w,d,h:roundStep(baseH+lugR),p:{baseH,lugW,lugR,lugDepth,boreR,leftX,rightX,cz},features:['two raised lugs','open centre gap','limited-depth pin bores'],risk:'The paired lugs and pin bores stop before the rear half of the base.',build:'Extrude the base through, then add two short round-headed lugs and drill them together.',read:'The lug shoulder in the right view marks the section jump.',section:'A–A changes from a twin-lug profile with two bores to the base plate alone.'};
+    }
+    if(family==='pedestal'){
+      const baseH=roundStep(h*range(rng,.22,.30)); const crownR=roundStep(Math.min(w*.30,h-baseH)); const crownStart=roundStep(d*range(rng,.18,.27)); const crownEnd=roundStep(d*range(rng,.70,.82)); const boreR=roundStep(crownR*range(rng,.34,.43)); h=roundStep(baseH+crownR); const cx=w/2,cz=baseH;
+      return {family,w,d,h,p:{baseH,crownR,crownStart,crownEnd,boreR,cx,cz},features:['central bearing bridge','front and rear reliefs','limited-length axial bore'],risk:'The crown and bore exist only in the middle span, not at either face.',build:'Run the base through, bridge the middle with a round crown, then bore only that bridge.',read:'Two shoulders in the right view bound the bearing bridge.',section:'A–A enters the crown and bore after the front relief, then leaves both before the rear face.'};
+    }
     if(family==='flange'){
       const rOuter=roundStep(Math.min(h/2,w*.22)); h=roundStep(rOuter*2); const holeR=roundStep(rOuter*range(rng,.23,.31)); const inset=roundStep(w*range(rng,.27,.32));
       return {family,w,d,h,p:{rOuter,holeR,x1:inset,x2:w-inset,cz:h/2},features:['obround outer form','two through bores','double symmetry'],risk:'Two equal circles can hide the obround proportion.',build:'Draw front and rear obround faces, add two bore circles, then join them with depth lines.',read:'Establish both symmetry axes before placing the holes.',section:'A–A repeats the two open bores and obround outline.'};
@@ -107,6 +124,7 @@
   function disk(cx,cz,r){return{kind:'disk',cx,cz,r}}
   function iProfile(w,h,flangeT,webT){const x1=(w-webT)/2,x2=(w+webT)/2;return polygon([[0,0],[w,0],[w,flangeT],[x2,flangeT],[x2,h-flangeT],[w,h-flangeT],[w,h],[0,h],[0,h-flangeT],[x1,h-flangeT],[x1,flangeT],[0,flangeT]])}
   function channelProfile(w,h,flangeT,webT){return polygon([[0,0],[w,0],[w,flangeT],[webT,flangeT],[webT,h-flangeT],[w,h-flangeT],[w,h],[0,h]])}
+  function translateShape(shape,dx=0,dz=0){return polygon(shapePoints(shape).map(([x,z])=>[x+dx,z+dz]))}
   function shapePoints(s,segments=30){
     if(s.kind==='rect')return[[0,0],[s.w,0],[s.w,s.h],[0,s.h]];
     if(s.kind==='chamfer'){const{w,h,c}=s;return[[c,0],[w-c,0],[w,c],[w,h-c],[w-c,h],[c,h],[0,h-c],[0,c]]}
@@ -145,6 +163,9 @@
   function verticalSideLines(p){const q=p.p;return[line(q.cy-q.holeR,0,q.cy-q.holeR,p.h,'hidden'),line(q.cy+q.holeR,0,q.cy+q.holeR,p.h,'hidden'),line(q.cy,-.2,q.cy,p.h+.2,'center')]}
   function verticalSlots(p,y){const q=p.p,dy=y-q.cy;if(Math.abs(dy)>=q.holeR)return[];const half=Math.sqrt(q.holeR*q.holeR-dy*dy);return half>.015?[slot(q.x1-half,0,q.x1+half,p.h),slot(q.x2-half,0,q.x2+half,p.h)]:[]}
   function axialOpeningRadius(p,y){const q=p.p;if(p.family==='counterbore')return y<=q.cbDepth?q.cbR:q.r;if(p.family==='countersink')return y<=q.sinkDepth?q.sinkR-(q.sinkR-q.r)*(y/q.sinkDepth):q.r;return q.r}
+  function pocketProfile(p){const q=p.p;return polygon([[0,0],[p.w,0],[p.w,p.h],[q.pocketRight,p.h],[q.pocketRight,q.floorH],[q.pocketLeft,q.floorH],[q.pocketLeft,p.h],[0,p.h]])}
+  function ribHeightAt(p,y){const q=p.p;return y>=q.ribEnd?q.baseH:q.baseH+(p.h-q.baseH)*(1-y/q.ribEnd)}
+  function clevisLugs(p){const q=p.p;return[q.leftX,q.rightX].map(x=>translateShape(roundTop(q.lugW,q.baseH,q.lugR,q.lugW/2),x,0))}
 
   function frontSpec(p){const q=p.p;
     if(p.family==='bored')return makeSpec(p.w,p.h,chamferRect(p.w,p.h,q.c),[circle(q.cx,q.cz,q.r,'visible',`Ø${mm(q.r*2)}`)],[],[note(`Ø${mm(q.r*2)}`,q.cx+q.r*.7,q.cz+q.r*.7,p.w*.82,p.h*.86),note(`C${mm(q.c)}`,q.c,p.h-q.c,p.w*.12,p.h*.92)]);
@@ -162,6 +183,10 @@
     if(p.family==='channel')return makeSpec(p.w,p.h,channelProfile(p.w,p.h,q.flangeT,q.webT));
     if(p.family==='stepped')return makeSpec(p.w,p.h,rect(p.w,p.h),[],[line(0,q.hMid,p.w,q.hMid,'hidden'),line(0,q.hRear,p.w,q.hRear,'hidden')]);
     if(p.family==='flange')return makeSpec(p.w,p.h,capsule(p.w,p.h),[circle(q.x1,q.cz,q.holeR,'visible'),circle(q.x2,q.cz,q.holeR,'visible')],[line(p.w/2,-.2,p.w/2,p.h+.2,'center'),line(-.2,q.cz,p.w+.2,q.cz,'center')],[note(`2× Ø${mm(q.holeR*2)}`,q.x2+q.holeR*.7,q.cz+q.holeR*.7,p.w*.79,p.h*.87)]);
+    if(p.family==='pocket')return makeSpec(p.w,p.h,rect(p.w,p.h),[],[line(q.pocketLeft,q.floorH,q.pocketLeft,p.h,'hidden'),line(q.pocketRight,q.floorH,q.pocketRight,p.h,'hidden'),line(q.pocketLeft,q.floorH,q.pocketRight,q.floorH,'hidden')]);
+    if(p.family==='ribbed')return makeSpec(p.w,p.h,[rect(p.w,q.baseH),translateShape(rect(q.ribW,p.h-q.baseH),(p.w-q.ribW)/2,q.baseH)]);
+    if(p.family==='clevis')return makeSpec(p.w,p.h,[rect(p.w,q.baseH),...clevisLugs(p)],[circle(q.leftX+q.lugW/2,q.cz,q.boreR),circle(q.rightX+q.lugW/2,q.cz,q.boreR)]);
+    if(p.family==='pedestal')return makeSpec(p.w,p.h,rect(p.w,q.baseH),[circle(q.cx,q.cz,q.boreR,'hidden')],[line(q.cx-q.crownR,q.baseH,q.cx-q.crownR,p.h,'hidden'),line(q.cx+q.crownR,q.baseH,q.cx+q.crownR,p.h,'hidden'),line(q.cx,-.2,q.cx,p.h+.2,'center')]);
     throw new Error(`No front view for ${p.family}`);
   }
   function backSpec(p){const q=p.p;
@@ -174,6 +199,8 @@
     if(p.family==='pipeflange')return makeSpec(p.w,p.h,[disk(q.cx,q.cz,q.flangeR),disk(q.cx,q.cz,q.pipeR)],[circle(q.cx,q.cz,q.boreR),...flangeBoltCircles(q)],[line(q.cx,-.2,q.cx,p.h+.2,'center'),line(-.2,q.cz,p.w+.2,q.cz,'center')]);
     if(p.family==='crossdrill')return makeSpec(p.w,p.h,roundedRect(p.w,p.h,q.cornerR),[circle(p.w-q.cx,q.cz,q.r)],verticalFrontLines(p));
     if(p.family==='stepped')return makeSpec(p.w,q.hRear,rect(p.w,q.hRear));
+    if(p.family==='pocket')return makeSpec(p.w,p.h,rect(p.w,p.h),[],[line(q.pocketLeft,q.floorH,q.pocketLeft,p.h,'hidden'),line(q.pocketRight,q.floorH,q.pocketRight,p.h,'hidden'),line(q.pocketLeft,q.floorH,q.pocketRight,q.floorH,'hidden')]);
+    if(p.family==='ribbed'||p.family==='clevis'||p.family==='pedestal')return makeSpec(p.w,p.h,rect(p.w,q.baseH));
     const s=frontSpec(p);return{...s,outer:s.outer.map(o=>mirrorShape(o,p.w)),cutouts:s.cutouts.map(c=>c.kind==='circle'?{...c,cx:p.w-c.cx}:c),notes:[]};
   }
   function sideSpec(p){const q=p.p;let outer=rect(p.d,p.h),cuts=[],lines=[],notes=[];
@@ -194,6 +221,10 @@
     else if(p.family==='stepped'){outer=polygon([[0,0],[p.d,0],[p.d,q.hRear],[q.s2,q.hRear],[q.s2,q.hMid],[q.s1,q.hMid],[q.s1,q.hFront],[0,q.hFront]]);}
     else if(p.family==='flange'){boreLines(q.cz,q.holeR);}
     else if(p.family==='bored')boreLines(q.cz,q.r);
+    else if(p.family==='pocket'){outer=polygon([[0,0],[p.d,0],[p.d,p.h],[q.pocketEnd,p.h],[q.pocketEnd,q.floorH],[q.pocketStart,q.floorH],[q.pocketStart,p.h],[0,p.h]]);}
+    else if(p.family==='ribbed'){outer=polygon([[0,0],[p.d,0],[p.d,q.baseH],[q.ribEnd,q.baseH],[0,p.h]]);}
+    else if(p.family==='clevis'){outer=polygon([[0,0],[p.d,0],[p.d,q.baseH],[q.lugDepth,q.baseH],[q.lugDepth,p.h],[0,p.h]]);boreLines(q.cz,q.boreR,q.lugDepth,true);}
+    else if(p.family==='pedestal'){outer=polygon([[0,0],[p.d,0],[p.d,q.baseH],[q.crownEnd,q.baseH],[q.crownEnd,p.h],[q.crownStart,p.h],[q.crownStart,q.baseH],[0,q.baseH]]);lines.push(line(q.crownStart,q.cz-q.boreR,q.crownEnd,q.cz-q.boreR,'hidden'),line(q.crownStart,q.cz+q.boreR,q.crownEnd,q.cz+q.boreR,'hidden'),line(q.crownStart,q.cz,q.crownEnd,q.cz,'center'),line(q.crownStart,q.cz-q.boreR,q.crownStart,q.cz+q.boreR,'hidden'),line(q.crownEnd,q.cz-q.boreR,q.crownEnd,q.cz+q.boreR,'hidden'));}
     else throw new Error(`No side view for ${p.family}`);
     return makeSpec(p.d,p.h,outer,cuts,lines,notes);
   }
@@ -207,6 +238,10 @@
     if(p.family==='pipeflange'){if(y<=q.flangeT)return frontSpec(p);return setDimBounds(makeSpec(p.w,p.h,disk(q.cx,q.cz,q.pipeR),[circle(q.cx,q.cz,q.boreR)]),q.cx-q.pipeR,q.cx+q.pipeR,q.cz-q.pipeR,q.cz+q.pipeR);}
     if(p.family==='crossdrill')return makeSpec(p.w,p.h,roundedRect(p.w,p.h,q.cornerR),[circle(q.cx,q.cz,q.r),...verticalSlots(p,y)]);
     if(p.family==='stepped'){const hh=y<=q.s1?q.hFront:y<=q.s2?q.hMid:q.hRear;return setDimBounds(makeSpec(p.w,p.h,rect(p.w,hh)),0,p.w,0,hh);}
+    if(p.family==='pocket')return makeSpec(p.w,p.h,y>=q.pocketStart&&y<=q.pocketEnd?pocketProfile(p):rect(p.w,p.h));
+    if(p.family==='ribbed'){const hh=ribHeightAt(p,y),outer=[rect(p.w,q.baseH)];if(hh>q.baseH+.01)outer.push(translateShape(rect(q.ribW,hh-q.baseH),(p.w-q.ribW)/2,q.baseH));return makeSpec(p.w,p.h,outer);}
+    if(p.family==='clevis')return y<=q.lugDepth?makeSpec(p.w,p.h,[rect(p.w,q.baseH),...clevisLugs(p)],[circle(q.leftX+q.lugW/2,q.cz,q.boreR),circle(q.rightX+q.lugW/2,q.cz,q.boreR)]):makeSpec(p.w,p.h,rect(p.w,q.baseH));
+    if(p.family==='pedestal')return y>=q.crownStart&&y<=q.crownEnd?makeSpec(p.w,p.h,roundTop(p.w,q.baseH,q.crownR,q.cx),[circle(q.cx,q.cz,q.boreR)]):makeSpec(p.w,p.h,rect(p.w,q.baseH));
     return frontSpec(p);
   }
   function viewSpec(p,type){const y=p.d*state.sectionPct/100;if(type==='front')return frontSpec(p);if(type==='back')return backSpec(p);if(type==='side')return sideSpec(p);return sectionSpec(p,y)}
@@ -247,6 +282,7 @@
   function extrudeIso(svg,p,shape,y0,y1,opacity=.16){const pts=shapePoints(shape,34),front=pts.map(([x,z])=>isoPoint(p,x,y0,z)),back=pts.map(([x,z])=>isoPoint(p,x,y1,z));isoPoly(svg,back,'var(--accent)',opacity*.55);for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length,facet=shape.kind==='disk'?opacity*.78:opacity*(.62+(i%3)*.18);isoPoly(svg,[front[i],front[j],back[j],back[i]],'var(--accent)',facet);}isoPoly(svg,front,'var(--accent)',opacity*1.35);}
   function loftIso(svg,p,frontShape,backShape){const a=shapePoints(frontShape,4),b=shapePoints(backShape,4),fa=a.map(([x,z])=>isoPoint(p,x,0,z)),bb=b.map(([x,z])=>isoPoint(p,x,p.d,z));isoPoly(svg,bb,'var(--accent)',.08);for(let i=0;i<a.length;i++){const j=(i+1)%a.length;isoPoly(svg,[fa[i],fa[j],bb[j],bb[i]],'var(--accent)',.13+(i%2)*.05)}isoPoly(svg,fa,'var(--accent)',.22)}
   function steppedIso(svg,p){const q=p.p,P=(x,y,z)=>isoPoint(p,x,y,z),fill='var(--accent)';const side=x=>[[x,0,0],[x,p.d,0],[x,p.d,q.hRear],[x,q.s2,q.hRear],[x,q.s2,q.hMid],[x,q.s1,q.hMid],[x,q.s1,q.hFront],[x,0,q.hFront]].map(v=>P(...v));isoPoly(svg,[P(0,p.d,0),P(p.w,p.d,0),P(p.w,p.d,q.hRear),P(0,p.d,q.hRear)],fill,.08);isoPoly(svg,side(0),fill,.11);isoPoly(svg,side(p.w),fill,.15);isoPoly(svg,[P(0,0,0),P(p.w,0,0),P(p.w,p.d,0),P(0,p.d,0)],fill,.09);[[0,q.s1,q.hFront],[q.s1,q.s2,q.hMid],[q.s2,p.d,q.hRear]].forEach(([a,b,z])=>isoPoly(svg,[P(0,a,z),P(p.w,a,z),P(p.w,b,z),P(0,b,z)],fill,.18));isoPoly(svg,[P(0,q.s1,q.hMid),P(p.w,q.s1,q.hMid),P(p.w,q.s1,q.hFront),P(0,q.s1,q.hFront)],fill,.2);isoPoly(svg,[P(0,q.s2,q.hRear),P(p.w,q.s2,q.hRear),P(p.w,q.s2,q.hMid),P(0,q.s2,q.hMid)],fill,.18);isoPoly(svg,[P(0,0,0),P(p.w,0,0),P(p.w,0,q.hFront),P(0,0,q.hFront)],fill,.22);}
+  function ribbedIso(svg,p){const q=p.p,P=(x,y,z)=>isoPoint(p,x,y,z),x1=(p.w-q.ribW)/2,x2=x1+q.ribW,fill='var(--accent)';extrudeIso(svg,p,rect(p.w,q.baseH),0,p.d,.13);isoPoly(svg,[P(x1,0,q.baseH),P(x1,0,p.h),P(x1,q.ribEnd,q.baseH)],fill,.18);isoPoly(svg,[P(x2,0,q.baseH),P(x2,q.ribEnd,q.baseH),P(x2,0,p.h)],fill,.22);isoPoly(svg,[P(x1,0,p.h),P(x2,0,p.h),P(x2,q.ribEnd,q.baseH),P(x1,q.ribEnd,q.baseH)],fill,.17);}
   function isoCircle(svg,p,cx,y,cz,r,hidden=false,fillOpacity=hidden?0:.9,fill='var(--paper)'){const pts=[];for(let i=0;i<40;i++){const a=Math.PI*2*i/40;pts.push(isoPoint(p,cx+r*Math.cos(a),y,cz+r*Math.sin(a)))}const el=make('polygon',{points:pts.map(v=>v.join(',')).join(' '),fill,'fill-opacity':fillOpacity,stroke:'currentColor','stroke-width':1.25,'stroke-opacity':hidden?.52:1,'stroke-dasharray':hidden?'5 4':'none'});svg.appendChild(el)}
   function isoTopCirclePoints(p,cx,cy,z,r){const pts=[];for(let i=0;i<40;i++){const a=Math.PI*2*i/40;pts.push(isoPoint(p,cx+r*Math.cos(a),cy+r*Math.sin(a),z))}return pts}
   function isoTopCircle(svg,p,cx,cy,z,r,hidden=false,fillOpacity=hidden?0:.9,fill='var(--paper)'){const pts=isoTopCirclePoints(p,cx,cy,z,r),el=make('polygon',{points:pts.map(v=>v.join(',')).join(' '),fill,'fill-opacity':fillOpacity,stroke:'currentColor','stroke-width':1.25,'stroke-opacity':hidden?.52:1,'stroke-dasharray':hidden?'5 4':'none'});svg.appendChild(el);return pts}
@@ -267,6 +303,10 @@
     else if(p.family==='pipeflange'){extrudeIso(svg,p,disk(q.cx,q.cz,q.pipeR),q.flangeT,p.d,.13);extrudeIso(svg,p,disk(q.cx,q.cz,q.flangeR),0,q.flangeT,.18);}
     else if(p.family==='stepped')steppedIso(svg,p);
     else if(p.family==='bearing'){extrudeIso(svg,p,rect(p.w,q.baseH),0,p.d,.13);extrudeIso(svg,p,roundTop(p.w,q.baseH,q.bossR,q.cx),0,q.bossDepth,.18);}
+    else if(p.family==='pocket'){extrudeIso(svg,p,rect(p.w,q.floorH),0,p.d,.12);extrudeIso(svg,p,rect(q.wall,p.h),0,p.d,.17);extrudeIso(svg,p,translateShape(rect(q.wall,p.h),p.w-q.wall,0),0,p.d,.17);extrudeIso(svg,p,translateShape(rect(p.w-q.wall*2,p.h-q.floorH),q.wall,q.floorH),0,q.pocketStart,.18);extrudeIso(svg,p,translateShape(rect(p.w-q.wall*2,p.h-q.floorH),q.wall,q.floorH),q.pocketEnd,p.d,.14);}
+    else if(p.family==='ribbed')ribbedIso(svg,p);
+    else if(p.family==='clevis'){extrudeIso(svg,p,rect(p.w,q.baseH),0,p.d,.13);clevisLugs(p).forEach(lug=>extrudeIso(svg,p,lug,0,q.lugDepth,.18));}
+    else if(p.family==='pedestal'){extrudeIso(svg,p,rect(p.w,q.baseH),0,p.d,.13);extrudeIso(svg,p,roundTop(p.w,q.baseH,q.crownR,q.cx),q.crownStart,q.crownEnd,.18);}
     else {extrudeIso(svg,p,frontSpec(p).outer[0],0,p.d,.16);}
     const throughBores=isoThroughBores(p);throughBores.forEach(bore=>isoThroughBore(svg,p,bore.cx,bore.cz,bore.r));
     if(p.family==='counterbore')isoCounterbore(svg,p,q.cx,q.cz,q.r,q.cbR,q.cbDepth);
@@ -274,13 +314,15 @@
     const limitedBores=isoLimitedBores(p);limitedBores.forEach(bore=>isoLimitedBore(svg,p,bore.cx,bore.cz,bore.r,bore.yEnd));
     if(p.family==='pipeflange')q.bolts.forEach(b=>isoThroughBore(svg,p,b.cx,b.cz,q.boltR,0,q.flangeT));
     if(p.family==='vertical'||p.family==='crossdrill')[q.x1,q.x2].forEach(cx=>isoVerticalBore(svg,p,cx,q.cy,q.holeR));
+    if(p.family==='clevis')[q.leftX+q.lugW/2,q.rightX+q.lugW/2].forEach(cx=>isoThroughBore(svg,p,cx,q.cz,q.boreR,0,q.lugDepth));
+    if(p.family==='pedestal')isoThroughBore(svg,p,q.cx,q.cz,q.boreR,q.crownStart,q.crownEnd);
     const yCut=p.d*state.sectionPct/100;
     const planeSpec=sectionSpec(p,yCut);planeSpec.outer.forEach(shape=>isoSectionPlane(svg,p,yCut,shape));planeSpec.cutouts.forEach(cutout=>isoPlaneCutout(svg,p,yCut,cutout));
     text(svg,22,28,'CUTTING PLANE',{'font-size':11,'font-weight':'700'});
     text(svg,22,45,`A–A @ ${mm(yCut)} mm FROM FRONT`,{'font-size':9,'font-weight':'700',fill:'var(--section-plane,#c6632f)'});
   }
 
-  function generate(){const difficulty=$('#difficulty').value;let family=$('#family').value;const seed=Math.floor(Math.random()*999999999),rng=seeded(seed);if(family==='random')family=pick(rng,familyIds);state.seed=seed;state.part=createPart(family,difficulty,rng);state.sectionPct=50;if(family==='counterbore')state.sectionPct=Math.round((state.part.p.cbDepth/state.part.d)*100*.6);if(family==='countersink')state.sectionPct=Math.round((state.part.p.sinkDepth/state.part.d)*100*.55);if(family==='bearing')state.sectionPct=Math.round((state.part.p.bossDepth/state.part.d)*100*.82);if(family==='blind')state.sectionPct=Math.round((state.part.p.boreDepth/state.part.d)*100*.82);if(family==='vertical'||family==='crossdrill')state.sectionPct=Math.round((state.part.p.cy/state.part.d)*100);if(family==='pipeflange')state.sectionPct=Math.round((state.part.p.flangeT/state.part.d)*100*.65);$('#sectionDepth').value=state.sectionPct;const id='SL-'+String(seed%10000).padStart(4,'0');
+  function generate(){const difficulty=$('#difficulty').value;let family=$('#family').value;const seed=Math.floor(Math.random()*999999999),rng=seeded(seed);if(family==='random')family=pick(rng,randomFamilyIds);state.seed=seed;state.part=createPart(family,difficulty,rng);state.sectionPct=50;if(family==='counterbore')state.sectionPct=Math.round((state.part.p.cbDepth/state.part.d)*100*.6);if(family==='countersink')state.sectionPct=Math.round((state.part.p.sinkDepth/state.part.d)*100*.55);if(family==='bearing')state.sectionPct=Math.round((state.part.p.bossDepth/state.part.d)*100*.82);if(family==='blind')state.sectionPct=Math.round((state.part.p.boreDepth/state.part.d)*100*.82);if(family==='vertical'||family==='crossdrill')state.sectionPct=Math.round((state.part.p.cy/state.part.d)*100);if(family==='pipeflange')state.sectionPct=Math.round((state.part.p.flangeT/state.part.d)*100*.65);if(family==='pocket')state.sectionPct=Math.round(((state.part.p.pocketStart+state.part.p.pocketEnd)/2/state.part.d)*100);if(family==='ribbed')state.sectionPct=Math.round((state.part.p.ribEnd/state.part.d)*48);if(family==='clevis')state.sectionPct=Math.round((state.part.p.lugDepth/state.part.d)*82);if(family==='pedestal')state.sectionPct=Math.round(((state.part.p.crownStart+state.part.p.crownEnd)/2/state.part.d)*100);$('#sectionDepth').value=state.sectionPct;const id='SL-'+String(seed%10000).padStart(4,'0');
     $('#drawingTitle').textContent=`SECTION LAB / ${id}`;$('#tbDrawing').textContent=id;rerender();renderIso();dispatch('sectionlab:generated');}
   function rerender(){if(!state.part)return;['front','side','back','section'].forEach(v=>renderView($('#'+v+'View'),v));}
 

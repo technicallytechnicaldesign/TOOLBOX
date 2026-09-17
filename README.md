@@ -16,12 +16,14 @@ fastener mark so the two read as related-but-distinct.
 - **`calculators/`** — a single-page, tabbed calculator app (beam analysis,
   Warren-truss Ritter analysis, cost estimator, bolted joints, sheet-metal
   bend, 1D cut optimiser). The original five moved here from RENKON.
-- **`section-lab/`** — an interactive section-view lab: slide a cutting plane
+- **`section-lab/`**: an interactive section-view lab. Slide a cutting plane
   A–A through parametric parts and read the generated section, with live iso,
-  ortho references and feature jumps. `core.js` + `lab-controller.js` are the
-  ported engine (unchanged); `index.html` carries the TOOLBOX skin — all
-  drawing colour flows through CSS variables so it themes light/dark with the
-  rest of the site.
+  orthographic references and feature jumps. The view pair follows ISO 5456-2
+  first-angle placement, with the right-side view to the left of the front
+  reference. Random generation draws only from depth-changing parts; a pipe
+  and an I-section remain as the two constant-section teaching references.
+  `core.js` owns geometry and SVG rendering, `lab-controller.js` owns feature
+  events and explanations, and `index.html` carries the TOOLBOX skin.
 - **`checklists/`** — review checklists for technical drawings, each a live
   sign-off sheet: process toggles (sheet metal / welding / machining / casting…)
   that hide and stop counting irrelevant items, tri-state items, a progress

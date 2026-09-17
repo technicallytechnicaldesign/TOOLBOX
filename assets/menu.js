@@ -55,10 +55,10 @@
   // assets/audio/ (not the SIGNAL_STATIONS catalogue). Add future TTD songs
   // here; the shuffle bag guarantees every track airs once per cycle.
   var RADIO_TRACKS = [
-    { id: "creo-rage-remove-section", title: "CREO // Rage (Remove Section)", artist: "TOOLBOX", src: u("assets/audio/creo-rage-remove-section.mp3") },
+    { id: "creo-rage-remove-section", title: "CREO // Rage", artist: "TOOLBOX", src: u("assets/audio/creo-rage-remove-section.mp3") },
     { id: "dependency-jumpscare", title: "Dependency Jumpscare", artist: "TOOLBOX", src: u("assets/audio/dependency-jumpscare.mp3") },
     { id: "engineer-says-no", title: "Engineer Says No", artist: "TOOLBOX", src: u("assets/audio/engineer-says-no.mp3") },
-    { id: "object-modified-harder", title: "Object Modified (Harder)", artist: "TOOLBOX", src: u("assets/audio/object-modified-harder.mp3") },
+    { id: "object-modified-harder", title: "Object Modified", artist: "TOOLBOX", src: u("assets/audio/object-modified-harder.mp3") },
     { id: "select-the-parts", title: "Select The Parts", artist: "TOOLBOX", src: u("assets/audio/select-the-parts.mp3") },
     { id: "the-ancient-config", title: "The Ancient Config", artist: "TOOLBOX", src: u("assets/audio/the-ancient-config.mp3") },
     { id: "the-cursed-table", title: "The Cursed Table", artist: "TOOLBOX", src: u("assets/audio/the-cursed-table.mp3") }
@@ -107,6 +107,7 @@
     + 'text-decoration:none;font-size:12px;letter-spacing:.04em;border-top:1px solid var(--line,#1c2733);'
     + 'transition:background .12s,color .12s,padding-left .12s}'
     + '.rk-item:first-child{border-top:none}'
+    + '.rk-skip-item + .rk-item{border-top:none}'
     + '.rk-item .ic{width:18px;height:18px;color:var(--muted,#7a7f83);flex:none;transition:color .12s}'
     + '.rk-item .ic svg{width:18px;height:18px;display:block}'
     + '.rk-item .lbl{flex:1}'
@@ -116,6 +117,8 @@
     + '.rk-item:hover .ic,.rk-item:focus-visible .ic{color:var(--c-accent,#E8792E)}'
     + '.rk-item.current{color:var(--c-accent,#E8792E)}'
     + '.rk-item.current .ic{color:var(--c-accent,#E8792E)}'
+    + 'button.rk-item{width:100%;border:none;background:transparent;font:inherit;text-align:left;cursor:pointer}'
+    + '.rk-item.rk-skip-item .ic{color:var(--c-fluid,#4FD1D9)}'
     + '.rk-item .dot{width:6px;height:6px;border-radius:50%;background:var(--c-accent,#E8792E);flex:none;'
     + 'box-shadow:0 0 8px var(--c-accent,#E8792E)}'
     + '.rk-hint{padding:9px 14px;border-top:1px solid var(--line,#1c2733);color:var(--muted,#7a7f83);'
@@ -157,17 +160,9 @@
   radioNow.setAttribute("aria-live", "polite");
   radioNow.textContent = "SIGNAL//LOSS · radio off";
 
-  var skipButton = document.createElement("button");
-  skipButton.className = "rk-btn rk-skip";
-  skipButton.type = "button";
-  skipButton.title = "Skip track (S)";
-  skipButton.setAttribute("aria-label", "Skip to next track");
-  skipButton.innerHTML = I.skip;
-
   var radioWrap = document.createElement("div");
   radioWrap.className = "rk-radio-wrap";
   radioWrap.appendChild(radioButton);
-  radioWrap.appendChild(skipButton);
   radioWrap.appendChild(radioNow);
 
   var toggle = document.createElement("button");
@@ -182,6 +177,16 @@
   var pop = document.createElement("div");
   pop.className = "rk-pop";
   pop.setAttribute("role", "menu");
+
+  var skipItem = document.createElement("button");
+  skipItem.type = "button";
+  skipItem.className = "rk-item rk-skip-item";
+  skipItem.setAttribute("role", "menuitem");
+  skipItem.style.display = "none";
+  skipItem.innerHTML =
+    '<span class="ic" aria-hidden="true">' + I.skip + "</span>" +
+    '<span class="lbl">Skip track (S)</span>';
+  pop.appendChild(skipItem);
 
   LINKS.forEach(function (l) {
     var a = document.createElement("a");
@@ -258,11 +263,58 @@
     if (!sticky) statusTimer = setTimeout(function () { radioNow.classList.remove("show"); }, 4200);
   }
 
+  // Static multi-page site, no shared runtime across navigations — audio
+  // can't literally keep playing while a new page loads. Instead, save
+  // {track, position} continuously and on unload, then resume from there
+  // the moment the next page's copy of this script boots, so a page change
+  // reads as a brief blip rather than the radio going off.
+  var RADIO_STATE_KEY = "rk-radio-state";
+  function saveRadioState() {
+    try {
+      if (radioOn && radioTrack) {
+        sessionStorage.setItem(RADIO_STATE_KEY, JSON.stringify({ id: radioTrack.id, time: radioAudio.currentTime || 0 }));
+      } else {
+        sessionStorage.removeItem(RADIO_STATE_KEY);
+      }
+    } catch (e) {}
+  }
+  function restoreRadioState() {
+    var raw, state;
+    try { raw = sessionStorage.getItem(RADIO_STATE_KEY); } catch (e) { return; }
+    if (!raw) return;
+    try { state = JSON.parse(raw); } catch (e) { return; }
+    var track = null;
+    for (var i = 0; i < RADIO_TRACKS.length; i++) { if (RADIO_TRACKS[i].id === state.id) { track = RADIO_TRACKS[i]; break; } }
+    if (!track) return;
+    radioTrack = track;
+    radioAudio.src = track.src;
+    radioAudio.load();
+    radioButton.title = track.title + ": " + track.artist + " · click to pause";
+    radioStatus('<b>On air</b> · ' + track.title + '<br><span>' + track.artist + '</span>', true);
+    try {
+      if ("mediaSession" in navigator && "MediaMetadata" in window) {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: track.title, artist: track.artist, album: "SIGNAL//LOSS · TOOLBOX" });
+      }
+    } catch (e) {}
+    var resumeTime = state.time || 0;
+    radioAudio.addEventListener("loadedmetadata", function onLoaded() {
+      radioAudio.removeEventListener("loadedmetadata", onLoaded);
+      try { radioAudio.currentTime = resumeTime; } catch (e) {}
+      setRadioOn(true);
+      var playAttempt = radioAudio.play();
+      if (playAttempt && playAttempt.catch) playAttempt.catch(function () {
+        setRadioOn(false);
+        radioStatus('<b>Radio paused</b><br><span>Press the antenna to resume</span>', false);
+      });
+    });
+  }
+
   function setRadioOn(value) {
     radioOn = value;
     radioButton.setAttribute("aria-pressed", value ? "true" : "false");
     radioButton.setAttribute("aria-label", value ? "Turn SIGNAL//LOSS radio off" : "Turn SIGNAL//LOSS radio on");
     radioButton.title = value ? "Radio on · click to pause" : "Turn SIGNAL//LOSS radio on";
+    skipItem.style.display = value ? "flex" : "none";
   }
 
   function pickRadioTrack() {
@@ -283,9 +335,11 @@
   function playRadio() {
     if (!radioTrack || radioAudio.ended) pickRadioTrack();
     setRadioOn(true);
+    saveRadioState();
     var playAttempt = radioAudio.play();
     if (playAttempt && playAttempt.catch) playAttempt.catch(function () {
       setRadioOn(false);
+      saveRadioState();
       radioStatus('<b>Radio paused</b><br><span>Press the antenna to start</span>', false);
     });
   }
@@ -294,6 +348,7 @@
     if (radioOn) {
       radioAudio.pause();
       setRadioOn(false);
+      saveRadioState();
       radioStatus('<b>Radio paused</b>' + (radioTrack ? '<br><span>' + radioTrack.title + '</span>' : ''), false);
     } else {
       playRadio();
@@ -307,13 +362,14 @@
   }
 
   radioButton.addEventListener("click", function (e) { e.stopPropagation(); toggleRadio(); });
-  skipButton.addEventListener("click", function (e) { e.stopPropagation(); skipRadioTrack(); });
+  skipItem.addEventListener("click", function (e) { e.stopPropagation(); skipRadioTrack(); });
   radioAudio.addEventListener("ended", function () { radioTrack = null; if (radioOn) playRadio(); });
   radioAudio.addEventListener("error", function () {
     if (!radioOn) return;
     radioErrors += 1;
     if (radioErrors >= RADIO_TRACKS.length) {
       setRadioOn(false);
+      saveRadioState();
       radioStatus('<b>Signal lost</b><br><span>Tracks could not be loaded</span>', false);
       return;
     }
@@ -321,6 +377,9 @@
     playRadio();
   });
   radioAudio.addEventListener("playing", function () { radioErrors = 0; });
+  radioAudio.addEventListener("timeupdate", function () { if (radioOn) saveRadioState(); });
+  window.addEventListener("pagehide", saveRadioState);
+  window.addEventListener("beforeunload", saveRadioState);
   document.addEventListener("click", function (e) { if (open && !nav.contains(e.target)) setOpen(false); });
   document.addEventListener("keydown", function (e) {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -346,4 +405,5 @@
   }
   if (document.body) mount();
   else document.addEventListener("DOMContentLoaded", mount);
+  restoreRadioState();
 })();

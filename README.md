@@ -38,6 +38,10 @@ fastener mark so the two read as related-but-distinct.
   are a form-driven **template generator** (compose with live preview, save to
   the browser, or export a standalone HTML file); `run.html?id=<slug>` runs a
   browser-saved custom checklist; `index.html` is the section hub.
+- **`edutaintment/`** — a tabbed technical-game arcade with separate
+  **GD&T / GPS** and **FIXTURES AND WELDAMENTS** departments. It embeds the
+  three Technically Technical Design itch.io games with direct launch links,
+  plus a random game selector for professionally irresponsible study breaks.
 - **`kb/`** — the **Knowledge Base**: reference pages for the symbols, marks and conventions
   that show up on technical drawings. `kb.css` is the shared article skin (page head, in-page
   TOC chips, callouts, diagram figures, glyph-card grids, reference tables, worked-example

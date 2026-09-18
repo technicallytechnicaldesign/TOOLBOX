@@ -44,7 +44,6 @@
     { key: "calc",   label: "Calculators", href: u("calculators/index.html"), icon: I.calc },
     { key: "section", label: "Section Lab", href: u("section-lab/index.html"), icon: I.section },
     { key: "check",  label: "Checklists",  href: u("checklists/index.html"),   icon: I.check },
-    { key: "kb",     label: "Knowledge Base", href: u("kb/index.html"),        icon: I.kb },
     { key: "goblin", label: "Hype Goblin", href: u("goblin/index.html"),       icon: I.goblin },
     { key: "renkon", label: "RENKON",      href: "https://technicallytechnicaldesign.github.io/RENKON/", icon: I.renkon, external: true },
     { key: "github", label: "GitHub",      href: "https://github.com/technicallytechnicaldesign/TOOLBOX", icon: I.github, external: true }

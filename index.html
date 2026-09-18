@@ -226,8 +226,8 @@
         <span class="chip">Not a tool</span>
       </a>
 
-      <!-- 5: Knowledge Base — LIVE -->
-      <a class="tile live" href="kb/index.html" aria-label="Open the Knowledge Base">
+      <!-- 5: Knowledge Base, intentionally offline while content is reviewed -->
+      <div class="tile placeholder" aria-label="Knowledge Base under review">
         <span class="icon" aria-hidden="true">
           <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 11c4-3 9.5-3 14 0v22c-4.5-3-10-3-14 0z"/>
@@ -235,10 +235,10 @@
           </svg>
         </span>
         <h2>Knowledge Base</h2>
-        <p>Reference pages for the symbols, marks and conventions on technical drawings &mdash; starting with reading an AWS A2.4 welding symbol.</p>
+        <p>Offline while the technical drawings and explanations are rebuilt and checked.</p>
         <span class="spacer"></span>
-        <span class="chip">Live</span>
-      </a>
+        <span class="chip">Under review</span>
+      </div>
 
       <!-- 6: empty placeholder slot -->
       <div class="tile placeholder">
@@ -311,6 +311,6 @@
     requestAnimationFrame(function () { requestAnimationFrame(begin); });
   })();
   </script>
-  <script src="assets/menu.js?v=20260917-popfix"></script>
+<script src="assets/menu.js?v=20260918-kboff"></script>
 </body>
 </html>

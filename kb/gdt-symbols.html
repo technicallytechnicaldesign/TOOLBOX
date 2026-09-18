@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="How to read an ASME Y14.5 GD&amp;T feature control frame: the 14 geometric characteristic symbols, datums and precedence, MMC/LMC/RFS and other modifiers, with worked examples. A TOOLBOX knowledge-base page." />
+<meta name="description" content="How to read an ASME Y14.5 GD&amp;T feature control frame: the 12 current geometric characteristic symbols, datums, material boundaries and modifiers, with worked examples and playable exercises." />
 <title>GD&amp;T Symbols — TOOLBOX Knowledge Base</title>
 <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +22,7 @@
 <script src="../assets/theme.js"></script>
 <script src="../assets/reveal.js"></script>
 </head>
-<body>
+<body data-kb-page="gdt">
 
 <!-- =================================================================
      Reusable glyph library. Each geometric characteristic symbol is
@@ -108,20 +108,30 @@
   <div class="shell">
     <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> Knowledge Base</a>
 
+    <div class="kb-modebar" aria-label="Knowledge Base learning mode">
+      <span data-fun="Goblin study mode: datum gremlin deployed" data-boring="Reference mode: factual presentation">Goblin study mode: datum gremlin deployed</span>
+      <div class="kb-modebar-actions">
+        <span data-kb-progress>0 field checks survived</span>
+        <button class="kb-progress-reset" type="button" data-kb-reset hidden>Reset</button>
+        <button class="kb-mode-toggle" type="button" data-kb-toggle aria-pressed="false">Make it boring</button>
+      </div>
+    </div>
+
     <div class="page-head">
       <span class="kicker">Reading a drawing</span>
       <h1>GD&amp;T Symbols</h1>
-      <p>How an ASME Y14.5 feature control frame is built, the fourteen geometric
-         characteristic symbols and what each actually constrains, datums and the order
-         they establish a reference frame, and the modifiers &mdash; MMC, LMC, RFS,
-         projected tolerance zone and the rest &mdash; that change what a tolerance means.
-         Worked examples at the bottom decode full frames start to finish.</p>
+      <p data-fun="Twelve current geometric controls enter a rectangular frame. Three datum letters leave with six degrees of freedom. Here is how ASME Y14.5 builds the frame, what the symbols constrain and which modifiers make the tolerance zone do suspiciously useful things."
+         data-boring="How an ASME Y14.5 feature control frame is built, what the 12 current geometric characteristic symbols constrain, how datum precedence establishes a reference frame, and how tolerance and datum-boundary modifiers change interpretation.">Twelve current geometric controls enter a rectangular frame. Three datum letters leave with six degrees of freedom. Here is how ASME Y14.5 builds the frame, what the symbols constrain and which modifiers make the tolerance zone do suspiciously useful things.</p>
     </div>
+
+    <aside class="goblin-guide goblin-only">
+      <span class="goblin-face" aria-hidden="true"></span>
+      <p><strong>Frame goblin says</strong>A feature control frame is a tiny legal contract for geometry. Read left to right. Do not freestyle the compartment order. The rectangle remembers.</p>
+    </aside>
 
     <div class="callout">
       <span class="callout-title">Scope &amp; standard</span>
-      This page follows <strong>ASME Y14.5</strong> &mdash; the U.S. dimensioning and
-      tolerancing standard &mdash; for structure and terminology. <strong>ISO 1101</strong>
+      This page follows <strong>ASME Y14.5-2018 (R2024)</strong> for structure and terminology. <strong>ISO 1101:2017</strong>
       covers the same ground internationally and largely agrees on the symbols, though a few
       rules around default interpretation and datum modifiers differ. The marks below are
       simplified teaching pictograms, not typographically exact reproductions of the
@@ -131,11 +141,17 @@
       for the rest of that list).
     </div>
 
+    <div class="source-strip">
+      <b>Reviewed 2026-09-18</b>
+      <p>Current-edition check: <a href="https://www.asme.org/codes-standards/find-codes-standards/dimensioning-and-tolerancing" target="_blank" rel="noopener">ASME Y14.5-2018 (R2024)</a> and <a href="https://www.iso.org/standard/66777.html" target="_blank" rel="noopener">ISO 1101:2017</a>. This page teaches recognition and reading. The standards remain the authority for production and contractual work.</p>
+    </div>
+
     <nav class="kb-toc" aria-label="On this page">
       <span class="kb-toc-label">On this page</span>
       <a href="#anatomy">Anatomy</a>
       <a href="#characteristics">Characteristic Symbols</a>
       <a href="#datums">Datums</a>
+      <a href="#field-exercises">Field Exercises</a>
       <a href="#modifiers">Modifiers</a>
       <a href="#examples">Worked Examples</a>
       <a href="#quick-reference">Quick Reference</a>
@@ -155,7 +171,7 @@
            zone is measured from, in the order that matters most first.</p>
 
         <figure class="diagram">
-          <svg viewBox="0 0 640 360" role="img" aria-label="A labelled feature control frame reading position, diameter point zero one zero at maximum material condition, datum A, datum B at maximum material condition, datum C, leadered to a hole in a plate.">
+          <svg viewBox="0 0 640 360" role="img" aria-label="A labelled feature control frame reading position, diameter point zero one zero at maximum material condition, datum A, datum feature B referenced at maximum material boundary, datum C, leadered to a hole in a plate.">
             <!-- part with a toleranced hole -->
             <rect x="40" y="230" width="220" height="110" fill="none" stroke="var(--text)" stroke-width="2.5"/>
             <circle cx="150" cy="270" r="26" fill="none" stroke="var(--text)" stroke-width="2.5"/>
@@ -189,7 +205,7 @@
               <circle cx="424" cy="118" r="15" fill="var(--c-accent)"/><text x="424" y="123" fill="var(--bg)">7</text>
             </g>
           </svg>
-          <figcaption>Fig. 1 &mdash; Position of a hole, &#x2300;0.010 at MMC, located from primary datum A, secondary datum B at MMC, and tertiary datum C.</figcaption>
+          <figcaption>Fig. 1 &mdash; Position of a hole, &#x2300;0.010 at MMC, located from primary datum A, secondary datum feature B referenced at MMB, and tertiary datum C.</figcaption>
         </figure>
         <ol class="diagram-legend">
           <li><b>Characteristic symbol</b> &mdash; which geometric property is controlled. Position, here.</li>
@@ -209,7 +225,7 @@
       <!-- ============================================================ CHARACTERISTICS -->
       <section id="characteristics">
         <h2>The Geometric Characteristic Symbols</h2>
-        <p class="lede">Fourteen symbols, five families. What each one bounds is the whole
+        <p class="lede">Twelve current symbols, five families. What each one bounds is the whole
            story &mdash; everything else in the frame just says how big and relative to
            what.</p>
 
@@ -290,19 +306,12 @@
                dimensions; the actual feature has to fall within a zone &mdash; usually
                cylindrical &mdash; centred on it. The most common location tolerance by far.</p>
           </div>
-          <div class="glyph-card">
-            <span class="mark"><svg viewBox="0 0 44 44"><use href="#gdt-concentricity"/></svg></span>
-            <h3>Concentricity</h3>
-            <p>Every median point of a feature has to fall within a zone centred on a datum
-               axis. Rarely called out since it's expensive to inspect &mdash; position or
-               runout usually does the job instead.</p>
-          </div>
         </div>
-        <p class="lede">A fourteenth form symbol, <strong>symmetry</strong>, controls a
-           feature's median points relative to a datum's centre plane. It isn't diagrammed
-           here &mdash; it's uncommon since the 1994/2009 revisions folded most of its use
-           cases into position with a zero tolerance at MMC, and the exact figure is worth
-           checking against the standard rather than guessing from a description.</p>
+        <div class="callout legacy-note">
+          <span class="callout-title">Legacy drawing alert</span>
+          <strong>Concentricity and symmetry are not characteristic symbols in ASME Y14.5-2018.</strong>
+          You can still meet them on drawings made to earlier editions. Treat the drawing's named edition as part of the requirement, and do not silently translate a legacy callout into position, profile or runout without engineering review.
+        </div>
 
         <h3>Runout &mdash; always relative to a datum axis</h3>
         <div class="glyph-grid">
@@ -322,6 +331,17 @@
         </div>
         <p class="lede">Runout tolerances never take a material condition modifier &mdash;
            size and form are inherently mixed into the check, so MMC/LMC don't apply.</p>
+
+        <div class="kb-challenge" data-challenge-id="gdt-form" data-correct="flatness" data-success="Correct. Flatness answers only to the surface itself. No datum chaperone required." data-retry="Not this one. Look for the control that judges a surface without locating or orienting it.">
+          <span class="kb-challenge-tag" data-fun="Goblin inspection ambush" data-boring="Knowledge check">Goblin inspection ambush</span>
+          <h3>Which control can be specified without a datum reference?</h3>
+          <div class="kb-answers">
+            <button class="kb-answer" type="button" data-answer="position">Position</button>
+            <button class="kb-answer" type="button" data-answer="flatness">Flatness</button>
+            <button class="kb-answer" type="button" data-answer="parallelism">Parallelism</button>
+          </div>
+          <p class="kb-challenge-feedback" aria-live="polite"></p>
+        </div>
       </section>
 
       <!-- ============================================================ DATUMS -->
@@ -372,13 +392,45 @@
             </tbody>
           </table>
         </div>
-        <p class="lede">A datum reference can carry its own MMC/LMC modifier, independent of
-           the tolerance's modifier &mdash; a movable datum whose effective size shifts with
+        <p class="lede">A datum feature reference can use a maximum or least material boundary
+           modifier, MMB or LMB, independently of the tolerance's MMC/LMC modifier. This permits a movable datum simulator whose effective boundary relates to
            the part, most often used for a datum that's itself a hole or a pin. A
            <strong>datum target</strong> &mdash; a specific point, line or small area used in
            place of an entire feature, common on castings and other unfinished surfaces
            &mdash; has its own symbol family and is worth a direct look at the standard rather
            than guessing at the figure here.</p>
+      </section>
+
+      <section id="field-exercises" class="game-shelf">
+        <h2 data-fun="Field Exercises: prove the rectangle fears you" data-boring="Interactive Exercises">Field Exercises: prove the rectangle fears you</h2>
+        <p class="lede" data-fun="Two ways to test recognition without pretending another paragraph will make the symbols stick. The games load only when invited."
+           data-boring="Use these embedded games to practise recognition of GD&amp;T symbols and terminology. Each game loads on request.">Two ways to test recognition without pretending another paragraph will make the symbols stick. The games load only when invited.</p>
+
+        <div class="kb-game" data-game-kind="widget" data-game-src="https://itch.io/embed/4745676?dark=true" data-game-title="GD&amp;T Symbol Quiz">
+          <div class="kb-game-copy">
+            <h3>GD&amp;T Symbol Quiz</h3>
+            <p data-fun="Test your total runout from MMC. Add the timer only if your current stress level seems structurally insufficient."
+               data-boring="A timed or untimed quiz for practising GD&amp;T symbol recognition.">Test your total runout from MMC. Add the timer only if your current stress level seems structurally insufficient.</p>
+            <div class="kb-game-actions">
+              <button class="kb-game-launch" type="button">Load game card</button>
+              <a class="kb-game-link" href="https://technicallytechdesign.itch.io/gdt-symbol-quiz" target="_blank" rel="noopener">Open on itch.io</a>
+            </div>
+          </div>
+          <div class="kb-game-stage" aria-live="polite"></div>
+        </div>
+
+        <div class="kb-game" data-game-kind="widget" data-game-src="https://itch.io/embed/4740164?dark=true" data-game-title="Mystic Woo-Woo, Ancient Text or GD&amp;T">
+          <div class="kb-game-copy">
+            <h3>Mystic Woo-Woo, Ancient Text or GD&amp;T</h3>
+            <p data-fun="Determine whether the incantation establishes a datum reference frame or merely opens a portal. Measurement uncertainty may be metaphysical."
+               data-boring="Classify phrases as GD&amp;T terminology or unrelated mystical language.">Determine whether the incantation establishes a datum reference frame or merely opens a portal. Measurement uncertainty may be metaphysical.</p>
+            <div class="kb-game-actions">
+              <button class="kb-game-launch" type="button">Load game card</button>
+              <a class="kb-game-link" href="https://technicallytechdesign.itch.io/mysticwoowooorgdnt" target="_blank" rel="noopener">Open on itch.io</a>
+            </div>
+          </div>
+          <div class="kb-game-stage" aria-live="polite"></div>
+        </div>
       </section>
 
       <!-- ============================================================ MODIFIERS -->
@@ -425,7 +477,7 @@
 
         <div class="example">
           <span class="ex-mark">
-            <svg viewBox="0 0 260 60" role="img" aria-label="Position, diameter point zero one zero at MMC, datum A, datum B at MMC, datum C">
+            <svg viewBox="0 0 260 60" role="img" aria-label="Position, diameter point zero one zero at MMC, datum A, datum feature B referenced at MMB, datum C">
               <g font-family="var(--mono)" font-size="14" fill="var(--text)">
                 <rect x="6" y="6" width="32" height="32" fill="none" stroke="var(--text)" stroke-width="2"/>
                 <use href="#gdt-position" x="10" y="10" width="24" height="24" color="var(--c-accent)"/>
@@ -448,7 +500,7 @@
               <li><b>Characteristic:</b> position &mdash; a hole's location.</li>
               <li><b>Zone:</b> &#x2300;0.010, cylindrical.</li>
               <li><b>Modifier:</b> MMC on the tolerance &mdash; bonus tolerance grows as the hole gets bigger.</li>
-              <li><b>Datums:</b> A primary, B secondary at MMC, C tertiary.</li>
+              <li><b>Datums:</b> A primary, datum feature B secondary at MMB, C tertiary.</li>
             </ol>
           </div>
         </div>
@@ -565,8 +617,6 @@
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-perpendicularity"/></svg></td><td>Perpendicularity</td><td>Orientation</td><td>Yes</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-parallelism"/></svg></td><td>Parallelism</td><td>Orientation</td><td>Yes</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-position"/></svg></td><td>Position</td><td>Location</td><td>Usually</td></tr>
-              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-concentricity"/></svg></td><td>Concentricity</td><td>Location</td><td>Yes</td></tr>
-              <tr><td class="mark-cell">&mdash;</td><td>Symmetry</td><td>Location</td><td>Yes</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-runout-circular"/></svg></td><td>Circular Runout</td><td>Runout</td><td>Yes</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#gdt-runout-total"/></svg></td><td>Total Runout</td><td>Runout</td><td>Yes</td></tr>
             </tbody>
@@ -581,6 +631,7 @@
 <footer>
   TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
 </footer>
+<script src="kb.js?v=20260918-goblin"></script>
 <script src="../assets/menu.js?v=20260917-popfix"></script>
 </body>
 </html>

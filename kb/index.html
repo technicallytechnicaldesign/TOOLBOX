@@ -14,7 +14,7 @@
 <script src="../assets/theme.js"></script>
 <script src="../assets/reveal.js"></script>
 </head>
-<body>
+<body data-kb-page="hub">
 
 <header id="app-header">
   <a class="brand" href="../index.html" aria-label="TOOLBOX home">
@@ -33,13 +33,25 @@
   <div class="shell">
     <a class="up-link" href="../index.html"><span aria-hidden="true">&larr;</span> Back to Toolbox</a>
 
+    <div class="kb-modebar" aria-label="Knowledge Base learning mode">
+      <span data-fun="Goblin study mode: facts with teeth" data-boring="Reference mode: factual presentation">Goblin study mode: facts with teeth</span>
+      <div class="kb-modebar-actions">
+        <span data-kb-progress>0 field checks survived</span>
+        <button class="kb-progress-reset" type="button" data-kb-reset hidden>Reset</button>
+        <button class="kb-mode-toggle" type="button" data-kb-toggle aria-pressed="false">Make it boring</button>
+      </div>
+    </div>
+
     <div class="page-head">
       <h1>Knowledge Base</h1>
-      <p>Reference pages for the symbols, marks and conventions that show up on technical
-         drawings &mdash; the stuff you either know cold or have to look up every single time.
-         Written to read on the shop floor, not just in a classroom: plain language first,
-         the governing standard named so you can go to the primary source when it matters.</p>
+      <p data-fun="The technical-drawing bits that ambush you at 16:57 on release day. Learn them by poking, guessing and occasionally being judged by a small green professional. Every article names its governing standard, because the goblin is not legally binding."
+         data-boring="Reference pages for the symbols, marks and conventions used on technical drawings. Each article uses plain language, identifies the governing standard and links to primary sources for authoritative detail.">The technical-drawing bits that ambush you at 16:57 on release day. Learn them by poking, guessing and occasionally being judged by a small green professional. Every article names its governing standard, because the goblin is not legally binding.</p>
     </div>
+
+    <aside class="goblin-guide goblin-only hub-intro">
+      <span class="goblin-face" aria-hidden="true"></span>
+      <p><strong>Orientation hiss</strong>Pick a subject. Read until confidence appears. Press buttons until it becomes evidence. If a drawing and this page disagree, the drawing wins until somebody admits why.</p>
+    </aside>
 
     <div class="grid">
 
@@ -56,8 +68,8 @@
           </svg>
         </span>
         <h2>Welding Symbols</h2>
-        <p>Reading the AWS A2.4 welding symbol: reference line, arrow &amp; other side, tail,
-           the basic weld glyphs, sizing, and supplementary marks &mdash; with worked examples.</p>
+        <p data-fun="Decode the tiny fence-post language that tells molten metal where to live. AWS A2.4 structure, sides, sizes, contours and worked examples."
+           data-boring="AWS A2.4 welding-symbol structure: reference line, arrow and other side, tail, basic weld glyphs, dimensions, supplementary marks and worked examples.">Decode the tiny fence-post language that tells molten metal where to live. AWS A2.4 structure, sides, sizes, contours and worked examples.</p>
         <span class="spacer"></span>
         <span class="chip">Live</span>
       </a>
@@ -74,8 +86,8 @@
           </svg>
         </span>
         <h2>GD&amp;T Symbols</h2>
-        <p>Reading an ASME Y14.5 feature control frame: the 14 characteristic symbols, datums
-           &amp; precedence, MMC/LMC/RFS and other modifiers &mdash; with worked examples.</p>
+        <p data-fun="Twelve current geometric controls, three datum letters and one rectangular box capable of ending a meeting. ASME Y14.5, decoded and exercised."
+           data-boring="ASME Y14.5 feature control frames: 12 current characteristic symbols, datum precedence, material boundary modifiers and worked examples.">Twelve current geometric controls, three datum letters and one rectangular box capable of ending a meeting. ASME Y14.5, decoded and exercised.</p>
         <span class="spacer"></span>
         <span class="chip">Live</span>
       </a>
@@ -90,34 +102,51 @@
           </svg>
         </span>
         <h2>ISO Fits &amp; Tolerances</h2>
-        <p>Reading a fit like &#x2300;25 H7/g6: hole-basis vs shaft-basis, IT tolerance
-           grades, deviation letters, clearance/transition/interference, and the preferred
-           fits worth memorising.</p>
+        <p data-fun="Find out whether the shaft slides, sticks or becomes a permanent emotional commitment. ISO 286 notation, zones, grades and common pairings."
+           data-boring="ISO 286 fit notation: hole-basis and shaft-basis systems, IT grades, deviations, clearance, transition and interference, plus common fit pairings.">Find out whether the shaft slides, sticks or becomes a permanent emotional commitment. ISO 286 notation, zones, grades and common pairings.</p>
         <span class="spacer"></span>
         <span class="chip">Live</span>
       </a>
 
-      <!-- 4: empty placeholder slot -->
-      <div class="tile placeholder">
+      <!-- 4: playable fastener field exercise -->
+      <a class="tile live" href="#bolt-game" aria-label="Open Bolt-e-mon field exercise">
         <span class="icon" aria-hidden="true">
           <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <rect x="6" y="6" width="32" height="32" rx="2" stroke-dasharray="4 5"/>
             <line x1="22" y1="15" x2="22" y2="29"/><line x1="15" y1="22" x2="29" y2="22"/>
           </svg>
         </span>
-        <h2>Slot 04</h2>
-        <p>Reserved for a future entry.</p>
+        <h2>Fastener Field Exercise</h2>
+        <p data-fun="A bolt identification ambush. Silhouettes first, dignity second."
+           data-boring="An embedded fastener-identification game from Technically Technical Design.">A bolt identification ambush. Silhouettes first, dignity second.</p>
         <span class="spacer"></span>
-        <span class="chip">Empty</span>
-      </div>
+        <span class="chip">Playable</span>
+      </a>
 
     </div>
+
+    <section class="game-shelf hub-game" id="bolt-game">
+      <h2 data-fun="Field exercise: identify the suspicious fastener" data-boring="Fastener identification exercise">Field exercise: identify the suspicious fastener</h2>
+      <div class="kb-game" data-game-kind="widget" data-game-src="https://itch.io/embed/4743937?dark=true" data-game-title="Who's That Bolt-e-mon?">
+        <div class="kb-game-copy">
+          <h3>Who&rsquo;s That Bolt-e-mon?</h3>
+          <p data-fun="A silhouette appears. You name the fastener. It is exactly like wildlife identification, except the wildlife has a thread pitch and the field guide is judging you."
+             data-boring="Identify common bolt and fastener forms from their silhouettes in this browser game.">A silhouette appears. You name the fastener. It is exactly like wildlife identification, except the wildlife has a thread pitch and the field guide is judging you.</p>
+          <div class="kb-game-actions">
+            <button class="kb-game-launch" type="button">Load game card</button>
+            <a class="kb-game-link" href="https://technicallytechdesign.itch.io/whos-that-bolt-e-mon" target="_blank" rel="noopener">Open on itch.io</a>
+          </div>
+        </div>
+        <div class="kb-game-stage" aria-live="polite"></div>
+      </div>
+    </section>
   </div>
 </main>
 
 <footer>
   TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
 </footer>
+<script src="kb.js?v=20260918-goblin"></script>
 <script src="../assets/menu.js?v=20260917-popfix"></script>
 </body>
 </html>

@@ -225,3 +225,106 @@ table.kb-table code { white-space: nowrap; }
 .tile.live:hover::after { color: var(--c-accent); transform: translateX(3px); }
 .tile.placeholder h2 { color: var(--muted); }
 .tile.placeholder .icon { opacity: 0.6; }
+
+/* ---- learning mode controls ---- */
+.kb-modebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 10px 12px; margin: 0 0 22px; border: 1px solid var(--line);
+  background: var(--panel-bg); font: 700 9.5px var(--mono); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.kb-modebar-actions { display: flex; align-items: center; gap: 10px; }
+.kb-mode-toggle, .kb-game-launch, .kb-answer {
+  appearance: none; border: 1px solid var(--c-accent); border-radius: 0;
+  background: transparent; color: var(--c-accent); cursor: pointer;
+  font: 700 10px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  padding: 8px 11px; box-shadow: 3px 3px 0 var(--c-accent);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.kb-progress-reset { appearance: none; border: 0; background: none; padding: 0; color: var(--muted); cursor: pointer; font: 700 9px var(--mono); text-decoration: underline; text-underline-offset: 3px; text-transform: uppercase; }
+.kb-progress-reset:hover { color: var(--text); }
+.kb-mode-toggle:hover, .kb-game-launch:hover, .kb-answer:hover { background: color-mix(in srgb, var(--c-accent) 12%, transparent); }
+.kb-mode-toggle:active, .kb-game-launch:active, .kb-answer:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--c-accent); }
+.boring-only { display: none !important; }
+:root[data-kb-mode="boring"] .goblin-only { display: none !important; }
+:root[data-kb-mode="boring"] .boring-only { display: revert !important; }
+:root[data-kb-mode="boring"] .kb-modebar { border-left: 3px solid var(--muted); }
+
+/* ---- goblin guide ---- */
+.goblin-guide {
+  position: relative; display: grid; grid-template-columns: 54px 1fr; gap: 14px;
+  align-items: center; max-width: 74ch; margin: 0 0 26px; padding: 14px 16px;
+  border: 1px solid var(--line); border-left: 3px solid #b8f04a;
+  background: linear-gradient(115deg, color-mix(in srgb, #b8f04a 9%, var(--panel-bg)), var(--panel-bg) 58%);
+}
+.goblin-face {
+  width: 48px; height: 42px; border: 2px solid #b8f04a; border-radius: 45% 45% 38% 38%;
+  position: relative; transform: rotate(-3deg); color: #b8f04a;
+}
+.goblin-face::before, .goblin-face::after {
+  content: ''; position: absolute; top: 13px; width: 7px; height: 9px;
+  background: currentColor; border-radius: 50%; animation: kb-blink 4.8s steps(1) infinite;
+}
+.goblin-face::before { left: 10px; } .goblin-face::after { right: 10px; }
+.goblin-guide strong { display: block; margin-bottom: 4px; color: #b8f04a; font: 700 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.goblin-guide p { margin: 0 !important; color: var(--text) !important; font-size: 12.5px !important; }
+@keyframes kb-blink { 0%, 46%, 49%, 100% { transform: scaleY(1); } 47%, 48% { transform: scaleY(.08); } }
+
+/* ---- source review strip ---- */
+.source-strip {
+  display: grid; grid-template-columns: minmax(130px,.6fr) 2fr; gap: 12px 20px;
+  max-width: 74ch; margin: 0 0 28px; padding: 14px 16px;
+  border: 1px solid var(--line); background: var(--panel-bg-raised);
+}
+.source-strip b { font: 700 9.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--c-accent); }
+.source-strip p { margin: 0 !important; font-size: 11.5px !important; color: var(--muted) !important; line-height: 1.7 !important; }
+.source-strip a, .kb-source-link { color: var(--c-accent); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- knowledge checks ---- */
+.kb-challenge {
+  max-width: 74ch; margin: 26px 0 30px; padding: 18px;
+  border: 1px solid var(--c-accent); background: var(--panel-bg);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--c-accent) 28%, transparent);
+}
+.kb-challenge-tag { display: block; margin-bottom: 8px; font: 700 9px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--c-accent); }
+.kb-challenge h3 { margin: 0 0 14px !important; font-size: 14px !important; text-transform: none !important; }
+.kb-answers { display: flex; flex-wrap: wrap; gap: 10px; }
+.kb-answer.is-correct { color: #b8f04a; border-color: #b8f04a; box-shadow: 3px 3px 0 #b8f04a; }
+.kb-answer.is-wrong { color: #ff7085; border-color: #ff7085; box-shadow: 3px 3px 0 #ff7085; }
+.kb-challenge-feedback { min-height: 1.8em; margin: 14px 0 0 !important; font: 700 11px/1.7 var(--mono) !important; color: var(--muted) !important; }
+.kb-challenge-feedback[data-state="correct"] { color: #b8f04a !important; }
+.kb-challenge-feedback[data-state="wrong"] { color: #ff7085 !important; }
+
+/* ---- playable field exercises ---- */
+.game-shelf { margin: 34px 0 0; }
+.game-shelf > h2 { font: 700 15px var(--font-display); letter-spacing: .05em; text-transform: uppercase; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.kb-game {
+  max-width: 900px; margin: 0 0 28px; border: 1px solid var(--line);
+  background: var(--panel-bg); overflow: hidden;
+}
+.kb-game-copy { padding: 18px 20px; }
+.kb-game-copy h3 { margin: 0 0 8px !important; font: 700 14px var(--font-display) !important; letter-spacing: .04em; text-transform: uppercase; }
+.kb-game-copy p { margin: 0 0 14px !important; color: var(--muted) !important; font-size: 12px !important; }
+.kb-game-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.kb-game-link { color: var(--c-accent); font: 700 10px var(--mono); text-decoration: underline; text-underline-offset: 3px; }
+.kb-game-stage { background: #0b1015; }
+.kb-game-stage iframe { display: block; width: 100%; height: min(78vh, 760px); min-height: 560px; border: 0; }
+.kb-game[data-game-kind="widget"] .kb-game-stage iframe { height: 167px; min-height: 167px; }
+.kb-game.is-running .kb-game-copy { border-bottom: 1px solid var(--line); }
+
+.legacy-note { border-left-color: #f4bf4f; }
+.hub-intro { margin-bottom: 22px; }
+.hub-game { margin-top: 24px; }
+
+@media (max-width: 600px) {
+  .shell { width: min(100% - 28px, 900px); }
+  .kb-modebar { align-items: flex-start; flex-direction: column; }
+  .kb-modebar-actions { width: 100%; justify-content: space-between; }
+  .source-strip { grid-template-columns: 1fr; gap: 4px; }
+  .goblin-guide { grid-template-columns: 42px 1fr; padding: 12px; }
+  .goblin-face { width: 38px; height: 34px; }
+  .goblin-face::before, .goblin-face::after { top: 10px; }
+  .kb-game-stage iframe { min-height: 500px; height: 72vh; }
+}
+
+@media (prefers-reduced-motion: reduce) { .goblin-face::before, .goblin-face::after { animation: none; } }

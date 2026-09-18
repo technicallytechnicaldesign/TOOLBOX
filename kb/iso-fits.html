@@ -20,7 +20,7 @@
 <script src="../assets/theme.js"></script>
 <script src="../assets/reveal.js"></script>
 </head>
-<body>
+<body data-kb-page="fits">
 
 <header id="app-header">
   <a class="brand" href="../index.html" aria-label="TOOLBOX home">
@@ -39,27 +39,43 @@
   <div class="shell">
     <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> Knowledge Base</a>
 
+    <div class="kb-modebar" aria-label="Knowledge Base learning mode">
+      <span data-fun="Goblin study mode: clearance not guaranteed" data-boring="Reference mode: factual presentation">Goblin study mode: clearance not guaranteed</span>
+      <div class="kb-modebar-actions">
+        <span data-kb-progress>0 field checks survived</span>
+        <button class="kb-progress-reset" type="button" data-kb-reset hidden>Reset</button>
+        <button class="kb-mode-toggle" type="button" data-kb-toggle aria-pressed="false">Make it boring</button>
+      </div>
+    </div>
+
     <div class="page-head">
       <span class="kicker">Reading a drawing</span>
       <h1>ISO Fits &amp; Tolerances</h1>
-      <p>How to read a fit designation like <code>&#x2300;25 H7/g6</code>: hole-basis vs
-         shaft-basis, what a tolerance grade (IT) actually sets, what the fundamental
-         deviation letter does, and how the two combine into clearance, transition or
-         interference. The preferred-fits table at the middle of this page is the one worth
-         bookmarking.</p>
+      <p data-fun="How to read Ø25 H7/g6 and predict whether two parts will slide together, need persuasion, or fuse into a single inherited problem. Decode basis systems, IT grades, deviation letters and the three fit outcomes."
+         data-boring="How to read a fit designation such as Ø25 H7/g6: basis systems, IT tolerance grades, fundamental deviations, clearance, transition and interference.">How to read Ø25 H7/g6 and predict whether two parts will slide together, need persuasion, or fuse into a single inherited problem. Decode basis systems, IT grades, deviation letters and the three fit outcomes.</p>
     </div>
+
+    <aside class="goblin-guide goblin-only">
+      <span class="goblin-face" aria-hidden="true"></span>
+      <p><strong>Fit goblin says</strong>The capital letter is the hole. The lowercase letter is the shaft. Mix them up and the assembly becomes a very expensive percussion instrument.</p>
+    </aside>
 
     <div class="callout">
       <span class="callout-title">Scope &amp; standard</span>
-      This page follows <strong>ISO 286</strong> (Parts 1 &amp; 2) &mdash; the international
+      This page follows <strong>ISO 286-1:2010</strong> and <strong>ISO 286-2:2010</strong>, the international
       system of limits and fits. The U.S. equivalent, <strong>ANSI/ASME B4.1</strong>, uses a
       related but different notation (lettered classes like RC, LC, LT, LN, FN rather than
       ISO's deviation-letter-plus-grade system) &mdash; see the comparison note under
-      <a href="#preferred-fits" style="color:var(--c-accent)">Preferred Fits</a> if that's what
+      <a href="#preferred-fits" style="color:var(--c-accent)">Common Fit Pairings</a> if that's what
       your drawing actually calls out. Numeric values on this page are worked from the ISO 286
       tolerance-grade formula for illustration, not copied from the published tables &mdash;
-      for a real design, pull exact figures from ISO 286-1 or a fits calculator rather than
+      for a real design, pull exact figures from ISO 286-2 or a verified fits calculator rather than
       this page.
+    </div>
+
+    <div class="source-strip">
+      <b>Reviewed 2026-09-18</b>
+      <p><a href="https://www.iso.org/standard/45975.html" target="_blank" rel="noopener">ISO 286-1:2010</a> remains current after its 2026 review. <a href="https://www.iso.org/obp/ui/?_escaped_fragment_=iso%3Astd%3A54915%3Aen" target="_blank" rel="noopener">ISO 286-2:2010</a> contains the tabulated tolerance classes and limit deviations. Worked values here illustrate the system and do not replace the published tables.</p>
     </div>
 
     <nav class="kb-toc" aria-label="On this page">
@@ -68,7 +84,7 @@
       <a href="#grades">Tolerance Grades</a>
       <a href="#deviations">Deviation Letters</a>
       <a href="#fit-types">Fit Types</a>
-      <a href="#preferred-fits">Preferred Fits</a>
+      <a href="#preferred-fits">Common Fit Pairings</a>
       <a href="#examples">Worked Examples</a>
       <a href="#quick-reference">Quick Reference</a>
     </nav>
@@ -276,10 +292,8 @@
 
       <!-- ============================================================ PREFERRED FITS -->
       <section id="preferred-fits">
-        <h2>Preferred Fits</h2>
-        <p class="lede">ISO 286-2 narrows the enormous letter&times;grade combinatorics down to
-           a handful of hole-basis pairings that cover almost everything you'll actually need
-           to specify.</p>
+        <h2>Common Fit Pairings</h2>
+        <p class="lede">These hole-basis combinations are widely used starting points, not a universal ISO-approved shortlist. Select against function, manufacturing capability, temperature, material and your organisation's own preferred-fit practice, then verify exact limits in the governing tables.</p>
 
         <div class="kb-table-wrap">
           <table class="kb-table">
@@ -297,6 +311,17 @@
               <tr><td><code>H7/u6</code></td><td>Force</td><td>Highly stressed parts, or shrink fits where s6's press force would be impractical.</td></tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="kb-challenge" data-challenge-id="fits-h7g6" data-correct="clearance" data-success="Correct. The g6 shaft zone stays below the H7 hole zone, so even the tightest pair has clearance." data-retry="Not quite. H starts at the basic size; g stays below it. Compare the closest possible surfaces.">
+          <span class="kb-challenge-tag" data-fun="Assembly prophecy" data-boring="Knowledge check">Assembly prophecy</span>
+          <h3>What outcome does H7/g6 guarantee?</h3>
+          <div class="kb-answers">
+            <button class="kb-answer" type="button" data-answer="clearance">Clearance</button>
+            <button class="kb-answer" type="button" data-answer="transition">Transition</button>
+            <button class="kb-answer" type="button" data-answer="interference">Interference</button>
+          </div>
+          <p class="kb-challenge-feedback" aria-live="polite"></p>
         </div>
 
         <p class="lede">Roughly equivalent ANSI/B4.1 class families, for a U.S. drawing that
@@ -423,8 +448,8 @@
             </tbody>
           </table>
         </div>
-        <p class="lede">For the ten designations worth memorising outright, see
-           <a href="#preferred-fits" style="color:var(--c-accent)">Preferred Fits</a> above.</p>
+        <p class="lede">For ten common starting points, see
+           <a href="#preferred-fits" style="color:var(--c-accent)">Common Fit Pairings</a> above.</p>
       </section>
 
     </article>
@@ -434,6 +459,7 @@
 <footer>
   TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
 </footer>
+<script src="kb.js?v=20260918-goblin"></script>
 <script src="../assets/menu.js?v=20260917-popfix"></script>
 </body>
 </html>

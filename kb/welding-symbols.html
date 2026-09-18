@@ -14,7 +14,7 @@
 <script src="../assets/theme.js"></script>
 <script src="../assets/reveal.js"></script>
 </head>
-<body>
+<body data-kb-page="welding">
 
 <!-- =================================================================
      Reusable glyph library. Every weld-symbol mark is authored once
@@ -59,11 +59,20 @@
   <symbol id="wsym-spot" viewBox="0 0 44 44">
     <circle cx="22" cy="26" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/>
   </symbol>
+  <symbol id="wsym-seam" viewBox="0 0 44 44">
+    <line x1="12" y1="22" x2="32" y2="22" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="12" y1="30" x2="32" y2="30" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
   <symbol id="wsym-backing" viewBox="0 0 44 44">
     <rect x="12" y="29" width="20" height="5" fill="currentColor" stroke="none"/>
   </symbol>
   <symbol id="wsym-surfacing" viewBox="0 0 44 44">
-    <path d="M12,34 Q22,18 32,34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="12" y1="22" x2="32" y2="22" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="12" y1="28" x2="32" y2="28" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="12" y1="34" x2="32" y2="34" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wsym-meltthrough" viewBox="0 0 44 44">
+    <path d="M12,34 A10,10 0 0 1 32,34 Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
   </symbol>
   <symbol id="wsym-allaround" viewBox="0 0 44 44">
     <circle cx="22" cy="22" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/>
@@ -100,18 +109,30 @@
   <div class="shell">
     <a class="up-link" href="index.html"><span aria-hidden="true">&larr;</span> Knowledge Base</a>
 
+    <div class="kb-modebar" aria-label="Knowledge Base learning mode">
+      <span data-fun="Goblin study mode: hot metal, tiny hieroglyphs" data-boring="Reference mode: factual presentation">Goblin study mode: hot metal, tiny hieroglyphs</span>
+      <div class="kb-modebar-actions">
+        <span data-kb-progress>0 field checks survived</span>
+        <button class="kb-progress-reset" type="button" data-kb-reset hidden>Reset</button>
+        <button class="kb-mode-toggle" type="button" data-kb-toggle aria-pressed="false">Make it boring</button>
+      </div>
+    </div>
+
     <div class="page-head">
       <span class="kicker">Reading a drawing</span>
       <h1>Welding Symbols</h1>
-      <p>How the AWS A2.4 welding symbol is built, how to tell arrow side from other side,
-         what each basic weld glyph means, where size and length attach to it, and the
-         supplementary marks that ride along &mdash; weld-all-around, field weld, contour
-         and finish. Worked examples at the bottom decode full callouts start to finish.</p>
+      <p data-fun="A reference line, one arrow and several tiny marks decide where the hot metal goes. Decode side, weld type, size, length, contour and finish before the shop interprets your intentions through interpretive dance."
+         data-boring="How an AWS A2.4 welding symbol is structured: arrow side and other side, basic weld symbols, dimensions, supplementary symbols, contour, finish and complete worked callouts.">A reference line, one arrow and several tiny marks decide where the hot metal goes. Decode side, weld type, size, length, contour and finish before the shop interprets your intentions through interpretive dance.</p>
     </div>
+
+    <aside class="goblin-guide goblin-only">
+      <span class="goblin-face" aria-hidden="true"></span>
+      <p><strong>Weld goblin says</strong>Below the reference line means arrow side. Above means other side. Put the triangle in the wrong neighbourhood and somebody has to grind your confidence flush.</p>
+    </aside>
 
     <div class="callout">
       <span class="callout-title">Scope &amp; standard</span>
-      This page follows <strong>AWS A2.4</strong> &mdash; the U.S. structural/general
+      This page follows <strong>AWS A2.4:2020</strong>, the U.S. structural/general
       welding-symbol standard &mdash; for structure and terminology, with the occasional
       note on where <strong>ISO 2553</strong> (the international counterpart) differs. The
       marks below are simplified teaching pictograms, not typographically exact
@@ -120,6 +141,11 @@
       put its name and edition on the drawing (see the
       <a href="../checklists/weldment.html" style="color:var(--c-accent)">Weldment Review</a>
       checklist for the rest of that list).
+    </div>
+
+    <div class="source-strip">
+      <b>Reviewed 2026-09-18</b>
+      <p>Current-edition check: <a href="https://pubs.aws.org/p/1999/a242020-standard-symbols-for-welding-brazing-and-nondestructive-examination" target="_blank" rel="noopener">AWS A2.4:2020</a> and <a href="https://www.iso.org/standard/72740.html" target="_blank" rel="noopener">ISO 2553:2019</a>. These diagrams are teaching aids. The governing standard, drawing, code and WPS control production work.</p>
     </div>
 
     <nav class="kb-toc" aria-label="On this page">
@@ -199,6 +225,17 @@
            <a href="#supplementary" style="color:var(--c-accent)">Supplementary Symbols</a> so
            this base diagram stays readable.</p>
       </section>
+
+      <div class="kb-challenge" data-challenge-id="weld-arrow-side" data-correct="below" data-success="Correct. Below the reference line is arrow side in the AWS system." data-retry="Try again. Follow the arrow to the joint, then read the symbol's position relative to the reference line.">
+        <span class="kb-challenge-tag" data-fun="Hot-metal pop quiz" data-boring="Knowledge check">Hot-metal pop quiz</span>
+        <h3>Where is an arrow-side weld symbol placed?</h3>
+        <div class="kb-answers">
+          <button class="kb-answer" type="button" data-answer="above">Above the line</button>
+          <button class="kb-answer" type="button" data-answer="below">Below the line</button>
+          <button class="kb-answer" type="button" data-answer="tail">Inside the tail</button>
+        </div>
+        <p class="kb-challenge-feedback" aria-live="polite"></p>
+      </div>
 
       <!-- ============================================================ PLACEMENT -->
       <section id="placement">
@@ -324,11 +361,9 @@
                welding's symbol; also covers projection welding.</p>
           </div>
           <div class="glyph-card">
-            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></span>
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-seam"/></svg></span>
             <h3>Seam</h3>
-            <p>A continuous line of fused nuggets along overlapped sheet &mdash; same circle
-               glyph as spot; width, length and pitch in the callout say which one you're
-               reading.</p>
+            <p>A continuous resistance weld along overlapped sheet. It uses its own seam symbol; width, length and pitch define the required weld.</p>
           </div>
           <div class="glyph-card">
             <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-backing"/></svg></span>
@@ -399,11 +434,9 @@
                the shop &mdash; useful for sequencing and for costing site labour separately.</p>
           </div>
           <div class="glyph-card">
-            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></span>
+            <span class="mark"><svg viewBox="0 0 44 44"><use href="#wsym-meltthrough"/></svg></span>
             <h3>Melt-Through</h3>
-            <p>Shares its glyph with surfacing &mdash; a shallow dome &mdash; placed on the
-               other side of a groove weld to call for visible, controlled penetration showing
-               through.</p>
+            <p>A filled dome placed on the side opposite a groove weld, calling for visible and controlled root reinforcement.</p>
           </div>
         </div>
         <p class="lede">A consumable insert (a filler ring left in the root of a groove weld) is
@@ -416,8 +449,7 @@
       <section id="finish">
         <h2>Contour &amp; Finish</h2>
         <p class="lede">Contour describes the final profile of the weld face; the finish letter
-           beside it says how that profile gets there. Both sit directly above the weld symbol
-           they apply to.</p>
+           beside it says how that profile gets there. They are placed with the weld symbol they modify.</p>
 
         <div class="glyph-grid">
           <div class="glyph-card">
@@ -451,8 +483,7 @@
             </tbody>
           </table>
         </div>
-        <p class="lede">No letter shown means the finish method is the welder's choice &mdash;
-           but the contour itself is still mandatory once it's on the drawing.</p>
+        <p class="lede">If no finish-method letter is shown, AWS A2.4:2020 permits any method that achieves the specified contour. The contour requirement still applies.</p>
       </section>
 
       <!-- ============================================================ WORKED EXAMPLES -->
@@ -598,12 +629,12 @@
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-flarebevel"/></svg></td><td>Flare-Bevel Groove</td><td>One flat member against one curved member</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-plugslot"/></svg></td><td>Plug / Slot</td><td>Hole in the top member filled with weld metal</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></td><td>Spot / Projection</td><td>Fused nugget through overlapped sheet</td></tr>
-              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-spot"/></svg></td><td>Seam</td><td>Continuous line of fused nuggets &mdash; same glyph as spot</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-seam"/></svg></td><td>Seam</td><td>Continuous resistance weld along overlapped sheet</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-backing"/></svg></td><td>Backing</td><td>Bar or pass supporting the root of a groove weld</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></td><td>Surfacing</td><td>Weld metal built up on a surface</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-allaround"/></svg></td><td>Weld All Around</td><td>Weld runs the full perimeter of the joint</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-fieldweld"/></svg></td><td>Field Weld</td><td>Made at the installation site, not the shop</td></tr>
-              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-surfacing"/></svg></td><td>Melt-Through</td><td>Calls for visible penetration on the far side &mdash; same glyph as surfacing</td></tr>
+              <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-meltthrough"/></svg></td><td>Melt-Through</td><td>Calls for visible root reinforcement on the far side</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-contour-flush"/></svg></td><td>Flush Contour</td><td>Weld face dressed level with the surrounding surface</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-contour-convex"/></svg></td><td>Convex Contour</td><td>Weld face bulges outward</td></tr>
               <tr><td class="mark-cell"><svg viewBox="0 0 44 44"><use href="#wsym-contour-concave"/></svg></td><td>Concave Contour</td><td>Weld face dishes inward</td></tr>
@@ -619,6 +650,7 @@
 <footer>
   TOOLBOX &middot; Knowledge Base &middot; <a href="https://github.com/technicallytechnicaldesign/TOOLBOX">github.com/technicallytechnicaldesign/TOOLBOX</a>
 </footer>
+<script src="kb.js?v=20260918-goblin"></script>
 <script src="../assets/menu.js?v=20260917-popfix"></script>
 </body>
 </html>

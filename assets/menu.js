@@ -62,7 +62,15 @@
     { id: "object-modified-harder", title: "Object Modified", artist: "TOOLBOX", src: u("assets/audio/object-modified-harder.mp3") },
     { id: "select-the-parts", title: "Select The Parts", artist: "TOOLBOX", src: u("assets/audio/select-the-parts.mp3") },
     { id: "the-ancient-config", title: "The Ancient Config", artist: "TOOLBOX", src: u("assets/audio/the-ancient-config.mp3") },
-    { id: "the-cursed-table", title: "The Cursed Table", artist: "TOOLBOX", src: u("assets/audio/the-cursed-table.mp3") }
+    { id: "the-cursed-table", title: "The Cursed Table", artist: "TOOLBOX", src: u("assets/audio/the-cursed-table.mp3") },
+    { id: "constraint-goblin", title: "Constraint Goblin", artist: "TOOLBOX", src: u("assets/audio/constraint-goblin.mp3") },
+    { id: "five-axis-washer", title: "Five-Axis Washer", artist: "TOOLBOX", src: u("assets/audio/five-axis-washer.mp3") },
+    { id: "pull-one-feature", title: "Pull One Feature", artist: "TOOLBOX", src: u("assets/audio/pull-one-feature.mp3") },
+    { id: "rev-final-final-usethisone", title: "REV_FINAL_FINAL_USETHISONE", artist: "TOOLBOX", src: u("assets/audio/rev-final-final-usethisone.mp3") },
+    { id: "service-access-none", title: "Service Access: None", artist: "TOOLBOX", src: u("assets/audio/service-access-none.mp3") },
+    { id: "standard-part-necromancer", title: "Standard Part Necromancer", artist: "TOOLBOX", src: u("assets/audio/standard-part-necromancer.mp3") },
+    { id: "tolerance-stack-funeral", title: "Tolerance Stack Funeral", artist: "TOOLBOX", src: u("assets/audio/tolerance-stack-funeral.mp3") },
+    { id: "who-touched-my-drawing", title: "WHO TOUCHED MY DRAWING", artist: "TOOLBOX", src: u("assets/audio/who-touched-my-drawing.mp3") }
   ];
 
   var norm = function (p) { return p.replace(/index\.html$/, "").replace(/\/$/, ""); };
